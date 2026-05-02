@@ -519,6 +519,79 @@ tbody tr:hover { background: var(--rose-pale); }
   .stats-grid { grid-template-columns: 1fr; }
 }
 
+/* ===================== LOGIN SCREEN ===================== */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--rose) 0%, #7B241C 100%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 40px 36px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.login-logo {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.login-card h2 {
+  font-size: 26px;
+  color: var(--rose);
+  margin-bottom: 4px;
+}
+
+.login-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.login-input-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.login-input-wrap .form-control {
+  padding-right: 44px;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: .2em;
+}
+
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-muted);
+  padding: 0;
+  line-height: 1;
+}
+
+.login-error {
+  color: var(--rose);
+  font-size: 13px;
+  margin-bottom: 12px;
+  min-height: 20px;
+  font-weight: 500;
+}
+
 /* ===================== TAMU SUMMARY ===================== */
 .tamu-summary {
   display: grid;
@@ -564,6 +637,11 @@ tbody tr:hover { background: var(--rose-pale); }
       <small>Calon Pengantin</small>
       <span id="sidebarNames">— & —</span>
     </div>
+    <button
+      onclick="logout()"
+      style="width:100%;margin-top:12px;padding:8px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2);border-radius:8px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">
+      🔒 Keluar / Logout
+    </button>
   </div>
 </aside>
 
@@ -628,7 +706,7 @@ tbody tr:hover { background: var(--rose-pale); }
 
     <!-- ===== PENGATURAN ===== -->
     <div class="page" id="page-pengaturan">
-      <div class="card" style="max-width:480px">
+      <div class="card" style="max-width:480px;margin-bottom:16px">
         <div class="section-header"><div class="section-title">⚙️ Pengaturan Pernikahan</div></div>
         <div class="form-group">
           <label class="form-label">Nama Calon Suami</label>
@@ -647,6 +725,19 @@ tbody tr:hover { background: var(--rose-pale); }
           <input id="cfgAngpao" class="form-control" type="number" placeholder="150000" />
         </div>
         <button class="btn btn-primary" onclick="saveConfig()">💾 Simpan Pengaturan</button>
+      </div>
+
+      <div class="card" style="max-width:480px">
+        <div class="section-header"><div class="section-title">🔒 Ganti Password</div></div>
+        <div class="form-group">
+          <label class="form-label">Password Baru</label>
+          <input id="cfgPassBaru" class="form-control" type="password" placeholder="Minimal 4 karakter" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Konfirmasi Password Baru</label>
+          <input id="cfgPassKonfirm" class="form-control" type="password" placeholder="Ulangi password baru" />
+        </div>
+        <button class="btn btn-outline" onclick="savePassword()">🔑 Simpan Password Baru</button>
       </div>
     </div>
 
@@ -894,6 +985,30 @@ tbody tr:hover { background: var(--rose-pale); }
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">💍</div>
+    <h2>Nikah Budget</h2>
+    <p>Masukkan password untuk membuka aplikasi</p>
+    <div class="login-input-wrap">
+      <input
+        class="form-control"
+        type="password"
+        id="loginPassword"
+        placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') submitLogin()"
+        autofocus
+      />
+      <button class="toggle-pass" onclick="togglePasswordVisibility()" tabindex="-1">👁</button>
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px" onclick="submitLogin()">
+      🔓 Masuk
+    </button>
+  </div>
+</div>
+
 <!-- ===== SETUP SCREEN ===== -->
 <div class="setup-screen" id="setupScreen" style="display:none">
   <div class="setup-card">
@@ -923,6 +1038,7 @@ tbody tr:hover { background: var(--rose-pale); }
 // ============================================================
 let appConfig = {};
 let currentPage = 'dashboard';
+let isLoggedIn = false; // session hanya selama tab terbuka
 
 const PAGE_META = {
   dashboard:   { title: 'Dashboard', sub: 'Ringkasan budget pernikahanmu', action: null },
@@ -935,38 +1051,49 @@ const PAGE_META = {
 };
 
 // ============================================================
+// API — fetch ke GAS
 // ============================================================
-// CONFIG — ganti dengan URL GAS kamu setelah deploy
-// ============================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycby2hYkKpIUxFU914JNDCsrBNslJXnEKBu2wUikk_ImGKK0xLxzmZ5OOYZlLeYJeIXrRLw/exec';
+const GAS_URL = 'GANTI_DENGAN_URL_GAS_KAMU';
 
-// ============================================================
-// callAPI — fetch() ke GAS Web App
-// ============================================================
 async function callAPI(action, data = {}) {
   const res = await fetch(GAS_URL, {
     method: 'POST',
     body: JSON.stringify({ action, ...data }),
   });
-  const json = await res.json();
-  return json;
+  return res.json();
 }
 
 // ============================================================
-// INIT
+// INIT — cek login dulu sebelum apapun
 // ============================================================
 window.addEventListener('load', async () => {
-  if (GAS_URL === 'GANTI_DENGAN_URL_GAS_KAMU') {
-    document.getElementById('setupScreen').style.display = 'flex';
-    document.getElementById('setupScreen').innerHTML = `
-      <div class="setup-card">
-        <h2>⚙️ Setup Diperlukan</h2>
-        <p>Buka file <strong>index.html</strong>, cari baris:<br>
-        <code style="background:#f5f5f5;padding:4px 8px;border-radius:4px;font-size:12px">const GAS_URL = 'GANTI_DENGAN_URL_GAS_KAMU'</code><br><br>
-        Ganti dengan URL Web App GAS kamu, lalu upload ulang ke GitHub Pages.</p>
-      </div>`;
+  // Tampilkan login screen dulu, sembunyikan app
+  showLoginScreen();
+});
+
+function showLoginScreen() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+  setTimeout(() => document.getElementById('loginPassword').focus(), 100);
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function submitLogin() {
+  const inputPass = document.getElementById('loginPassword').value.trim();
+  const errEl = document.getElementById('loginError');
+
+  if (!inputPass) {
+    errEl.textContent = 'Password tidak boleh kosong.';
     return;
   }
+
+  // Tampilkan loading di tombol
+  const btn = document.querySelector('#loginScreen .btn-primary');
+  btn.textContent = '⏳ Memeriksa...';
+  btn.disabled = true;
 
   try {
     await callAPI('initSheets');
@@ -974,8 +1101,30 @@ window.addEventListener('load', async () => {
     appConfig = (cfg && cfg.data) ? cfg.data : {};
   } catch(e) {
     appConfig = {};
-    showToast('Gagal konek ke server: ' + e.toString(), 'error');
   }
+
+  btn.textContent = '🔓 Masuk';
+  btn.disabled = false;
+
+  // Password default saat pertama kali: 'nikah123'
+  const savedPass = appConfig.password || 'nikah123';
+
+  if (inputPass !== savedPass) {
+    errEl.textContent = '❌ Password salah. Coba lagi.';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+    // Efek getar
+    const card = document.querySelector('.login-card');
+    card.style.animation = 'none';
+    card.style.transform = 'translateX(-8px)';
+    setTimeout(() => { card.style.transform = 'translateX(8px)'; }, 80);
+    setTimeout(() => { card.style.transform = 'translateX(0)'; card.style.transition = 'transform .15s'; }, 160);
+    return;
+  }
+
+  // Login sukses
+  isLoggedIn = true;
+  document.getElementById('loginScreen').style.display = 'none';
 
   if (!appConfig.pria && !appConfig.wanita) {
     document.getElementById('setupScreen').style.display = 'flex';
@@ -983,14 +1132,27 @@ window.addEventListener('load', async () => {
     applyConfig();
     loadPage('dashboard');
   }
-});
+}
 
+function togglePasswordVisibility() {
+  const input = document.getElementById('loginPassword');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function logout() {
+  if (!confirm('Yakin ingin keluar?')) return;
+  isLoggedIn = false;
+  appConfig = {};
+  showLoginScreen();
+}
+
+// ============================================================
+// APPLY CONFIG
+// ============================================================
 function applyConfig() {
   const pria = appConfig.pria || '—';
   const wanita = appConfig.wanita || '—';
   document.getElementById('sidebarNames').textContent = `${pria} & ${wanita}`;
-  
-  // Prefill pengaturan
   document.getElementById('cfgPria').value = appConfig.pria || '';
   document.getElementById('cfgWanita').value = appConfig.wanita || '';
   document.getElementById('cfgTanggal').value = appConfig.tanggal || '';
@@ -1541,11 +1703,29 @@ async function saveConfig() {
     wanita: document.getElementById('cfgWanita').value,
     tanggal: document.getElementById('cfgTanggal').value,
     angpao: document.getElementById('cfgAngpao').value || 150000,
+    password: appConfig.password || 'nikah123', // pertahankan password yang ada
   };
   await callAPI('saveConfig', { data });
-  appConfig = data;
+  appConfig = { ...appConfig, ...data };
   applyConfig();
   showToast('Pengaturan disimpan! ⚙️', 'success');
+}
+
+async function savePassword() {
+  const baru = document.getElementById('cfgPassBaru').value.trim();
+  const konfirm = document.getElementById('cfgPassKonfirm').value.trim();
+
+  if (!baru) return showToast('Password baru tidak boleh kosong', 'error');
+  if (baru.length < 4) return showToast('Password minimal 4 karakter', 'error');
+  if (baru !== konfirm) return showToast('Konfirmasi password tidak cocok ❌', 'error');
+
+  const data = { ...appConfig, password: baru };
+  await callAPI('saveConfig', { data });
+  appConfig = data;
+
+  document.getElementById('cfgPassBaru').value = '';
+  document.getElementById('cfgPassKonfirm').value = '';
+  showToast('Password berhasil diubah! 🔑', 'success');
 }
 
 async function finishSetup() {
@@ -1553,13 +1733,15 @@ async function finishSetup() {
   const wanita = document.getElementById('setupWanita').value.trim();
   const tanggal = document.getElementById('setupTanggal').value;
   if (!pria || !wanita) return showToast('Nama keduanya wajib diisi', 'error');
-  const data = { pria, wanita, tanggal, angpao: 150000 };
+  const data = { pria, wanita, tanggal, angpao: 150000, password: 'nikah123' };
   await callAPI('saveConfig', { data });
   appConfig = data;
   document.getElementById('setupScreen').style.display = 'none';
   applyConfig();
   loadPage('dashboard');
   showToast(`Bismillah 💍 Selamat merencanakan, ${pria} & ${wanita}!`, 'success');
+  // Ingatkan ganti password default
+  setTimeout(() => showToast('⚠️ Segera ganti password default di menu Pengaturan!', ''), 4000);
 }
 
 // ============================================================
