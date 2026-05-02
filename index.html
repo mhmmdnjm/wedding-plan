@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Budget Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===================== RESET & BASE ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --rose:       #C0392B;
+  --rose-light: #E74C3C;
+  --rose-pale:  #FDEDEC;
+  --rose-soft:  #F9CECA;
+  --cream:      #FDF8F3;
+  --cream-dark: #F5EDE0;
+  --gold:       #C9A84C;
+  --gold-light: #F0D68A;
+  --text:       #2C2017;
+  --text-muted: #8B7355;
+  --white:      #FFFFFF;
+  --border:     #EDE0D4;
+  --shadow:     0 4px 24px rgba(44,32,23,.08);
+  --shadow-lg:  0 12px 48px rgba(44,32,23,.14);
+  --radius:     16px;
+  --radius-sm:  10px;
+  --sidebar-w:  240px;
+  --green:      #1E8449;
+  --green-pale: #D5F5E3;
+  --amber:      #B7950B;
+  --amber-pale: #FEF9E7;
+  --blue:       #1A5276;
+  --blue-pale:  #D6EAF8;
+  --red-pale:   #FADBD8;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+h1,h2,h3 { font-family: 'Playfair Display', serif; }
+
+/* ===================== SIDEBAR ===================== */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--rose);
+  position: fixed;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform .3s ease;
+}
+
+.sidebar-brand {
+  padding: 28px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+}
+
+.sidebar-brand .logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+}
+
+.sidebar-brand .tagline {
+  font-size: 11px;
+  color: rgba(255,255,255,.65);
+  margin-top: 4px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.sidebar-nav { flex: 1; padding: 16px 0; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: rgba(255,255,255,.75);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all .2s;
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+
+.nav-item:hover { background: rgba(255,255,255,.1); color: var(--white); }
+
+.nav-item.active {
+  background: rgba(255,255,255,.15);
+  color: var(--white);
+  border-left-color: var(--gold-light);
+}
+
+.nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; flex-shrink: 0; }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,.15);
+}
+
+.couple-names {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  color: var(--white);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.couple-names small {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 2px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* ===================== MAIN CONTENT ===================== */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: var(--white);
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 8px rgba(44,32,23,.06);
+}
+
+.topbar-title { font-size: 20px; font-weight: 700; color: var(--text); }
+.topbar-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-primary { background: var(--rose); color: var(--white); }
+.btn-primary:hover { background: var(--rose-light); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(192,57,43,.3); }
+.btn-outline { background: transparent; color: var(--rose); border: 1.5px solid var(--rose); }
+.btn-outline:hover { background: var(--rose-pale); }
+.btn-ghost { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: var(--cream-dark); color: var(--text); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-danger { background: #FADBD8; color: var(--rose); border: none; }
+.btn-danger:hover { background: var(--rose); color: var(--white); }
+.btn-success { background: var(--green-pale); color: var(--green); border: none; }
+.btn-success:hover { background: var(--green); color: var(--white); }
+
+.page-content { padding: 28px 32px; flex: 1; }
+
+/* ===================== PAGES ===================== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===================== SETUP SCREEN ===================== */
+.setup-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--rose) 0%, #8B1A0F 100%);
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+}
+
+.setup-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+
+.setup-card h2 {
+  font-size: 28px;
+  color: var(--rose);
+  margin-bottom: 6px;
+}
+
+.setup-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
+
+/* ===================== FORM CONTROLS ===================== */
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  background: var(--white);
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+.form-control:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(192,57,43,.1); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ===================== CARDS ===================== */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+
+.card-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+.card-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* ===================== DASHBOARD GRID ===================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.stat-card.green::before { background: var(--green); }
+.stat-card.rose::before { background: var(--rose); }
+.stat-card.blue::before { background: var(--blue); }
+.stat-card.amber::before { background: var(--amber); }
+.stat-card.gold::before { background: var(--gold); }
+
+.stat-icon { font-size: 28px; margin-bottom: 8px; }
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+.stat-value { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); margin-top: 4px; }
+.stat-value.green { color: var(--green); }
+.stat-value.rose { color: var(--rose); }
+.stat-value.amber { color: var(--amber); }
+
+.dashboard-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.dashboard-row.single { grid-template-columns: 1fr; }
+
+/* Progress bar */
+.progress-wrap { margin-top: 8px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.progress-bar { height: 10px; background: var(--cream-dark); border-radius: 99px; overflow: hidden; }
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--rose), var(--gold));
+  transition: width 1s ease;
+}
+
+/* Status pills */
+.status-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.status-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  min-width: 80px;
+  flex: 1;
+}
+.status-pill .pill-count { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+.status-pill .pill-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+.status-pill.belum { background: var(--red-pale); color: var(--rose); }
+.status-pill.proses { background: var(--amber-pale); color: var(--amber); }
+.status-pill.lunas { background: var(--green-pale); color: var(--green); }
+
+/* Countdown */
+.countdown-box {
+  background: linear-gradient(135deg, var(--rose) 0%, #8B1A0F 100%);
+  border-radius: var(--radius);
+  padding: 24px;
+  color: var(--white);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-box::after {
+  content: '💍';
+  position: absolute;
+  font-size: 80px;
+  right: -10px; bottom: -10px;
+  opacity: .12;
+}
+
+.countdown-box .cd-days { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; line-height: 1; }
+.countdown-box .cd-label { font-size: 12px; opacity: .75; text-transform: uppercase; letter-spacing: .1em; margin-top: 4px; }
+.countdown-box .cd-date { font-size: 14px; margin-top: 10px; opacity: .85; }
+.countdown-box .cd-couple { font-family: 'Playfair Display', serif; font-size: 16px; margin-top: 4px; }
+
+/* ===================== TABLE ===================== */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: var(--cream-dark); padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); white-space: nowrap; }
+tbody td { padding: 11px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
+tbody tr:hover { background: var(--rose-pale); }
+
+/* ===================== BADGE ===================== */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-wajib { background: var(--red-pale); color: var(--rose); }
+.badge-penting { background: var(--amber-pale); color: var(--amber); }
+.badge-opsional { background: var(--blue-pale); color: var(--blue); }
+.badge-belum { background: var(--red-pale); color: var(--rose); }
+.badge-proses { background: var(--amber-pale); color: var(--amber); }
+.badge-lunas { background: var(--green-pale); color: var(--green); }
+.badge-kandidat { background: var(--cream-dark); color: var(--text-muted); }
+.badge-deal { background: var(--green-pale); color: var(--green); }
+.badge-negosiasi { background: var(--amber-pale); color: var(--amber); }
+.badge-batal { background: var(--red-pale); color: var(--rose); }
+.badge-pria { background: var(--blue-pale); color: var(--blue); }
+.badge-wanita { background: #F5EEF8; color: #6C3483; }
+.badge-bersama { background: var(--green-pale); color: var(--green); }
+
+/* ===================== MODAL ===================== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(44,32,23,.45);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+.modal {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(24px);
+  transition: transform .25s;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.modal-title { font-size: 20px; color: var(--rose); }
+.modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 2px 6px; border-radius: 6px; }
+.modal-close:hover { background: var(--cream-dark); }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+/* ===================== TOAST ===================== */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+  background: var(--text);
+  color: var(--white);
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn .3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 300px;
+}
+.toast.success { background: var(--green); }
+.toast.error { background: var(--rose); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+
+/* ===================== SECTION HEADER ===================== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.section-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.section-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* ===================== EMPTY STATE ===================== */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* ===================== LOADING ===================== */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--rose);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===================== MOBILE TOGGLE ===================== */
+.mob-toggle {
+  display: none;
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: var(--rose);
+  color: var(--white);
+  border: none;
+  border-radius: 50%;
+  width: 52px; height: 52px;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 200;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%) !important; /* Memastikan sidebar tersembunyi */
+  }
+  .sidebar.open {
+    transform: none !important; /* Sidebar terbuka jika class "open" ditambahkan */
+  }
+  .main { margin-left: 0; }
+  .mob-toggle { display: flex; align-items: center; justify-content: center; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .dashboard-row { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .page-content { padding: 20px 16px; }
+  .topbar { padding: 14px 16px; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ===================== TAMU SUMMARY ===================== */
+.tamu-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">💍 Nikah<br>Budget</div>
+    <div class="tagline">Wedding Planner</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="goTo('dashboard')">
+      <span class="nav-icon">🏠</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="goTo('tabungan')">
+      <span class="nav-icon">💰</span> Tabungan
+    </div>
+    <div class="nav-item" onclick="goTo('kebutuhan')">
+      <span class="nav-icon">📋</span> Kebutuhan
+    </div>
+    <div class="nav-item" onclick="goTo('pengeluaran')">
+      <span class="nav-icon">💸</span> Pengeluaran
+    </div>
+    <div class="nav-item" onclick="goTo('vendor')">
+      <span class="nav-icon">🤝</span> Vendor
+    </div>
+    <div class="nav-item" onclick="goTo('tamu')">
+      <span class="nav-icon">👥</span> Tamu
+    </div>
+    <div class="nav-item" onclick="goTo('pengaturan')">
+      <span class="nav-icon">⚙️</span> Pengaturan
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="couple-names">
+      <small>Calon Pengantin</small>
+      <span id="sidebarNames">— & —</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MOBILE TOGGLE -->
+<button class="mob-toggle" onclick="toggleSidebar()">☰</button>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-subtitle" id="topbarSub">Ringkasan budget pernikahanmu</div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="topbarAction" onclick="topbarActionFn()">
+      + Tambah
+    </button>
+  </header>
+
+  <div class="page-content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+      <div id="dashboardContent">
+        <div class="loading"><div class="spinner"></div> Memuat data...</div>
+      </div>
+    </div>
+
+    <!-- ===== TABUNGAN ===== -->
+    <div class="page" id="page-tabungan">
+      <div id="tabunganContent">
+        <div class="loading"><div class="spinner"></div> Memuat...</div>
+      </div>
+    </div>
+
+    <!-- ===== KEBUTUHAN ===== -->
+    <div class="page" id="page-kebutuhan">
+      <div id="kebutuhanContent">
+        <div class="loading"><div class="spinner"></div> Memuat...</div>
+      </div>
+    </div>
+
+    <!-- ===== PENGELUARAN ===== -->
+    <div class="page" id="page-pengeluaran">
+      <div id="pengeluaranContent">
+        <div class="loading"><div class="spinner"></div> Memuat...</div>
+      </div>
+    </div>
+
+    <!-- ===== VENDOR ===== -->
+    <div class="page" id="page-vendor">
+      <div id="vendorContent">
+        <div class="loading"><div class="spinner"></div> Memuat...</div>
+      </div>
+    </div>
+
+    <!-- ===== TAMU ===== -->
+    <div class="page" id="page-tamu">
+      <div id="tamuContent">
+        <div class="loading"><div class="spinner"></div> Memuat...</div>
+      </div>
+    </div>
+
+    <!-- ===== PENGATURAN ===== -->
+    <div class="page" id="page-pengaturan">
+      <div class="card" style="max-width:480px">
+        <div class="section-header"><div class="section-title">⚙️ Pengaturan Pernikahan</div></div>
+        <div class="form-group">
+          <label class="form-label">Nama Calon Suami</label>
+          <input id="cfgPria" class="form-control" placeholder="Nama pria" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Calon Istri</label>
+          <input id="cfgWanita" class="form-control" placeholder="Nama wanita" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Pernikahan</label>
+          <input id="cfgTanggal" class="form-control" type="date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estimasi Angpao per Tamu (Rp)</label>
+          <input id="cfgAngpao" class="form-control" type="number" placeholder="150000" />
+        </div>
+        <button class="btn btn-primary" onclick="saveConfig()">💾 Simpan Pengaturan</button>
+      </div>
+    </div>
+
+  </div><!-- /page-content -->
+</main>
+
+<!-- ===== MODAL TABUNGAN ===== -->
+<div class="modal-overlay" id="modalTabungan">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">💰 Tambah Tabungan</h3>
+      <button class="modal-close" onclick="closeModal('modalTabungan')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tanggal</label>
+        <input id="tbTgl" class="form-control" type="date" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dari Pihak</label>
+        <select id="tbPihak" class="form-control">
+          <option>Pihak Pria</option><option>Pihak Wanita</option>
+          <option>Bersama</option><option>Hadiah/Sumbangan</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Keterangan</label>
+      <input id="tbKet" class="form-control" placeholder="Contoh: Menabung bulan Mei" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nominal (Rp)</label>
+        <input id="tbNominal" class="form-control" type="number" placeholder="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jenis</label>
+        <select id="tbJenis" class="form-control">
+          <option>Menabung</option><option>Bonus/THR</option>
+          <option>Hadiah</option><option>Transfer</option><option>Lainnya</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalTabungan')">Batal</button>
+      <button class="btn btn-primary" onclick="submitTabungan()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL KEBUTUHAN ===== -->
+<div class="modal-overlay" id="modalKebutuhan">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">📋 <span id="modalKebutuhanTitle">Tambah Kebutuhan</span></h3>
+      <button class="modal-close" onclick="closeModal('modalKebutuhan')">×</button>
+    </div>
+    <input type="hidden" id="kbRowIndex" />
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Kategori</label>
+        <select id="kbKat" class="form-control">
+          <option>Akad & Admin</option><option>Resepsi</option>
+          <option>Busana</option><option>Dokumentasi</option>
+          <option>Mahar & Seserahan</option><option>Undangan</option>
+          <option>Hiburan</option><option>Transportasi</option><option>Lain-lain</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prioritas</label>
+        <select id="kbPrioritas" class="form-control">
+          <option>Wajib</option><option>Penting</option><option>Opsional</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Item Kebutuhan</label>
+      <input id="kbItem" class="form-control" placeholder="Nama item" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Estimasi Biaya (Rp)</label>
+        <input id="kbEstimasi" class="form-control" type="number" placeholder="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="kbStatus" class="form-control">
+          <option>Belum</option><option>Proses</option><option>Lunas</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan</label>
+      <input id="kbCatatan" class="form-control" placeholder="Opsional" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalKebutuhan')">Batal</button>
+      <button class="btn btn-primary" onclick="submitKebutuhan()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL PENGELUARAN ===== -->
+<div class="modal-overlay" id="modalPengeluaran">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">💸 Catat Pengeluaran</h3>
+      <button class="modal-close" onclick="closeModal('modalPengeluaran')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tanggal</label>
+        <input id="peTgl" class="form-control" type="date" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori</label>
+        <select id="peKat" class="form-control">
+          <option>Akad & Admin</option><option>Resepsi</option>
+          <option>Busana</option><option>Dokumentasi</option>
+          <option>Mahar & Seserahan</option><option>Undangan</option>
+          <option>Hiburan</option><option>Transportasi</option><option>Lain-lain</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Item / Nama Pembayaran</label>
+      <input id="peItem" class="form-control" placeholder="Contoh: DP Gedung" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nominal (Rp)</label>
+        <input id="peNominal" class="form-control" type="number" placeholder="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dibayar Oleh</label>
+        <select id="peDibayar" class="form-control">
+          <option>Pihak Pria</option><option>Pihak Wanita</option><option>Bersama</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Metode Bayar</label>
+      <select id="peMetode" class="form-control">
+        <option>Tunai</option><option>Transfer</option><option>QRIS</option><option>Cicilan</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalPengeluaran')">Batal</button>
+      <button class="btn btn-primary" onclick="submitPengeluaran()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL VENDOR ===== -->
+<div class="modal-overlay" id="modalVendor">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">🤝 Tambah Vendor</h3>
+      <button class="modal-close" onclick="closeModal('modalVendor')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nama Vendor</label>
+        <input id="vnNama" class="form-control" placeholder="Nama vendor/jasa" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori</label>
+        <select id="vnKat" class="form-control">
+          <option>Gedung/Tenda</option><option>Catering</option>
+          <option>Dekorasi</option><option>Busana & Rias</option>
+          <option>Fotografer</option><option>Videografer</option>
+          <option>Sound System</option><option>Undangan</option><option>Lainnya</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Harga Penawaran (Rp)</label>
+        <input id="vnHarga" class="form-control" type="number" placeholder="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="vnStatus" class="form-control">
+          <option>Kandidat</option><option>Negosiasi</option><option>Deal</option><option>Batal</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kontak (WA/IG)</label>
+      <input id="vnKontak" class="form-control" placeholder="08xxxxxxxx" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan</label>
+      <input id="vnCatatan" class="form-control" placeholder="Opsional" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalVendor')">Batal</button>
+      <button class="btn btn-primary" onclick="submitVendor()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL TAMU ===== -->
+<div class="modal-overlay" id="modalTamu">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">👥 Tambah Tamu</h3>
+      <button class="modal-close" onclick="closeModal('modalTamu')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nama Tamu</label>
+      <input id="tmNama" class="form-control" placeholder="Nama tamu / keluarga" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Hubungan</label>
+        <input id="tmHubungan" class="form-control" placeholder="Contoh: Paman" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dari Pihak</label>
+        <select id="tmPihak" class="form-control">
+          <option>Pihak Pria</option><option>Pihak Wanita</option><option>Bersama</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Jumlah Orang</label>
+        <input id="tmJumlah" class="form-control" type="number" value="1" min="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Konfirmasi</label>
+        <select id="tmKonfirmasi" class="form-control">
+          <option>Belum</option><option>Hadir</option><option>Tidak Hadir</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalTamu')">Batal</button>
+      <button class="btn btn-primary" onclick="submitTamu()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== SETUP SCREEN ===== -->
+<div class="setup-screen" id="setupScreen" style="display:none">
+  <div class="setup-card">
+    <h2>💍 Selamat Datang!</h2>
+    <p>Aplikasi ini akan membantu mengatur budget pernikahan dengan mudah. Semua data tersimpan di Google Spreadsheet milikmu.</p>
+    <div class="form-group">
+      <label class="form-label">Nama Calon Suami</label>
+      <input id="setupPria" class="form-control" placeholder="Nama pria" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nama Calon Istri</label>
+      <input id="setupWanita" class="form-control" placeholder="Nama wanita" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tanggal Pernikahan</label>
+      <input id="setupTanggal" class="form-control" type="date" />
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px" onclick="finishSetup()">
+      🚀 Mulai Rencanakan
+    </button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE & CONFIG
+// ============================================================
+let appConfig = {};
+let currentPage = 'dashboard';
+
+const PAGE_META = {
+  dashboard:   { title: 'Dashboard', sub: 'Ringkasan budget pernikahanmu', action: null },
+  tabungan:    { title: '💰 Tabungan', sub: 'Catatan tabungan pernikahan', action: () => openModal('modalTabungan') },
+  kebutuhan:   { title: '📋 Kebutuhan', sub: 'Daftar & prioritas kebutuhan', action: () => openFormKebutuhan() },
+  pengeluaran: { title: '💸 Pengeluaran', sub: 'Catatan pengeluaran', action: () => openModal('modalPengeluaran') },
+  vendor:      { title: '🤝 Vendor', sub: 'Database vendor & jasa', action: () => openModal('modalVendor') },
+  tamu:        { title: '👥 Tamu', sub: 'Daftar tamu undangan', action: () => openModal('modalTamu') },
+  pengaturan:  { title: '⚙️ Pengaturan', sub: 'Konfigurasi pernikahan', action: null },
+};
+
+// ============================================================
+// ============================================================
+// CONFIG — ganti dengan URL GAS kamu setelah deploy
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycby2hYkKpIUxFU914JNDCsrBNslJXnEKBu2wUikk_ImGKK0xLxzmZ5OOYZlLeYJeIXrRLw/exec';
+
+// ============================================================
+// callAPI — fetch() ke GAS Web App
+// ============================================================
+async function callAPI(action, data = {}) {
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action, ...data }),
+  });
+  const json = await res.json();
+  return json;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', async () => {
+  if (GAS_URL === 'GANTI_DENGAN_URL_GAS_KAMU') {
+    document.getElementById('setupScreen').style.display = 'flex';
+    document.getElementById('setupScreen').innerHTML = `
+      <div class="setup-card">
+        <h2>⚙️ Setup Diperlukan</h2>
+        <p>Buka file <strong>index.html</strong>, cari baris:<br>
+        <code style="background:#f5f5f5;padding:4px 8px;border-radius:4px;font-size:12px">const GAS_URL = 'GANTI_DENGAN_URL_GAS_KAMU'</code><br><br>
+        Ganti dengan URL Web App GAS kamu, lalu upload ulang ke GitHub Pages.</p>
+      </div>`;
+    return;
+  }
+
+  try {
+    await callAPI('initSheets');
+    const cfg = await callAPI('getConfig');
+    appConfig = (cfg && cfg.data) ? cfg.data : {};
+  } catch(e) {
+    appConfig = {};
+    showToast('Gagal konek ke server: ' + e.toString(), 'error');
+  }
+
+  if (!appConfig.pria && !appConfig.wanita) {
+    document.getElementById('setupScreen').style.display = 'flex';
+  } else {
+    applyConfig();
+    loadPage('dashboard');
+  }
+});
+
+function applyConfig() {
+  const pria = appConfig.pria || '—';
+  const wanita = appConfig.wanita || '—';
+  document.getElementById('sidebarNames').textContent = `${pria} & ${wanita}`;
+  
+  // Prefill pengaturan
+  document.getElementById('cfgPria').value = appConfig.pria || '';
+  document.getElementById('cfgWanita').value = appConfig.wanita || '';
+  document.getElementById('cfgTanggal').value = appConfig.tanggal || '';
+  document.getElementById('cfgAngpao').value = appConfig.angpao || 150000;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().toLowerCase().includes(page === 'dashboard' ? 'dashboard' :
+        page === 'tabungan' ? 'tabungan' : page === 'kebutuhan' ? 'kebutuhan' :
+        page === 'pengeluaran' ? 'pengeluaran' : page === 'vendor' ? 'vendor' :
+        page === 'tamu' ? 'tamu' : 'pengaturan')) n.classList.add('active');
+  });
+
+  currentPage = page;
+  const meta = PAGE_META[page];
+  document.getElementById('topbarTitle').textContent = meta.title;
+  document.getElementById('topbarSub').textContent = meta.sub;
+  
+  const actionBtn = document.getElementById('topbarAction');
+  if (meta.action) { actionBtn.style.display = ''; }
+  else { actionBtn.style.display = 'none'; }
+
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+
+  loadPage(page);
+}
+
+function topbarActionFn() {
+  const meta = PAGE_META[currentPage];
+  if (meta.action) meta.action();
+}
+
+function loadPage(page) {
+  if (page === 'dashboard') loadDashboard();
+  else if (page === 'tabungan') loadTabungan();
+  else if (page === 'kebutuhan') loadKebutuhan();
+  else if (page === 'pengeluaran') loadPengeluaran();
+  else if (page === 'vendor') loadVendor();
+  else if (page === 'tamu') loadTamu();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+  const el = document.getElementById('dashboardContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat dashboard...</div>';
+  
+  try {
+    const res = await callAPI('getDashboard');
+    if (!res || !res.success) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error: ${res?.error || 'Gagal memuat data'}</p></div>`;
+      return;
+    }
+    const d = res.data;
+
+    // Countdown — diff dideklarasi di LUAR if
+    let cdDays = '—';
+    let cdDate = 'Tanggal belum diatur';
+    let cdLabel = '';
+    let diff = 0;
+    const pria = appConfig.pria || '—';
+    const wanita = appConfig.wanita || '—';
+    const cdCouple = `${pria} & ${wanita}`;
+
+    if (appConfig.tanggal) {
+      const tgl = new Date(appConfig.tanggal);
+      const todayDate = new Date();
+      todayDate.setHours(0, 0, 0, 0);
+      diff = Math.ceil((tgl - todayDate) / 86400000);
+      cdDays = diff > 0 ? diff : (diff === 0 ? '🎉' : Math.abs(diff));
+      cdDate = tgl.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      cdLabel = diff > 0 ? 'hari lagi' : (diff === 0 ? 'Hari ini!' : 'hari yang lalu');
+    }
+
+    el.innerHTML = `
+      <div class="countdown-box" style="margin-bottom:20px">
+        <div class="cd-couple">${cdCouple}</div>
+        <div class="cd-days">${cdDays}</div>
+        <div class="cd-label">${cdLabel}</div>
+        <div class="cd-date">${cdDate}</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Total Tabungan</div>
+          <div class="stat-value green">${rupiah(d.totalTabungan)}</div>
+        </div>
+        <div class="stat-card rose">
+          <div class="stat-icon">💸</div>
+          <div class="stat-label">Total Pengeluaran</div>
+          <div class="stat-value rose">${rupiah(d.totalPengeluaran)}</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">📋</div>
+          <div class="stat-label">Estimasi Kebutuhan</div>
+          <div class="stat-value">${rupiah(d.totalEstimasi)}</div>
+        </div>
+      </div>
+
+      <div class="dashboard-row" style="margin-top:16px">
+        <div class="card">
+          <div class="card-title">✅ Sisa Dana</div>
+          <div class="card-value" style="color:${d.sisaDana >= 0 ? 'var(--green)' : 'var(--rose)'}">${rupiah(d.sisaDana)}</div>
+          <div class="card-sub">Tabungan − Pengeluaran</div>
+        </div>
+        <div class="card">
+          <div class="card-title">⚠️ Kekurangan Dana</div>
+          <div class="card-value" style="color:${d.kekurangan > 0 ? 'var(--amber)' : 'var(--green)'}">${rupiah(d.kekurangan)}</div>
+          <div class="card-sub">Estimasi − Tabungan</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;margin-bottom:16px">
+        <div class="section-header" style="margin-bottom:10px">
+          <div class="section-title">📈 Progress Kesiapan Dana</div>
+          <strong style="color:var(--rose)">${d.progress}%</strong>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Rp 0</span><span>${rupiah(d.totalEstimasi)}</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${d.progress}%"></div></div>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">📋 Status Kebutuhan</div>
+          <div class="status-row">
+            <div class="status-pill belum">
+              <span class="pill-count">${d.statusKebutuhan.belum}</span>
+              <span class="pill-label">Belum</span>
+            </div>
+            <div class="status-pill proses">
+              <span class="pill-count">${d.statusKebutuhan.proses}</span>
+              <span class="pill-label">Proses</span>
+            </div>
+            <div class="status-pill lunas">
+              <span class="pill-count">${d.statusKebutuhan.lunas}</span>
+              <span class="pill-label">Lunas</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">👥 Info Tamu</div>
+          <div class="status-row">
+            <div class="status-pill" style="background:var(--blue-pale);color:var(--blue)">
+              <span class="pill-count">${d.tamu.total}</span>
+              <span class="pill-label">Diundang</span>
+            </div>
+            <div class="status-pill lunas">
+              <span class="pill-count">${d.tamu.hadir}</span>
+              <span class="pill-label">Hadir</span>
+            </div>
+            <div class="status-pill" style="background:#E8DAEF;color:#6C3483">
+              <span class="pill-count" style="font-size:14px">${rupiah(d.tamu.estAngpao)}</span>
+              <span class="pill-label">Est. Angpao</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch(err) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error: ${err.message || err.toString()}</p></div>`;
+    showToast('Gagal memuat dashboard: ' + (err.message || err), 'error');
+  }
+}
+
+// ============================================================
+// TABUNGAN
+// ============================================================
+async function loadTabungan() {
+  const el = document.getElementById('tabunganContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const res = await callAPI('getTabungan');
+  const data = res.data;
+
+  const totalTabungan = data.reduce((s, r) => s + (r.nominal || 0), 0);
+  let saldo = 0;
+  const dataWithSaldo = [...data].reverse().map(r => { saldo += r.nominal; return { ...r, saldo }; }).reverse();
+
+  el.innerHTML = `
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card green">
+        <div class="stat-label">Total Terkumpul</div>
+        <div class="stat-value green">${rupiah(totalTabungan)}</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Jumlah Transaksi</div>
+        <div class="stat-value">${data.length}x</div>
+      </div>
+      <div class="stat-card rose">
+        <div class="stat-label">Rata-rata per Transaksi</div>
+        <div class="stat-value">${data.length ? rupiah(Math.round(totalTabungan / data.length)) : 'Rp 0'}</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th><th>Keterangan</th><th>Pihak</th>
+            <th>Jenis</th><th style="text-align:right">Nominal</th>
+            <th style="text-align:right">Saldo</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.length === 0 ? `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">💰</div><p>Belum ada catatan tabungan</p></div></td></tr>` :
+            dataWithSaldo.map(r => `
+              <tr>
+                <td>${r.tanggal}</td>
+                <td>${r.keterangan}</td>
+                <td><span class="badge badge-${r.pihak === 'Pihak Pria' ? 'pria' : r.pihak === 'Pihak Wanita' ? 'wanita' : 'bersama'}">${r.pihak}</span></td>
+                <td>${r.jenis}</td>
+                <td style="text-align:right;font-weight:600;color:var(--green)">${rupiah(r.nominal)}</td>
+                <td style="text-align:right;font-weight:700">${rupiah(r.saldo)}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Tabungan', ${r.rowIndex}, loadTabungan)">🗑</button></td>
+              </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ============================================================
+// KEBUTUHAN
+// ============================================================
+async function loadKebutuhan() {
+  const el = document.getElementById('kebutuhanContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const res = await callAPI('getKebutuhan');
+  const data = res.data;
+
+  const totalEst = data.reduce((s, r) => s + (r.estimasi || 0), 0);
+  const wajib = data.filter(r => r.prioritas === 'Wajib').length;
+  const lunas = data.filter(r => r.status === 'Lunas').length;
+
+  // Group by kategori
+  const groups = {};
+  data.forEach(r => {
+    if (!groups[r.kategori]) groups[r.kategori] = [];
+    groups[r.kategori].push(r);
+  });
+
+  el.innerHTML = `
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card blue"><div class="stat-label">Total Item</div><div class="stat-value">${data.length}</div></div>
+      <div class="stat-card rose"><div class="stat-label">Item Wajib</div><div class="stat-value rose">${wajib}</div></div>
+      <div class="stat-card green"><div class="stat-label">Sudah Lunas</div><div class="stat-value green">${lunas}</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Kategori</th><th>Item</th><th>Prioritas</th><th style="text-align:right">Estimasi</th><th>Status</th><th>Catatan</th><th></th></tr>
+        </thead>
+        <tbody>
+          ${data.length === 0 ? `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><p>Belum ada item kebutuhan</p></div></td></tr>` :
+            data.map(r => `
+              <tr>
+                <td><small style="color:var(--text-muted)">${r.kategori}</small></td>
+                <td style="font-weight:500">${r.item}</td>
+                <td><span class="badge badge-${r.prioritas.toLowerCase()}">${r.prioritas}</span></td>
+                <td style="text-align:right;font-weight:600">${rupiah(r.estimasi)}</td>
+                <td>
+                  <select class="form-control" style="padding:4px 8px;font-size:12px;width:auto" onchange="updateStatusKebutuhan(${r.rowIndex}, this.value, ${JSON.stringify(r).replace(/"/g, '&quot;')})">
+                    <option ${r.status==='Belum'?'selected':''}>Belum</option>
+                    <option ${r.status==='Proses'?'selected':''}>Proses</option>
+                    <option ${r.status==='Lunas'?'selected':''}>Lunas</option>
+                  </select>
+                </td>
+                <td style="color:var(--text-muted);font-size:12px">${r.catatan || '—'}</td>
+                <td style="white-space:nowrap">
+                  <button class="btn btn-ghost btn-sm" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g, '&quot;')})">✏️</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteItem('Kebutuhan', ${r.rowIndex}, loadKebutuhan)">🗑</button>
+                </td>
+              </tr>`).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--cream-dark)">
+            <td colspan="3" style="font-weight:700;padding:11px 14px">TOTAL ESTIMASI</td>
+            <td style="text-align:right;font-weight:700;padding:11px 14px;color:var(--rose)">${rupiah(totalEst)}</td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+function openFormKebutuhan() {
+  document.getElementById('modalKebutuhanTitle').textContent = 'Tambah Kebutuhan';
+  document.getElementById('kbRowIndex').value = '';
+  document.getElementById('kbItem').value = '';
+  document.getElementById('kbEstimasi').value = '';
+  document.getElementById('kbCatatan').value = '';
+  document.getElementById('kbStatus').value = 'Belum';
+  openModal('modalKebutuhan');
+}
+
+function openEditKebutuhan(r) {
+  document.getElementById('modalKebutuhanTitle').textContent = 'Edit Kebutuhan';
+  document.getElementById('kbRowIndex').value = r.rowIndex;
+  document.getElementById('kbKat').value = r.kategori;
+  document.getElementById('kbItem').value = r.item;
+  document.getElementById('kbPrioritas').value = r.prioritas;
+  document.getElementById('kbEstimasi').value = r.estimasi;
+  document.getElementById('kbStatus').value = r.status;
+  document.getElementById('kbCatatan').value = r.catatan || '';
+  openModal('modalKebutuhan');
+}
+
+async function updateStatusKebutuhan(rowIndex, newStatus, r) {
+  r.status = newStatus;
+  await callAPI('updateKebutuhan', { rowIndex, data: r });
+  showToast('Status diperbarui', 'success');
+}
+
+// ============================================================
+// PENGELUARAN
+// ============================================================
+async function loadPengeluaran() {
+  const el = document.getElementById('pengeluaranContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const res = await callAPI('getPengeluaran');
+  const data = res.data;
+  const total = data.reduce((s, r) => s + (r.nominal || 0), 0);
+
+  el.innerHTML = `
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card rose"><div class="stat-label">Total Pengeluaran</div><div class="stat-value rose">${rupiah(total)}</div></div>
+      <div class="stat-card blue"><div class="stat-label">Jumlah Transaksi</div><div class="stat-value">${data.length}x</div></div>
+      <div class="stat-card amber"><div class="stat-label">Rata-rata</div><div class="stat-value">${data.length ? rupiah(Math.round(total/data.length)) : 'Rp 0'}</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tanggal</th><th>Item</th><th>Kategori</th><th style="text-align:right">Nominal</th><th>Dibayar</th><th>Metode</th><th></th></tr></thead>
+        <tbody>
+          ${data.length === 0 ? `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">💸</div><p>Belum ada catatan pengeluaran</p></div></td></tr>` :
+            data.map(r => `<tr>
+              <td>${r.tanggal}</td>
+              <td style="font-weight:500">${r.item}</td>
+              <td><small style="color:var(--text-muted)">${r.kategori}</small></td>
+              <td style="text-align:right;font-weight:600;color:var(--rose)">${rupiah(r.nominal)}</td>
+              <td><span class="badge badge-${r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama'}">${r.dibayar}</span></td>
+              <td>${r.metode}</td>
+              <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Pengeluaran', ${r.rowIndex}, loadPengeluaran)">🗑</button></td>
+            </tr>`).join('')}
+        </tbody>
+        <tfoot><tr style="background:var(--cream-dark)">
+          <td colspan="3" style="font-weight:700;padding:11px 14px">TOTAL</td>
+          <td style="text-align:right;font-weight:700;padding:11px 14px;color:var(--rose)">${rupiah(total)}</td>
+          <td colspan="3"></td>
+        </tr></tfoot>
+      </table>
+    </div>`;
+}
+
+// ============================================================
+// VENDOR
+// ============================================================
+async function loadVendor() {
+  const el = document.getElementById('vendorContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const res = await callAPI('getVendor');
+  const data = res.data;
+  const deals = data.filter(r => r.status === 'Deal').length;
+
+  el.innerHTML = `
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card blue"><div class="stat-label">Total Vendor</div><div class="stat-value">${data.length}</div></div>
+      <div class="stat-card green"><div class="stat-label">Deal</div><div class="stat-value green">${deals}</div></div>
+      <div class="stat-card amber"><div class="stat-label">Kandidat</div><div class="stat-value amber">${data.filter(r=>r.status==='Kandidat').length}</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nama Vendor</th><th>Kategori</th><th style="text-align:right">Harga</th><th>Status</th><th>Kontak</th><th></th></tr></thead>
+        <tbody>
+          ${data.length === 0 ? `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🤝</div><p>Belum ada vendor</p></div></td></tr>` :
+            data.map(r => `<tr>
+              <td style="font-weight:600">${r.nama}</td>
+              <td><small style="color:var(--text-muted)">${r.kategori}</small></td>
+              <td style="text-align:right;font-weight:600">${rupiah(r.harga)}</td>
+              <td>
+                <select class="form-control" style="padding:4px 8px;font-size:12px;width:auto" onchange="updateVendorStatus(${r.rowIndex}, this.value)">
+                  <option ${r.status==='Kandidat'?'selected':''}>Kandidat</option>
+                  <option ${r.status==='Negosiasi'?'selected':''}>Negosiasi</option>
+                  <option ${r.status==='Deal'?'selected':''}>Deal</option>
+                  <option ${r.status==='Batal'?'selected':''}>Batal</option>
+                </select>
+              </td>
+              <td style="font-size:12px;color:var(--text-muted)">${r.kontak || '—'}</td>
+              <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Vendor', ${r.rowIndex}, loadVendor)">🗑</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+async function updateVendorStatus(rowIndex, status) {
+  await callAPI('updateVendor', { rowIndex, status });
+  showToast('Status vendor diperbarui', 'success');
+}
+
+// ============================================================
+// TAMU
+// ============================================================
+async function loadTamu() {
+  const el = document.getElementById('tamuContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const res = await callAPI('getTamu');
+  const data = res.data;
+
+  const totalOrang = data.reduce((s, r) => s + (r.jumlah || 1), 0);
+  const hadir = data.filter(r => r.konfirmasi === 'Hadir').reduce((s, r) => s + (r.jumlah || 1), 0);
+  const angpaoPerOrang = parseInt(appConfig.angpao) || 150000;
+  const estAngpao = hadir * angpaoPerOrang;
+
+  el.innerHTML = `
+    <div class="tamu-summary">
+      <div class="stat-card blue"><div class="stat-label">Total Diundang</div><div class="stat-value">${totalOrang} orang</div></div>
+      <div class="stat-card green"><div class="stat-label">Konfirmasi Hadir</div><div class="stat-value green">${hadir} orang</div></div>
+      <div class="stat-card gold" style="--gold:#C9A84C"><div class="stat-label">Est. Angpao</div><div class="stat-value" style="color:var(--gold)">${rupiah(estAngpao)}</div></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nama Tamu</th><th>Hubungan</th><th>Pihak</th><th style="text-align:center">Jml</th><th>Konfirmasi</th><th></th></tr></thead>
+        <tbody>
+          ${data.length === 0 ? `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><p>Belum ada tamu</p></div></td></tr>` :
+            data.map(r => `<tr>
+              <td style="font-weight:500">${r.nama}</td>
+              <td><small style="color:var(--text-muted)">${r.hubungan || '—'}</small></td>
+              <td><span class="badge badge-${r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama'}">${r.pihak}</span></td>
+              <td style="text-align:center">${r.jumlah}</td>
+              <td><span class="badge ${r.konfirmasi==='Hadir'?'badge-lunas':r.konfirmasi==='Tidak Hadir'?'badge-belum':'badge-kandidat'}">${r.konfirmasi}</span></td>
+              <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Tamu', ${r.rowIndex}, loadTamu)">🗑</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ============================================================
+// SUBMIT FORMS
+// ============================================================
+async function submitTabungan() {
+  const data = {
+    tanggal: document.getElementById('tbTgl').value,
+    keterangan: document.getElementById('tbKet').value,
+    pihak: document.getElementById('tbPihak').value,
+    nominal: document.getElementById('tbNominal').value,
+    jenis: document.getElementById('tbJenis').value,
+  };
+  if (!data.tanggal || !data.nominal) return showToast('Tanggal & nominal wajib diisi', 'error');
+  await callAPI('addTabungan', { data });
+  closeModal('modalTabungan');
+  showToast('Tabungan berhasil ditambahkan! 💰', 'success');
+  loadTabungan();
+}
+
+async function submitKebutuhan() {
+  const rowIndex = document.getElementById('kbRowIndex').value;
+  const data = {
+    kategori: document.getElementById('kbKat').value,
+    item: document.getElementById('kbItem').value,
+    prioritas: document.getElementById('kbPrioritas').value,
+    estimasi: document.getElementById('kbEstimasi').value,
+    status: document.getElementById('kbStatus').value,
+    catatan: document.getElementById('kbCatatan').value,
+  };
+  if (!data.item) return showToast('Nama item wajib diisi', 'error');
+  if (rowIndex) {
+    await callAPI('updateKebutuhan', { rowIndex: parseInt(rowIndex), data });
+    showToast('Kebutuhan diperbarui! ✅', 'success');
+  } else {
+    await callAPI('addKebutuhan', { data });
+    showToast('Kebutuhan ditambahkan! 📋', 'success');
+  }
+  closeModal('modalKebutuhan');
+  loadKebutuhan();
+}
+
+async function submitPengeluaran() {
+  const data = {
+    tanggal: document.getElementById('peTgl').value,
+    item: document.getElementById('peItem').value,
+    kategori: document.getElementById('peKat').value,
+    nominal: document.getElementById('peNominal').value,
+    dibayar: document.getElementById('peDibayar').value,
+    metode: document.getElementById('peMetode').value,
+  };
+  if (!data.tanggal || !data.item || !data.nominal) return showToast('Lengkapi data dulu', 'error');
+  await callAPI('addPengeluaran', { data });
+  closeModal('modalPengeluaran');
+  showToast('Pengeluaran dicatat! 💸', 'success');
+  loadPengeluaran();
+}
+
+async function submitVendor() {
+  const data = {
+    nama: document.getElementById('vnNama').value,
+    kategori: document.getElementById('vnKat').value,
+    harga: document.getElementById('vnHarga').value,
+    status: document.getElementById('vnStatus').value,
+    kontak: document.getElementById('vnKontak').value,
+    catatan: document.getElementById('vnCatatan').value,
+  };
+  if (!data.nama) return showToast('Nama vendor wajib diisi', 'error');
+  await callAPI('addVendor', { data });
+  closeModal('modalVendor');
+  showToast('Vendor ditambahkan! 🤝', 'success');
+  loadVendor();
+}
+
+async function submitTamu() {
+  const data = {
+    nama: document.getElementById('tmNama').value,
+    hubungan: document.getElementById('tmHubungan').value,
+    pihak: document.getElementById('tmPihak').value,
+    jumlah: document.getElementById('tmJumlah').value,
+    konfirmasi: document.getElementById('tmKonfirmasi').value,
+  };
+  if (!data.nama) return showToast('Nama tamu wajib diisi', 'error');
+  await callAPI('addTamu', { data });
+  closeModal('modalTamu');
+  showToast('Tamu ditambahkan! 👥', 'success');
+  loadTamu();
+}
+
+async function deleteItem(type, rowIndex, reloadFn) {
+  if (!confirm('Hapus data ini?')) return;
+  await callAPI(`delete${type}`, { rowIndex });
+  showToast('Data dihapus', 'success');
+  reloadFn();
+}
+
+// ============================================================
+// CONFIG & SETUP
+// ============================================================
+async function saveConfig() {
+  const data = {
+    pria: document.getElementById('cfgPria').value,
+    wanita: document.getElementById('cfgWanita').value,
+    tanggal: document.getElementById('cfgTanggal').value,
+    angpao: document.getElementById('cfgAngpao').value || 150000,
+  };
+  await callAPI('saveConfig', { data });
+  appConfig = data;
+  applyConfig();
+  showToast('Pengaturan disimpan! ⚙️', 'success');
+}
+
+async function finishSetup() {
+  const pria = document.getElementById('setupPria').value.trim();
+  const wanita = document.getElementById('setupWanita').value.trim();
+  const tanggal = document.getElementById('setupTanggal').value;
+  if (!pria || !wanita) return showToast('Nama keduanya wajib diisi', 'error');
+  const data = { pria, wanita, tanggal, angpao: 150000 };
+  await callAPI('saveConfig', { data });
+  appConfig = data;
+  document.getElementById('setupScreen').style.display = 'none';
+  applyConfig();
+  loadPage('dashboard');
+  showToast(`Bismillah 💍 Selamat merencanakan, ${pria} & ${wanita}!`, 'success');
+}
+
+// ============================================================
+// MODAL & HELPERS
+// ============================================================
+function openModal(id) {
+  // Reset date inputs
+  const tglInputs = { modalTabungan: 'tbTgl', modalPengeluaran: 'peTgl' };
+  if (tglInputs[id]) document.getElementById(tglInputs[id]).value = today();
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function rupiah(n) {
+  if (n === undefined || n === null) return 'Rp 0';
+  const abs = Math.abs(n);
+  const str = 'Rp ' + abs.toLocaleString('id-ID');
+  return n < 0 ? '-' + str : str;
+}
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function showToast(msg, type = '') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = `${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'} ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// Set default topbar action button hidden on dashboard
+document.getElementById('topbarAction').style.display = 'none';
+</script>
+</body>
+</html>
