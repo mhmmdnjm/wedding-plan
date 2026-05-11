@@ -519,85 +519,172 @@ tbody tr:hover { background: var(--rose-pale); }
   .stats-grid { grid-template-columns: 1fr; }
 }
 
-/* ===================== LOGIN SCREEN ===================== */
-.login-screen {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, var(--rose) 0%, #7B241C 100%);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.login-card {
-  background: var(--white);
-  border-radius: 24px;
-  padding: 40px 36px;
-  max-width: 380px;
-  width: 100%;
-  box-shadow: var(--shadow-lg);
-  text-align: center;
-}
-
-.login-logo {
-  font-size: 48px;
-  margin-bottom: 12px;
-}
-
-.login-card h2 {
-  font-size: 26px;
-  color: var(--rose);
-  margin-bottom: 4px;
-}
-
-.login-card p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 28px;
-}
-
-.login-input-wrap {
-  position: relative;
-  margin-bottom: 16px;
-}
-
-.login-input-wrap .form-control {
-  padding-right: 44px;
-  text-align: center;
-  font-size: 18px;
-  letter-spacing: .2em;
-}
-
-.toggle-pass {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: var(--text-muted);
-  padding: 0;
-  line-height: 1;
-}
-
-.login-error {
-  color: var(--rose);
-  font-size: 13px;
-  margin-bottom: 12px;
-  min-height: 20px;
-  font-weight: 500;
-}
-
 /* ===================== TAMU SUMMARY ===================== */
 .tamu-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 16px;
+}
+
+/* ===================== SEARCH & SORT BAR ===================== */
+.list-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 160px;
+}
+
+.search-input-wrap .search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 9px 12px 9px 34px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s;
+}
+
+.search-input:focus { border-color: var(--rose); }
+
+.sort-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .2s;
+}
+
+.sort-btn.active { border-color: var(--rose); color: var(--rose); background: var(--rose-pale); }
+.sort-btn:hover { border-color: var(--rose); color: var(--rose); }
+
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.chip {
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+
+.chip.active { background: var(--rose); color: var(--white); border-color: var(--rose); }
+.chip:hover { border-color: var(--rose); color: var(--rose); }
+
+/* ===================== DATA CARDS (mobile-first) ===================== */
+.data-list { display: flex; flex-direction: column; gap: 10px; }
+
+.data-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(44,32,23,.05);
+  transition: box-shadow .2s;
+}
+
+.data-card:active { box-shadow: var(--shadow); }
+
+.dc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.dc-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.3;
+}
+
+.dc-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dc-meta-item {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dc-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.dc-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 4px;
+  padding: 6px 10px;
+  background: var(--cream);
+  border-radius: 6px;
+}
+
+.result-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding: 0 2px;
 }
 </style>
 </head>
@@ -637,11 +724,6 @@ tbody tr:hover { background: var(--rose-pale); }
       <small>Calon Pengantin</small>
       <span id="sidebarNames">— & —</span>
     </div>
-    <button
-      onclick="logout()"
-      style="width:100%;margin-top:12px;padding:8px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2);border-radius:8px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;">
-      🔒 Keluar / Logout
-    </button>
   </div>
 </aside>
 
@@ -706,7 +788,7 @@ tbody tr:hover { background: var(--rose-pale); }
 
     <!-- ===== PENGATURAN ===== -->
     <div class="page" id="page-pengaturan">
-      <div class="card" style="max-width:480px;margin-bottom:16px">
+      <div class="card" style="max-width:480px">
         <div class="section-header"><div class="section-title">⚙️ Pengaturan Pernikahan</div></div>
         <div class="form-group">
           <label class="form-label">Nama Calon Suami</label>
@@ -726,19 +808,6 @@ tbody tr:hover { background: var(--rose-pale); }
         </div>
         <button class="btn btn-primary" onclick="saveConfig()">💾 Simpan Pengaturan</button>
       </div>
-
-      <div class="card" style="max-width:480px">
-        <div class="section-header"><div class="section-title">🔒 Ganti Password</div></div>
-        <div class="form-group">
-          <label class="form-label">Password Baru</label>
-          <input id="cfgPassBaru" class="form-control" type="password" placeholder="Minimal 4 karakter" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Konfirmasi Password Baru</label>
-          <input id="cfgPassKonfirm" class="form-control" type="password" placeholder="Ulangi password baru" />
-        </div>
-        <button class="btn btn-outline" onclick="savePassword()">🔑 Simpan Password Baru</button>
-      </div>
     </div>
 
   </div><!-- /page-content -->
@@ -748,9 +817,10 @@ tbody tr:hover { background: var(--rose-pale); }
 <div class="modal-overlay" id="modalTabungan">
   <div class="modal">
     <div class="modal-header">
-      <h3 class="modal-title">💰 Tambah Tabungan</h3>
+      <h3 class="modal-title">💰 <span id="modalTabunganTitle">Tambah Tabungan</span></h3>
       <button class="modal-close" onclick="closeModal('modalTabungan')">×</button>
     </div>
+    <input type="hidden" id="tbRowIndex" />
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Tanggal</label>
@@ -844,9 +914,10 @@ tbody tr:hover { background: var(--rose-pale); }
 <div class="modal-overlay" id="modalPengeluaran">
   <div class="modal">
     <div class="modal-header">
-      <h3 class="modal-title">💸 Catat Pengeluaran</h3>
+      <h3 class="modal-title">💸 <span id="modalPengeluaranTitle">Catat Pengeluaran</span></h3>
       <button class="modal-close" onclick="closeModal('modalPengeluaran')">×</button>
     </div>
+    <input type="hidden" id="peRowIndex" />
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Tanggal</label>
@@ -895,9 +966,10 @@ tbody tr:hover { background: var(--rose-pale); }
 <div class="modal-overlay" id="modalVendor">
   <div class="modal">
     <div class="modal-header">
-      <h3 class="modal-title">🤝 Tambah Vendor</h3>
+      <h3 class="modal-title">🤝 <span id="modalVendorTitle">Tambah Vendor</span></h3>
       <button class="modal-close" onclick="closeModal('modalVendor')">×</button>
     </div>
+    <input type="hidden" id="vnRowIndex" />
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Nama Vendor</label>
@@ -944,9 +1016,10 @@ tbody tr:hover { background: var(--rose-pale); }
 <div class="modal-overlay" id="modalTamu">
   <div class="modal">
     <div class="modal-header">
-      <h3 class="modal-title">👥 Tambah Tamu</h3>
+      <h3 class="modal-title">👥 <span id="modalTamuTitle">Tambah Tamu</span></h3>
       <button class="modal-close" onclick="closeModal('modalTamu')">×</button>
     </div>
+    <input type="hidden" id="tmRowIndex" />
     <div class="form-group">
       <label class="form-label">Nama Tamu</label>
       <input id="tmNama" class="form-control" placeholder="Nama tamu / keluarga" />
@@ -985,30 +1058,6 @@ tbody tr:hover { background: var(--rose-pale); }
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ===== LOGIN SCREEN ===== -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">💍</div>
-    <h2>Nikah Budget</h2>
-    <p>Masukkan password untuk membuka aplikasi</p>
-    <div class="login-input-wrap">
-      <input
-        class="form-control"
-        type="password"
-        id="loginPassword"
-        placeholder="••••••••"
-        onkeydown="if(event.key==='Enter') submitLogin()"
-        autofocus
-      />
-      <button class="toggle-pass" onclick="togglePasswordVisibility()" tabindex="-1">👁</button>
-    </div>
-    <div class="login-error" id="loginError"></div>
-    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px" onclick="submitLogin()">
-      🔓 Masuk
-    </button>
-  </div>
-</div>
-
 <!-- ===== SETUP SCREEN ===== -->
 <div class="setup-screen" id="setupScreen" style="display:none">
   <div class="setup-card">
@@ -1038,7 +1087,6 @@ tbody tr:hover { background: var(--rose-pale); }
 // ============================================================
 let appConfig = {};
 let currentPage = 'dashboard';
-let isLoggedIn = false; // session hanya selama tab terbuka
 
 const PAGE_META = {
   dashboard:   { title: 'Dashboard', sub: 'Ringkasan budget pernikahanmu', action: null },
@@ -1051,80 +1099,39 @@ const PAGE_META = {
 };
 
 // ============================================================
-// API — fetch ke GAS
+// API
 // ============================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzp3IM2jvTGloTtrZusbY6IbeCn94nnvyfmstFhZKKgiCJxkSr-WrLmVRlTyATbSxioiA/exec';
-
-async function callAPI(action, data = {}) {
-  const res = await fetch(GAS_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action, ...data }),
+async function api(action, data = {}) {
+  const res = await google.script.run
+    .withSuccessHandler(r => r)
+    .withFailureHandler(e => { throw e; });
+  // Use Promise wrapper
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      .doPostProxy(JSON.stringify({ action, ...data }));
   });
-  return res.json();
 }
 
 // ============================================================
-// INIT — cek login dulu sebelum apapun
+// INIT
 // ============================================================
 window.addEventListener('load', async () => {
-  // Tampilkan login screen dulu, sembunyikan app
-  showLoginScreen();
-});
-
-function showLoginScreen() {
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('loginPassword').value = '';
-  document.getElementById('loginError').textContent = '';
-  setTimeout(() => document.getElementById('loginPassword').focus(), 100);
-}
-
-// ============================================================
-// LOGIN
-// ============================================================
-async function submitLogin() {
-  const inputPass = document.getElementById('loginPassword').value.trim();
-  const errEl = document.getElementById('loginError');
-
-  if (!inputPass) {
-    errEl.textContent = 'Password tidak boleh kosong.';
-    return;
-  }
-
-  // Tampilkan loading di tombol
-  const btn = document.querySelector('#loginScreen .btn-primary');
-  btn.textContent = '⏳ Memeriksa...';
-  btn.disabled = true;
-
   try {
     await callAPI('initSheets');
+  } catch(e) {
+    showToast('initSheets error: ' + e.toString(), 'error');
+  }
+
+  try {
     const cfg = await callAPI('getConfig');
+    // Tambahkan pengecekan null/undefined di sini
     appConfig = (cfg && cfg.data) ? cfg.data : {};
   } catch(e) {
     appConfig = {};
+    showToast('getConfig error: ' + e.toString(), 'error');
   }
-
-  btn.textContent = '🔓 Masuk';
-  btn.disabled = false;
-
-  // Password default saat pertama kali: 'nikah123'
-  const savedPass = appConfig.password || 'nikah123';
-
-  if (inputPass !== savedPass) {
-    errEl.textContent = '❌ Password salah. Coba lagi.';
-    document.getElementById('loginPassword').value = '';
-    document.getElementById('loginPassword').focus();
-    // Efek getar
-    const card = document.querySelector('.login-card');
-    card.style.animation = 'none';
-    card.style.transform = 'translateX(-8px)';
-    setTimeout(() => { card.style.transform = 'translateX(8px)'; }, 80);
-    setTimeout(() => { card.style.transform = 'translateX(0)'; card.style.transition = 'transform .15s'; }, 160);
-    return;
-  }
-
-  // Login sukses
-  isLoggedIn = true;
-  document.getElementById('loginScreen').style.display = 'none';
 
   if (!appConfig.pria && !appConfig.wanita) {
     document.getElementById('setupScreen').style.display = 'flex';
@@ -1132,27 +1139,30 @@ async function submitLogin() {
     applyConfig();
     loadPage('dashboard');
   }
+});
+
+function callAPI(action, data = {}) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(r => {
+        if (r === null || r === undefined) {
+          // Coba lagi sekali jika null
+          resolve({ success: true, data: {} });
+        } else {
+          resolve(r);
+        }
+      })
+      .withFailureHandler(e => reject(e))
+      .doPostProxy(JSON.stringify({ action, ...data }));
+  });
 }
 
-function togglePasswordVisibility() {
-  const input = document.getElementById('loginPassword');
-  input.type = input.type === 'password' ? 'text' : 'password';
-}
-
-function logout() {
-  if (!confirm('Yakin ingin keluar?')) return;
-  isLoggedIn = false;
-  appConfig = {};
-  showLoginScreen();
-}
-
-// ============================================================
-// APPLY CONFIG
-// ============================================================
 function applyConfig() {
   const pria = appConfig.pria || '—';
   const wanita = appConfig.wanita || '—';
   document.getElementById('sidebarNames').textContent = `${pria} & ${wanita}`;
+  
+  // Prefill pengaturan
   document.getElementById('cfgPria').value = appConfig.pria || '';
   document.getElementById('cfgWanita').value = appConfig.wanita || '';
   document.getElementById('cfgTanggal').value = appConfig.tanggal || '';
@@ -1333,119 +1343,209 @@ async function loadDashboard() {
 // ============================================================
 // TABUNGAN
 // ============================================================
+// ============================================================
+// TABUNGAN — card list + search + sort + edit
+// ============================================================
+let _tabunganData = [], _tabunganSort = { key: 'tanggal', asc: false };
+
 async function loadTabungan() {
   const el = document.getElementById('tabunganContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const res = await callAPI('getTabungan');
-  const data = res.data;
+  _tabunganData = res.data || [];
+  renderTabungan();
+}
 
-  const totalTabungan = data.reduce((s, r) => s + (r.nominal || 0), 0);
+function renderTabungan(query = '', sortKey = _tabunganSort.key, asc = _tabunganSort.asc) {
+  _tabunganSort = { key: sortKey, asc };
+  const el = document.getElementById('tabunganContent');
+
+  const totalTabungan = _tabunganData.reduce((s, r) => s + (r.nominal || 0), 0);
   let saldo = 0;
-  const dataWithSaldo = [...data].reverse().map(r => { saldo += r.nominal; return { ...r, saldo }; }).reverse();
+  const withSaldo = [..._tabunganData].reverse().map(r => { saldo += r.nominal; return { ...r, saldo }; }).reverse();
+
+  let filtered = withSaldo.filter(r =>
+    !query ||
+    (r.keterangan||'').toLowerCase().includes(query) ||
+    (r.pihak||'').toLowerCase().includes(query) ||
+    (r.jenis||'').toLowerCase().includes(query) ||
+    (r.tanggal||'').includes(query)
+  );
+
+  filtered.sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (sortKey === 'nominal') { va = Number(va); vb = Number(vb); }
+    if (va < vb) return asc ? -1 : 1;
+    if (va > vb) return asc ? 1 : -1;
+    return 0;
+  });
+
+  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
 
   el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:20px">
-      <div class="stat-card green">
-        <div class="stat-label">Total Terkumpul</div>
-        <div class="stat-value green">${rupiah(totalTabungan)}</div>
-      </div>
-      <div class="stat-card blue">
-        <div class="stat-label">Jumlah Transaksi</div>
-        <div class="stat-value">${data.length}x</div>
-      </div>
-      <div class="stat-card rose">
-        <div class="stat-label">Rata-rata per Transaksi</div>
-        <div class="stat-value">${data.length ? rupiah(Math.round(totalTabungan / data.length)) : 'Rp 0'}</div>
-      </div>
+    <div class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card green"><div class="stat-label">Total Terkumpul</div><div class="stat-value green">${rupiah(totalTabungan)}</div></div>
+      <div class="stat-card blue"><div class="stat-label">Transaksi</div><div class="stat-value">${_tabunganData.length}x</div></div>
+      <div class="stat-card rose"><div class="stat-label">Rata-rata</div><div class="stat-value">${_tabunganData.length ? rupiah(Math.round(totalTabungan / _tabunganData.length)) : 'Rp 0'}</div></div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Tanggal</th><th>Keterangan</th><th>Pihak</th>
-            <th>Jenis</th><th style="text-align:right">Nominal</th>
-            <th style="text-align:right">Saldo</th><th></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.length === 0 ? `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">💰</div><p>Belum ada catatan tabungan</p></div></td></tr>` :
-            dataWithSaldo.map(r => `
-              <tr>
-                <td>${r.tanggal}</td>
-                <td>${r.keterangan}</td>
-                <td><span class="badge badge-${r.pihak === 'Pihak Pria' ? 'pria' : r.pihak === 'Pihak Wanita' ? 'wanita' : 'bersama'}">${r.pihak}</span></td>
-                <td>${r.jenis}</td>
-                <td style="text-align:right;font-weight:600;color:var(--green)">${rupiah(r.nominal)}</td>
-                <td style="text-align:right;font-weight:700">${rupiah(r.saldo)}</td>
-                <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Tabungan', ${r.rowIndex}, loadTabungan)">🗑</button></td>
-              </tr>`).join('')}
-        </tbody>
-      </table>
+
+    <div class="list-toolbar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Cari keterangan, pihak..." id="searchTabungan"
+          oninput="renderTabungan(this.value.toLowerCase())" value="${query}" />
+      </div>
+      <button class="sort-btn ${sortKey==='tanggal'?'active':''}" onclick="renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'tanggal',${sortKey==='tanggal'?!asc:false})">
+        📅 Tgl${sortIcon('tanggal')}
+      </button>
+      <button class="sort-btn ${sortKey==='nominal'?'active':''}" onclick="renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'nominal',${sortKey==='nominal'?!asc:false})">
+        💰 Nominal${sortIcon('nominal')}
+      </button>
+    </div>
+
+    <div class="result-count">${filtered.length} dari ${_tabunganData.length} data</div>
+
+    <div class="data-list">
+      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">💰</div><p>${query ? 'Tidak ada hasil pencarian' : 'Belum ada catatan tabungan'}</p></div>` :
+        filtered.map(r => `
+          <div class="data-card">
+            <div class="dc-top">
+              <div class="dc-title">${r.keterangan || '—'}</div>
+              <div class="dc-amount" style="color:var(--green)">${rupiah(r.nominal)}</div>
+            </div>
+            <div class="dc-meta">
+              <span class="dc-meta-item">📅 ${r.tanggal}</span>
+              <span class="badge badge-${r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama'}">${r.pihak}</span>
+              <span class="dc-meta-item">• ${r.jenis}</span>
+            </div>
+            <div class="dc-meta-item" style="font-size:12px;color:var(--text-muted)">Saldo setelah: <strong>${rupiah(r.saldo)}</strong></div>
+            <div class="dc-actions">
+              <button class="btn btn-ghost btn-sm" onclick="openEditTabungan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteItem('Tabungan',${r.rowIndex},loadTabungan)">🗑 Hapus</button>
+            </div>
+          </div>`).join('')}
     </div>`;
+}
+
+function openEditTabungan(r) {
+  document.getElementById('modalTabunganTitle').textContent = 'Edit Tabungan';
+  document.getElementById('tbRowIndex').value = r.rowIndex;
+  // parse tanggal dd/MM/yyyy ke yyyy-MM-dd
+  const parts = (r.tanggal||'').split('/');
+  document.getElementById('tbTgl').value = parts.length===3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : today();
+  document.getElementById('tbKet').value = r.keterangan || '';
+  document.getElementById('tbPihak').value = r.pihak || 'Pihak Pria';
+  document.getElementById('tbNominal').value = r.nominal || '';
+  document.getElementById('tbJenis').value = r.jenis || 'Menabung';
+  openModal('modalTabungan');
 }
 
 // ============================================================
 // KEBUTUHAN
 // ============================================================
+// ============================================================
+// KEBUTUHAN — card list + search + filter + sort + edit
+// ============================================================
+let _kebutuhanData = [], _kebutuhanSort = { key: 'prioritas', asc: true }, _kebutuhanFilter = 'Semua';
+
 async function loadKebutuhan() {
   const el = document.getElementById('kebutuhanContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const res = await callAPI('getKebutuhan');
-  const data = res.data;
+  _kebutuhanData = res.data || [];
+  renderKebutuhan();
+}
 
-  const totalEst = data.reduce((s, r) => s + (r.estimasi || 0), 0);
-  const wajib = data.filter(r => r.prioritas === 'Wajib').length;
-  const lunas = data.filter(r => r.status === 'Lunas').length;
+function renderKebutuhan(query = '', filter = _kebutuhanFilter, sortKey = _kebutuhanSort.key, asc = _kebutuhanSort.asc) {
+  _kebutuhanSort = { key: sortKey, asc };
+  _kebutuhanFilter = filter;
+  const el = document.getElementById('kebutuhanContent');
+  const totalEst = _kebutuhanData.reduce((s, r) => s + (r.estimasi || 0), 0);
+  const wajib = _kebutuhanData.filter(r => r.prioritas === 'Wajib').length;
+  const lunas = _kebutuhanData.filter(r => r.status === 'Lunas').length;
 
-  // Group by kategori
-  const groups = {};
-  data.forEach(r => {
-    if (!groups[r.kategori]) groups[r.kategori] = [];
-    groups[r.kategori].push(r);
+  const prioritasOrder = { 'Wajib': 0, 'Penting': 1, 'Opsional': 2 };
+  const statusOrder = { 'Belum': 0, 'Proses': 1, 'Lunas': 2 };
+
+  let filtered = _kebutuhanData.filter(r => {
+    const matchQ = !query ||
+      (r.item||'').toLowerCase().includes(query) ||
+      (r.kategori||'').toLowerCase().includes(query) ||
+      (r.catatan||'').toLowerCase().includes(query);
+    const matchF = filter === 'Semua' || r.prioritas === filter || r.status === filter;
+    return matchQ && matchF;
   });
 
+  filtered.sort((a, b) => {
+    let va, vb;
+    if (sortKey === 'prioritas') { va = prioritasOrder[a.prioritas]??9; vb = prioritasOrder[b.prioritas]??9; }
+    else if (sortKey === 'status') { va = statusOrder[a.status]??9; vb = statusOrder[b.status]??9; }
+    else if (sortKey === 'estimasi') { va = Number(a.estimasi); vb = Number(b.estimasi); }
+    else { va = (a[sortKey]||'').toString(); vb = (b[sortKey]||'').toString(); }
+    if (va < vb) return asc ? -1 : 1;
+    if (va > vb) return asc ? 1 : -1;
+    return 0;
+  });
+
+  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
+  const chips = ['Semua','Wajib','Penting','Opsional','Belum','Proses','Lunas'];
+
   el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:20px">
-      <div class="stat-card blue"><div class="stat-label">Total Item</div><div class="stat-value">${data.length}</div></div>
+    <div class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card blue"><div class="stat-label">Total Item</div><div class="stat-value">${_kebutuhanData.length}</div></div>
       <div class="stat-card rose"><div class="stat-label">Item Wajib</div><div class="stat-value rose">${wajib}</div></div>
       <div class="stat-card green"><div class="stat-label">Sudah Lunas</div><div class="stat-value green">${lunas}</div></div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>Kategori</th><th>Item</th><th>Prioritas</th><th style="text-align:right">Estimasi</th><th>Status</th><th>Catatan</th><th></th></tr>
-        </thead>
-        <tbody>
-          ${data.length === 0 ? `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><p>Belum ada item kebutuhan</p></div></td></tr>` :
-            data.map(r => `
-              <tr>
-                <td><small style="color:var(--text-muted)">${r.kategori}</small></td>
-                <td style="font-weight:500">${r.item}</td>
-                <td><span class="badge badge-${r.prioritas.toLowerCase()}">${r.prioritas}</span></td>
-                <td style="text-align:right;font-weight:600">${rupiah(r.estimasi)}</td>
-                <td>
-                  <select class="form-control" style="padding:4px 8px;font-size:12px;width:auto" onchange="updateStatusKebutuhan(${r.rowIndex}, this.value, ${JSON.stringify(r).replace(/"/g, '&quot;')})">
-                    <option ${r.status==='Belum'?'selected':''}>Belum</option>
-                    <option ${r.status==='Proses'?'selected':''}>Proses</option>
-                    <option ${r.status==='Lunas'?'selected':''}>Lunas</option>
-                  </select>
-                </td>
-                <td style="color:var(--text-muted);font-size:12px">${r.catatan || '—'}</td>
-                <td style="white-space:nowrap">
-                  <button class="btn btn-ghost btn-sm" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g, '&quot;')})">✏️</button>
-                  <button class="btn btn-danger btn-sm" onclick="deleteItem('Kebutuhan', ${r.rowIndex}, loadKebutuhan)">🗑</button>
-                </td>
-              </tr>`).join('')}
-        </tbody>
-        <tfoot>
-          <tr style="background:var(--cream-dark)">
-            <td colspan="3" style="font-weight:700;padding:11px 14px">TOTAL ESTIMASI</td>
-            <td style="text-align:right;font-weight:700;padding:11px 14px;color:var(--rose)">${rupiah(totalEst)}</td>
-            <td colspan="3"></td>
-          </tr>
-        </tfoot>
-      </table>
+
+    <div class="list-toolbar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Cari item, kategori..." id="searchKebutuhan"
+          oninput="renderKebutuhan(this.value.toLowerCase(), _kebutuhanFilter)" value="${query}" />
+      </div>
+      <button class="sort-btn ${sortKey==='prioritas'?'active':''}" onclick="renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'prioritas',${sortKey==='prioritas'?!asc:true})">
+        ⚡ Prioritas${sortIcon('prioritas')}
+      </button>
+      <button class="sort-btn ${sortKey==='estimasi'?'active':''}" onclick="renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'estimasi',${sortKey==='estimasi'?!asc:false})">
+        💰 Biaya${sortIcon('estimasi')}
+      </button>
+    </div>
+
+    <div class="filter-chips">
+      ${chips.map(c => `<span class="chip ${filter===c?'active':''}" onclick="renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
+    </div>
+
+    <div class="result-count">${filtered.length} dari ${_kebutuhanData.length} item · Total estimasi: <strong>${rupiah(totalEst)}</strong></div>
+
+    <div class="data-list">
+      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">📋</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada item kebutuhan'}</p></div>` :
+        filtered.map(r => `
+          <div class="data-card">
+            <div class="dc-top">
+              <div>
+                <div class="dc-title">${r.item}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.kategori}</div>
+              </div>
+              <div class="dc-amount" style="color:var(--rose)">${rupiah(r.estimasi)}</div>
+            </div>
+            <div class="dc-meta">
+              <span class="badge badge-${r.prioritas.toLowerCase()}">${r.prioritas}</span>
+              <span class="badge badge-${r.status.toLowerCase()}">${r.status}</span>
+            </div>
+            ${r.catatan ? `<div class="dc-note">📝 ${r.catatan}</div>` : ''}
+            <div class="dc-actions">
+              <select class="form-control" style="padding:6px 10px;font-size:12px;flex:1;max-width:130px"
+                onchange="updateStatusKebutuhan(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
+                <option ${r.status==='Belum'?'selected':''}>Belum</option>
+                <option ${r.status==='Proses'?'selected':''}>Proses</option>
+                <option ${r.status==='Lunas'?'selected':''}>Lunas</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteItem('Kebutuhan',${r.rowIndex},loadKebutuhan)">🗑</button>
+            </div>
+          </div>`).join('')}
     </div>`;
+}
 }
 
 function openFormKebutuhan() {
@@ -1477,133 +1577,344 @@ async function updateStatusKebutuhan(rowIndex, newStatus, r) {
 }
 
 // ============================================================
-// PENGELUARAN
+// PENGELUARAN — card list + search + filter + sort + edit
 // ============================================================
+let _pengeluaranData = [], _pengeluaranSort = { key: 'tanggal', asc: false }, _pengeluaranFilter = 'Semua';
+
 async function loadPengeluaran() {
   const el = document.getElementById('pengeluaranContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const res = await callAPI('getPengeluaran');
-  const data = res.data;
-  const total = data.reduce((s, r) => s + (r.nominal || 0), 0);
+  _pengeluaranData = res.data || [];
+  renderPengeluaran();
+}
+
+function renderPengeluaran(query = '', filter = _pengeluaranFilter, sortKey = _pengeluaranSort.key, asc = _pengeluaranSort.asc) {
+  _pengeluaranSort = { key: sortKey, asc };
+  _pengeluaranFilter = filter;
+  const el = document.getElementById('pengeluaranContent');
+  const total = _pengeluaranData.reduce((s, r) => s + (r.nominal || 0), 0);
+
+  let filtered = _pengeluaranData.filter(r => {
+    const matchQ = !query ||
+      (r.item||'').toLowerCase().includes(query) ||
+      (r.kategori||'').toLowerCase().includes(query) ||
+      (r.dibayar||'').toLowerCase().includes(query) ||
+      (r.tanggal||'').includes(query);
+    const matchF = filter === 'Semua' || r.dibayar === filter || r.kategori === filter;
+    return matchQ && matchF;
+  });
+
+  filtered.sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (sortKey === 'nominal') { va = Number(va); vb = Number(vb); }
+    if (va < vb) return asc ? -1 : 1;
+    if (va > vb) return asc ? 1 : -1;
+    return 0;
+  });
+
+  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
+  const filterChips = ['Semua','Pihak Pria','Pihak Wanita','Bersama'];
 
   el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:20px">
+    <div class="stats-grid" style="margin-bottom:16px">
       <div class="stat-card rose"><div class="stat-label">Total Pengeluaran</div><div class="stat-value rose">${rupiah(total)}</div></div>
-      <div class="stat-card blue"><div class="stat-label">Jumlah Transaksi</div><div class="stat-value">${data.length}x</div></div>
-      <div class="stat-card amber"><div class="stat-label">Rata-rata</div><div class="stat-value">${data.length ? rupiah(Math.round(total/data.length)) : 'Rp 0'}</div></div>
+      <div class="stat-card blue"><div class="stat-label">Transaksi</div><div class="stat-value">${_pengeluaranData.length}x</div></div>
+      <div class="stat-card amber"><div class="stat-label">Rata-rata</div><div class="stat-value">${_pengeluaranData.length ? rupiah(Math.round(total/_pengeluaranData.length)) : 'Rp 0'}</div></div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Tanggal</th><th>Item</th><th>Kategori</th><th style="text-align:right">Nominal</th><th>Dibayar</th><th>Metode</th><th></th></tr></thead>
-        <tbody>
-          ${data.length === 0 ? `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">💸</div><p>Belum ada catatan pengeluaran</p></div></td></tr>` :
-            data.map(r => `<tr>
-              <td>${r.tanggal}</td>
-              <td style="font-weight:500">${r.item}</td>
-              <td><small style="color:var(--text-muted)">${r.kategori}</small></td>
-              <td style="text-align:right;font-weight:600;color:var(--rose)">${rupiah(r.nominal)}</td>
-              <td><span class="badge badge-${r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama'}">${r.dibayar}</span></td>
-              <td>${r.metode}</td>
-              <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Pengeluaran', ${r.rowIndex}, loadPengeluaran)">🗑</button></td>
-            </tr>`).join('')}
-        </tbody>
-        <tfoot><tr style="background:var(--cream-dark)">
-          <td colspan="3" style="font-weight:700;padding:11px 14px">TOTAL</td>
-          <td style="text-align:right;font-weight:700;padding:11px 14px;color:var(--rose)">${rupiah(total)}</td>
-          <td colspan="3"></td>
-        </tr></tfoot>
-      </table>
+
+    <div class="list-toolbar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Cari item, kategori..." id="searchPengeluaran"
+          oninput="renderPengeluaran(this.value.toLowerCase(),_pengeluaranFilter)" value="${query}" />
+      </div>
+      <button class="sort-btn ${sortKey==='tanggal'?'active':''}" onclick="renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'tanggal',${sortKey==='tanggal'?!asc:false})">
+        📅 Tgl${sortIcon('tanggal')}
+      </button>
+      <button class="sort-btn ${sortKey==='nominal'?'active':''}" onclick="renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'nominal',${sortKey==='nominal'?!asc:false})">
+        💰 Nominal${sortIcon('nominal')}
+      </button>
+    </div>
+
+    <div class="filter-chips">
+      ${filterChips.map(c => `<span class="chip ${filter===c?'active':''}" onclick="renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
+    </div>
+
+    <div class="result-count">${filtered.length} dari ${_pengeluaranData.length} data · Ditampilkan: <strong>${rupiah(filtered.reduce((s,r)=>s+(r.nominal||0),0))}</strong></div>
+
+    <div class="data-list">
+      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">💸</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada pengeluaran'}</p></div>` :
+        filtered.map(r => `
+          <div class="data-card">
+            <div class="dc-top">
+              <div>
+                <div class="dc-title">${r.item}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.kategori}</div>
+              </div>
+              <div class="dc-amount" style="color:var(--rose)">${rupiah(r.nominal)}</div>
+            </div>
+            <div class="dc-meta">
+              <span class="dc-meta-item">📅 ${r.tanggal}</span>
+              <span class="badge badge-${r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama'}">${r.dibayar}</span>
+              <span class="dc-meta-item">• ${r.metode}</span>
+            </div>
+            ${r.catatan ? `<div class="dc-note">📝 ${r.catatan}</div>` : ''}
+            <div class="dc-actions">
+              <button class="btn btn-ghost btn-sm" onclick="openEditPengeluaran(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteItem('Pengeluaran',${r.rowIndex},loadPengeluaran)">🗑 Hapus</button>
+            </div>
+          </div>`).join('')}
     </div>`;
 }
 
+function openEditPengeluaran(r) {
+  document.getElementById('modalPengeluaranTitle').textContent = 'Edit Pengeluaran';
+  document.getElementById('peRowIndex').value = r.rowIndex;
+  const parts = (r.tanggal||'').split('/');
+  document.getElementById('peTgl').value = parts.length===3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : today();
+  document.getElementById('peItem').value = r.item || '';
+  document.getElementById('peKat').value = r.kategori || 'Lain-lain';
+  document.getElementById('peNominal').value = r.nominal || '';
+  document.getElementById('peDibayar').value = r.dibayar || 'Pihak Pria';
+  document.getElementById('peMetode').value = r.metode || 'Tunai';
+  openModal('modalPengeluaran');
+}
+
 // ============================================================
-// VENDOR
+// VENDOR — card list + search + filter + sort + edit
 // ============================================================
+let _vendorData = [], _vendorSort = { key: 'nama', asc: true }, _vendorFilter = 'Semua';
+
 async function loadVendor() {
   const el = document.getElementById('vendorContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const res = await callAPI('getVendor');
-  const data = res.data;
-  const deals = data.filter(r => r.status === 'Deal').length;
+  _vendorData = res.data || [];
+  renderVendor();
+}
+
+function renderVendor(query = '', filter = _vendorFilter, sortKey = _vendorSort.key, asc = _vendorSort.asc) {
+  _vendorSort = { key: sortKey, asc };
+  _vendorFilter = filter;
+  const el = document.getElementById('vendorContent');
+  const deals = _vendorData.filter(r => r.status === 'Deal').length;
+
+  let filtered = _vendorData.filter(r => {
+    const matchQ = !query ||
+      (r.nama||'').toLowerCase().includes(query) ||
+      (r.kategori||'').toLowerCase().includes(query) ||
+      (r.kontak||'').toLowerCase().includes(query);
+    const matchF = filter === 'Semua' || r.status === filter || r.kategori === filter;
+    return matchQ && matchF;
+  });
+
+  filtered.sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (sortKey === 'harga') { va = Number(va); vb = Number(vb); }
+    if (va < vb) return asc ? -1 : 1;
+    if (va > vb) return asc ? 1 : -1;
+    return 0;
+  });
+
+  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
+  const filterChips = ['Semua','Kandidat','Negosiasi','Deal','Batal'];
+  const statusColor = { 'Deal':'badge-lunas', 'Negosiasi':'badge-proses', 'Kandidat':'badge-kandidat', 'Batal':'badge-belum' };
 
   el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:20px">
-      <div class="stat-card blue"><div class="stat-label">Total Vendor</div><div class="stat-value">${data.length}</div></div>
+    <div class="stats-grid" style="margin-bottom:16px">
+      <div class="stat-card blue"><div class="stat-label">Total Vendor</div><div class="stat-value">${_vendorData.length}</div></div>
       <div class="stat-card green"><div class="stat-label">Deal</div><div class="stat-value green">${deals}</div></div>
-      <div class="stat-card amber"><div class="stat-label">Kandidat</div><div class="stat-value amber">${data.filter(r=>r.status==='Kandidat').length}</div></div>
+      <div class="stat-card amber"><div class="stat-label">Kandidat</div><div class="stat-value amber">${_vendorData.filter(r=>r.status==='Kandidat').length}</div></div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Nama Vendor</th><th>Kategori</th><th style="text-align:right">Harga</th><th>Status</th><th>Kontak</th><th></th></tr></thead>
-        <tbody>
-          ${data.length === 0 ? `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🤝</div><p>Belum ada vendor</p></div></td></tr>` :
-            data.map(r => `<tr>
-              <td style="font-weight:600">${r.nama}</td>
-              <td><small style="color:var(--text-muted)">${r.kategori}</small></td>
-              <td style="text-align:right;font-weight:600">${rupiah(r.harga)}</td>
-              <td>
-                <select class="form-control" style="padding:4px 8px;font-size:12px;width:auto" onchange="updateVendorStatus(${r.rowIndex}, this.value)">
-                  <option ${r.status==='Kandidat'?'selected':''}>Kandidat</option>
-                  <option ${r.status==='Negosiasi'?'selected':''}>Negosiasi</option>
-                  <option ${r.status==='Deal'?'selected':''}>Deal</option>
-                  <option ${r.status==='Batal'?'selected':''}>Batal</option>
-                </select>
-              </td>
-              <td style="font-size:12px;color:var(--text-muted)">${r.kontak || '—'}</td>
-              <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Vendor', ${r.rowIndex}, loadVendor)">🗑</button></td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
+
+    <div class="list-toolbar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Cari nama, kategori..." id="searchVendor"
+          oninput="renderVendor(this.value.toLowerCase(),_vendorFilter)" value="${query}" />
+      </div>
+      <button class="sort-btn ${sortKey==='nama'?'active':''}" onclick="renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'nama',${sortKey==='nama'?!asc:true})">
+        🔤 Nama${sortIcon('nama')}
+      </button>
+      <button class="sort-btn ${sortKey==='harga'?'active':''}" onclick="renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'harga',${sortKey==='harga'?!asc:false})">
+        💰 Harga${sortIcon('harga')}
+      </button>
+    </div>
+
+    <div class="filter-chips">
+      ${filterChips.map(c => `<span class="chip ${filter===c?'active':''}" onclick="renderVendor(document.getElementById('searchVendor').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
+    </div>
+
+    <div class="result-count">${filtered.length} dari ${_vendorData.length} vendor</div>
+
+    <div class="data-list">
+      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">🤝</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada vendor'}</p></div>` :
+        filtered.map(r => `
+          <div class="data-card">
+            <div class="dc-top">
+              <div>
+                <div class="dc-title">${r.nama}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.kategori}</div>
+              </div>
+              <div class="dc-amount" style="color:var(--text)">${rupiah(r.harga)}</div>
+            </div>
+            <div class="dc-meta">
+              <span class="badge ${statusColor[r.status]||'badge-kandidat'}">${r.status}</span>
+              ${r.kontak ? `<span class="dc-meta-item">📞 ${r.kontak}</span>` : ''}
+              ${r.rating ? `<span class="dc-meta-item">${r.rating}</span>` : ''}
+            </div>
+            ${r.catatan ? `<div class="dc-note">📝 ${r.catatan}</div>` : ''}
+            <div class="dc-actions">
+              <select class="form-control" style="padding:6px 10px;font-size:12px;flex:1;max-width:130px"
+                onchange="updateVendorStatus(${r.rowIndex},this.value)">
+                <option ${r.status==='Kandidat'?'selected':''}>Kandidat</option>
+                <option ${r.status==='Negosiasi'?'selected':''}>Negosiasi</option>
+                <option ${r.status==='Deal'?'selected':''}>Deal</option>
+                <option ${r.status==='Batal'?'selected':''}>Batal</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="openEditVendor(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteItem('Vendor',${r.rowIndex},loadVendor)">🗑</button>
+            </div>
+          </div>`).join('')}
     </div>`;
 }
 
-async function updateVendorStatus(rowIndex, status) {
-  await callAPI('updateVendor', { rowIndex, status });
-  showToast('Status vendor diperbarui', 'success');
+function openEditVendor(r) {
+  document.getElementById('modalVendorTitle').textContent = 'Edit Vendor';
+  document.getElementById('vnRowIndex').value = r.rowIndex;
+  document.getElementById('vnNama').value = r.nama || '';
+  document.getElementById('vnKat').value = r.kategori || 'Lainnya';
+  document.getElementById('vnHarga').value = r.harga || '';
+  document.getElementById('vnStatus').value = r.status || 'Kandidat';
+  document.getElementById('vnKontak').value = r.kontak || '';
+  document.getElementById('vnCatatan').value = r.catatan || '';
+  openModal('modalVendor');
 }
 
 // ============================================================
-// TAMU
+// TAMU — card list + search + filter + sort + edit
 // ============================================================
+let _tamuData = [], _tamuSort = { key: 'nama', asc: true }, _tamuFilter = 'Semua';
+
 async function loadTamu() {
   const el = document.getElementById('tamuContent');
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const res = await callAPI('getTamu');
-  const data = res.data;
+  _tamuData = res.data || [];
+  renderTamu();
+}
 
-  const totalOrang = data.reduce((s, r) => s + (r.jumlah || 1), 0);
-  const hadir = data.filter(r => r.konfirmasi === 'Hadir').reduce((s, r) => s + (r.jumlah || 1), 0);
-  const angpaoPerOrang = parseInt(appConfig.angpao) || 150000;
-  const estAngpao = hadir * angpaoPerOrang;
+function renderTamu(query = '', filter = _tamuFilter, sortKey = _tamuSort.key, asc = _tamuSort.asc) {
+  _tamuSort = { key: sortKey, asc };
+  _tamuFilter = filter;
+  const el = document.getElementById('tamuContent');
+  const totalOrang = _tamuData.reduce((s,r) => s+(r.jumlah||1), 0);
+  const hadir = _tamuData.filter(r=>r.konfirmasi==='Hadir').reduce((s,r)=>s+(r.jumlah||1),0);
+  const estAngpao = hadir * (parseInt(appConfig.angpao)||150000);
+
+  let filtered = _tamuData.filter(r => {
+    const matchQ = !query ||
+      (r.nama||'').toLowerCase().includes(query) ||
+      (r.hubungan||'').toLowerCase().includes(query) ||
+      (r.pihak||'').toLowerCase().includes(query);
+    const matchF = filter==='Semua' || r.pihak===filter || r.konfirmasi===filter;
+    return matchQ && matchF;
+  });
+
+  filtered.sort((a,b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (sortKey==='jumlah'){va=Number(va);vb=Number(vb);}
+    if (va<vb) return asc?-1:1;
+    if (va>vb) return asc?1:-1;
+    return 0;
+  });
+
+  const sortIcon = (key) => sortKey===key?(asc?' ↑':' ↓'):'';
+  const filterChips = ['Semua','Pihak Pria','Pihak Wanita','Hadir','Tidak Hadir','Belum'];
+  const konfirmasiColor = { 'Hadir':'badge-lunas', 'Tidak Hadir':'badge-belum', 'Belum':'badge-kandidat' };
 
   el.innerHTML = `
     <div class="tamu-summary">
-      <div class="stat-card blue"><div class="stat-label">Total Diundang</div><div class="stat-value">${totalOrang} orang</div></div>
-      <div class="stat-card green"><div class="stat-label">Konfirmasi Hadir</div><div class="stat-value green">${hadir} orang</div></div>
-      <div class="stat-card gold" style="--gold:#C9A84C"><div class="stat-label">Est. Angpao</div><div class="stat-value" style="color:var(--gold)">${rupiah(estAngpao)}</div></div>
+      <div class="stat-card blue"><div class="stat-label">Diundang</div><div class="stat-value">${totalOrang}</div></div>
+      <div class="stat-card green"><div class="stat-label">Hadir</div><div class="stat-value green">${hadir}</div></div>
+      <div class="stat-card" style="--gold:#C9A84C"><div class="stat-label">Est. Angpao</div><div class="stat-value" style="color:var(--gold);font-size:16px">${rupiah(estAngpao)}</div></div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Nama Tamu</th><th>Hubungan</th><th>Pihak</th><th style="text-align:center">Jml</th><th>Konfirmasi</th><th></th></tr></thead>
-        <tbody>
-          ${data.length === 0 ? `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👥</div><p>Belum ada tamu</p></div></td></tr>` :
-            data.map(r => `<tr>
-              <td style="font-weight:500">${r.nama}</td>
-              <td><small style="color:var(--text-muted)">${r.hubungan || '—'}</small></td>
-              <td><span class="badge badge-${r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama'}">${r.pihak}</span></td>
-              <td style="text-align:center">${r.jumlah}</td>
-              <td><span class="badge ${r.konfirmasi==='Hadir'?'badge-lunas':r.konfirmasi==='Tidak Hadir'?'badge-belum':'badge-kandidat'}">${r.konfirmasi}</span></td>
-              <td><button class="btn btn-danger btn-sm" onclick="deleteItem('Tamu', ${r.rowIndex}, loadTamu)">🗑</button></td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
+
+    <div class="list-toolbar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Cari nama, hubungan..." id="searchTamu"
+          oninput="renderTamu(this.value.toLowerCase(),_tamuFilter)" value="${query}" />
+      </div>
+      <button class="sort-btn ${sortKey==='nama'?'active':''}" onclick="renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'nama',${sortKey==='nama'?!asc:true})">
+        🔤 Nama${sortIcon('nama')}
+      </button>
+      <button class="sort-btn ${sortKey==='jumlah'?'active':''}" onclick="renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'jumlah',${sortKey==='jumlah'?!asc:false})">
+        👥 Jumlah${sortIcon('jumlah')}
+      </button>
+    </div>
+
+    <div class="filter-chips">
+      ${filterChips.map(c=>`<span class="chip ${filter===c?'active':''}" onclick="renderTamu(document.getElementById('searchTamu').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
+    </div>
+
+    <div class="result-count">${filtered.length} dari ${_tamuData.length} tamu</div>
+
+    <div class="data-list">
+      ${filtered.length===0 ? `<div class="empty-state"><div class="empty-icon">👥</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada tamu'}</p></div>` :
+        filtered.map(r=>`
+          <div class="data-card">
+            <div class="dc-top">
+              <div>
+                <div class="dc-title">${r.nama}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.hubungan||'—'}</div>
+              </div>
+              <span class="badge ${konfirmasiColor[r.konfirmasi]||'badge-kandidat'}">${r.konfirmasi}</span>
+            </div>
+            <div class="dc-meta">
+              <span class="badge badge-${r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama'}">${r.pihak}</span>
+              <span class="dc-meta-item">👥 ${r.jumlah} orang</span>
+            </div>
+            <div class="dc-actions">
+              <select class="form-control" style="padding:6px 10px;font-size:12px;flex:1;max-width:150px"
+                onchange="updateKonfirmasiTamu(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
+                <option ${r.konfirmasi==='Belum'?'selected':''}>Belum</option>
+                <option ${r.konfirmasi==='Hadir'?'selected':''}>Hadir</option>
+                <option ${r.konfirmasi==='Tidak Hadir'?'selected':''}>Tidak Hadir</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="openEditTamu(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteItem('Tamu',${r.rowIndex},loadTamu)">🗑</button>
+            </div>
+          </div>`).join('')}
     </div>`;
 }
 
+async function updateKonfirmasiTamu(rowIndex, konfirmasi, r) {
+  r.konfirmasi = konfirmasi;
+  await callAPI('updateTamu', { rowIndex, data: r });
+  showToast('Konfirmasi diperbarui', 'success');
+  // update local data tanpa reload
+  const idx = _tamuData.findIndex(d => d.rowIndex === rowIndex);
+  if (idx !== -1) _tamuData[idx].konfirmasi = konfirmasi;
+}
+
+function openEditTamu(r) {
+  document.getElementById('modalTamuTitle').textContent = 'Edit Tamu';
+  document.getElementById('tmRowIndex').value = r.rowIndex;
+  document.getElementById('tmNama').value = r.nama || '';
+  document.getElementById('tmHubungan').value = r.hubungan || '';
+  document.getElementById('tmPihak').value = r.pihak || 'Pihak Pria';
+  document.getElementById('tmJumlah').value = r.jumlah || 1;
+  document.getElementById('tmKonfirmasi').value = r.konfirmasi || 'Belum';
+  openModal('modalTamu');
+}
+
 // ============================================================
-// SUBMIT FORMS
+// SUBMIT FORMS — support tambah & edit
 // ============================================================
 async function submitTabungan() {
+  const rowIndex = document.getElementById('tbRowIndex').value;
   const data = {
     tanggal: document.getElementById('tbTgl').value,
     keterangan: document.getElementById('tbKet').value,
@@ -1612,9 +1923,14 @@ async function submitTabungan() {
     jenis: document.getElementById('tbJenis').value,
   };
   if (!data.tanggal || !data.nominal) return showToast('Tanggal & nominal wajib diisi', 'error');
-  await callAPI('addTabungan', { data });
+  if (rowIndex) {
+    await callAPI('updateTabungan', { rowIndex: parseInt(rowIndex), data });
+    showToast('Tabungan diperbarui! ✅', 'success');
+  } else {
+    await callAPI('addTabungan', { data });
+    showToast('Tabungan ditambahkan! 💰', 'success');
+  }
   closeModal('modalTabungan');
-  showToast('Tabungan berhasil ditambahkan! 💰', 'success');
   loadTabungan();
 }
 
@@ -1641,6 +1957,7 @@ async function submitKebutuhan() {
 }
 
 async function submitPengeluaran() {
+  const rowIndex = document.getElementById('peRowIndex').value;
   const data = {
     tanggal: document.getElementById('peTgl').value,
     item: document.getElementById('peItem').value,
@@ -1650,13 +1967,19 @@ async function submitPengeluaran() {
     metode: document.getElementById('peMetode').value,
   };
   if (!data.tanggal || !data.item || !data.nominal) return showToast('Lengkapi data dulu', 'error');
-  await callAPI('addPengeluaran', { data });
+  if (rowIndex) {
+    await callAPI('updatePengeluaran', { rowIndex: parseInt(rowIndex), data });
+    showToast('Pengeluaran diperbarui! ✅', 'success');
+  } else {
+    await callAPI('addPengeluaran', { data });
+    showToast('Pengeluaran dicatat! 💸', 'success');
+  }
   closeModal('modalPengeluaran');
-  showToast('Pengeluaran dicatat! 💸', 'success');
   loadPengeluaran();
 }
 
 async function submitVendor() {
+  const rowIndex = document.getElementById('vnRowIndex').value;
   const data = {
     nama: document.getElementById('vnNama').value,
     kategori: document.getElementById('vnKat').value,
@@ -1666,13 +1989,19 @@ async function submitVendor() {
     catatan: document.getElementById('vnCatatan').value,
   };
   if (!data.nama) return showToast('Nama vendor wajib diisi', 'error');
-  await callAPI('addVendor', { data });
+  if (rowIndex) {
+    await callAPI('updateVendorRow', { rowIndex: parseInt(rowIndex), data });
+    showToast('Vendor diperbarui! ✅', 'success');
+  } else {
+    await callAPI('addVendor', { data });
+    showToast('Vendor ditambahkan! 🤝', 'success');
+  }
   closeModal('modalVendor');
-  showToast('Vendor ditambahkan! 🤝', 'success');
   loadVendor();
 }
 
 async function submitTamu() {
+  const rowIndex = document.getElementById('tmRowIndex').value;
   const data = {
     nama: document.getElementById('tmNama').value,
     hubungan: document.getElementById('tmHubungan').value,
@@ -1681,11 +2010,17 @@ async function submitTamu() {
     konfirmasi: document.getElementById('tmKonfirmasi').value,
   };
   if (!data.nama) return showToast('Nama tamu wajib diisi', 'error');
-  await callAPI('addTamu', { data });
+  if (rowIndex) {
+    await callAPI('updateTamu', { rowIndex: parseInt(rowIndex), data });
+    showToast('Tamu diperbarui! ✅', 'success');
+  } else {
+    await callAPI('addTamu', { data });
+    showToast('Tamu ditambahkan! 👥', 'success');
+  }
   closeModal('modalTamu');
-  showToast('Tamu ditambahkan! 👥', 'success');
   loadTamu();
 }
+
 
 async function deleteItem(type, rowIndex, reloadFn) {
   if (!confirm('Hapus data ini?')) return;
@@ -1703,29 +2038,11 @@ async function saveConfig() {
     wanita: document.getElementById('cfgWanita').value,
     tanggal: document.getElementById('cfgTanggal').value,
     angpao: document.getElementById('cfgAngpao').value || 150000,
-    password: appConfig.password || 'nikah123', // pertahankan password yang ada
   };
   await callAPI('saveConfig', { data });
-  appConfig = { ...appConfig, ...data };
+  appConfig = data;
   applyConfig();
   showToast('Pengaturan disimpan! ⚙️', 'success');
-}
-
-async function savePassword() {
-  const baru = document.getElementById('cfgPassBaru').value.trim();
-  const konfirm = document.getElementById('cfgPassKonfirm').value.trim();
-
-  if (!baru) return showToast('Password baru tidak boleh kosong', 'error');
-  if (baru.length < 4) return showToast('Password minimal 4 karakter', 'error');
-  if (baru !== konfirm) return showToast('Konfirmasi password tidak cocok ❌', 'error');
-
-  const data = { ...appConfig, password: baru };
-  await callAPI('saveConfig', { data });
-  appConfig = data;
-
-  document.getElementById('cfgPassBaru').value = '';
-  document.getElementById('cfgPassKonfirm').value = '';
-  showToast('Password berhasil diubah! 🔑', 'success');
 }
 
 async function finishSetup() {
@@ -1733,24 +2050,35 @@ async function finishSetup() {
   const wanita = document.getElementById('setupWanita').value.trim();
   const tanggal = document.getElementById('setupTanggal').value;
   if (!pria || !wanita) return showToast('Nama keduanya wajib diisi', 'error');
-  const data = { pria, wanita, tanggal, angpao: 150000, password: 'nikah123' };
+  const data = { pria, wanita, tanggal, angpao: 150000 };
   await callAPI('saveConfig', { data });
   appConfig = data;
   document.getElementById('setupScreen').style.display = 'none';
   applyConfig();
   loadPage('dashboard');
   showToast(`Bismillah 💍 Selamat merencanakan, ${pria} & ${wanita}!`, 'success');
-  // Ingatkan ganti password default
-  setTimeout(() => showToast('⚠️ Segera ganti password default di menu Pengaturan!', ''), 4000);
 }
 
 // ============================================================
 // MODAL & HELPERS
 // ============================================================
 function openModal(id) {
-  // Reset date inputs
-  const tglInputs = { modalTabungan: 'tbTgl', modalPengeluaran: 'peTgl' };
-  if (tglInputs[id]) document.getElementById(tglInputs[id]).value = today();
+  // Reset hidden rowIndex & judul ke mode "Tambah" saat buka fresh
+  const resetMap = {
+    'modalTabungan':    { ri: 'tbRowIndex',  title: 'modalTabunganTitle',    label: 'Tambah Tabungan',    tgl: 'tbTgl' },
+    'modalPengeluaran': { ri: 'peRowIndex',  title: 'modalPengeluaranTitle', label: 'Catat Pengeluaran',  tgl: 'peTgl' },
+    'modalVendor':      { ri: 'vnRowIndex',  title: 'modalVendorTitle',      label: 'Tambah Vendor' },
+    'modalTamu':        { ri: 'tmRowIndex',  title: 'modalTamuTitle',        label: 'Tambah Tamu' },
+  };
+  const cfg = resetMap[id];
+  if (cfg) {
+    // Hanya reset kalau dipanggil dari tombol "tambah" (rowIndex kosong)
+    // Kalau dari edit, rowIndex sudah diisi sebelum openModal dipanggil
+    if (!document.getElementById(cfg.ri).value) {
+      if (cfg.title) document.getElementById(cfg.title).textContent = cfg.label;
+      if (cfg.tgl) document.getElementById(cfg.tgl).value = today();
+    }
+  }
   document.getElementById(id).classList.add('open');
 }
 
