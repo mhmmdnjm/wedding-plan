@@ -1102,7 +1102,7 @@ const PAGE_META = {
 // ============================================================
 // API — ganti URL di bawah dengan URL deploy GAS kamu
 // ============================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbw92tvW66QGIypkzJcQNJpClqs9yuOch2CJpmx5pAJz0FJaTi-EmWOu16xNc7LRjLOY5Q/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx-7Q2YBYFiCRMhoOyv8nswhUoQ3rvwz2tvxadUQadDJcYzCC6e8ZTCyjKFdaGIbBm10w/exec';
 
 async function callAPI(action, data = {}) {
   const res = await fetch(GAS_URL, {
@@ -1513,7 +1513,7 @@ function renderKebutuhan(query = '', filter = _kebutuhanFilter, sortKey = _kebut
           </div>`).join('')}
     </div>`;
 }
-}
+
 
 function openFormKebutuhan() {
   document.getElementById('modalKebutuhanTitle').textContent = 'Tambah Kebutuhan';
