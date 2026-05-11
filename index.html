@@ -1098,64 +1098,31 @@ const PAGE_META = {
   pengaturan:  { title: '⚙️ Pengaturan', sub: 'Konfigurasi pernikahan', action: null },
 };
 
+
 // ============================================================
-// API
+// API — ganti URL di bawah dengan URL deploy GAS kamu
 // ============================================================
-async function api(action, data = {}) {
-  const res = await google.script.run
-    .withSuccessHandler(r => r)
-    .withFailureHandler(e => { throw e; });
-  // Use Promise wrapper
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(resolve)
-      .withFailureHandler(reject)
-      .doPostProxy(JSON.stringify({ action, ...data }));
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw92tvW66QGIypkzJcQNJpClqs9yuOch2CJpmx5pAJz0FJaTi-EmWOu16xNc7LRjLOY5Q/exec';
+
+async function callAPI(action, data = {}) {
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action, ...data }),
   });
+  return res.json();
 }
 
 // ============================================================
 // INIT
 // ============================================================
 window.addEventListener('load', async () => {
-  try {
-    await callAPI('initSheets');
-  } catch(e) {
-    showToast('initSheets error: ' + e.toString(), 'error');
+  if (GAS_URL === 'GANTI_DENGAN_URL_GAS_KAMU') {
+    alert('⚠️ Buka file index.html, cari GAS_URL dan ganti dengan URL deploy GAS kamu!');
+    return;
   }
-
-  try {
-    const cfg = await callAPI('getConfig');
-    // Tambahkan pengecekan null/undefined di sini
-    appConfig = (cfg && cfg.data) ? cfg.data : {};
-  } catch(e) {
-    appConfig = {};
-    showToast('getConfig error: ' + e.toString(), 'error');
-  }
-
-  if (!appConfig.pria && !appConfig.wanita) {
-    document.getElementById('setupScreen').style.display = 'flex';
-  } else {
-    applyConfig();
-    loadPage('dashboard');
-  }
+  showLoginScreen();
 });
 
-function callAPI(action, data = {}) {
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(r => {
-        if (r === null || r === undefined) {
-          // Coba lagi sekali jika null
-          resolve({ success: true, data: {} });
-        } else {
-          resolve(r);
-        }
-      })
-      .withFailureHandler(e => reject(e))
-      .doPostProxy(JSON.stringify({ action, ...data }));
-  });
-}
 
 function applyConfig() {
   const pria = appConfig.pria || '—';
