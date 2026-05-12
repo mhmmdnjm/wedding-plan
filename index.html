@@ -1058,6 +1058,25 @@ tbody tr:hover { background: var(--rose-pale); }
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="setup-screen" id="loginScreen">
+  <div class="setup-card" style="max-width:380px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:48px;margin-bottom:8px">&#x1F48D;</div>
+      <h2 style="font-size:24px">Wedding Planner</h2>
+      <p style="margin-bottom:0">Masukkan password untuk melanjutkan</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input id="loginPassword" class="form-control" type="password" placeholder="Masukkan password..." onkeydown="if(event.key==='Enter') doLogin()" autofocus />
+      <div id="loginError" style="color:var(--rose);font-size:12px;margin-top:6px;display:none">&#x274C; Password salah, coba lagi.</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px" onclick="doLogin()">
+      &#x1F510; Masuk
+    </button>
+  </div>
+</div>
+
 <!-- ===== SETUP SCREEN ===== -->
 <div class="setup-screen" id="setupScreen" style="display:none">
   <div class="setup-card">
@@ -1102,7 +1121,7 @@ const PAGE_META = {
 // ============================================================
 // API — ganti URL di bawah dengan URL deploy GAS kamu
 // ============================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbx-7Q2YBYFiCRMhoOyv8nswhUoQ3rvwz2tvxadUQadDJcYzCC6e8ZTCyjKFdaGIbBm10w/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzD95h5T6oqKqJTs0mXGWIfl4iljbWZfx98Uts4tQE6Q1_SzshoYqavxihOAzDZ-1YtQA/exec';
 
 async function callAPI(action, data = {}) {
   const res = await fetch(GAS_URL, {
@@ -1115,7 +1134,23 @@ async function callAPI(action, data = {}) {
 // ============================================================
 // INIT
 // ============================================================
-window.addEventListener('load', async () => {
+const APP_PASSWORD = 'wedding2025';
+
+function doLogin() {
+  const val = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  if (val === APP_PASSWORD) {
+    errEl.style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'none';
+    initApp();
+  } else {
+    errEl.style.display = 'block';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+  }
+}
+
+async function initApp() {
   if (GAS_URL === 'GANTI_DENGAN_URL_GAS_KAMU') {
     alert('⚠️ Buka file index.html, cari GAS_URL dan ganti dengan URL deploy GAS kamu!');
     return;
@@ -1133,9 +1168,12 @@ window.addEventListener('load', async () => {
     }
   } catch (e) {
     console.error('Gagal load config:', e);
-    // Jika gagal konek, tampilkan setup screen agar user bisa mulai
     document.getElementById('setupScreen').style.display = 'flex';
   }
+}
+
+window.addEventListener('load', () => {
+  // Langsung tampilkan login screen — semua sudah display:none kecuali loginScreen
 });
 
 
