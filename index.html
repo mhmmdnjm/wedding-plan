@@ -636,6 +636,28 @@ function actionBtns(editFn, deleteFn) {
     </div>`;
 }
 
+
+function tabel(headers, rows, emptyIcon='📋', emptyMsg='Belum ada data') {
+  if (rows.length === 0) return emptyState(emptyIcon, emptyMsg);
+  return `
+    <div class="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-cream-dark text-gray-500">
+            ${headers.map(h => `<th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap">${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          ${rows.map((r,i) => `<tr class="${i%2===0?'bg-white':'bg-cream/40'} hover:bg-rose-pale/40 transition-colors">${r}</tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function td(content, cls='') {
+  return `<td class="px-4 py-3 ${cls}">${content}</td>`;
+}
+
 // ============================================================
 // STATE & CONFIG
 // ============================================================
@@ -989,23 +1011,22 @@ function renderTabungan(query='', sortKey=_tabunganSort.key, asc=_tabunganSort.a
       ${sortBtn('💰 Nominal'+si('nominal'), sortKey==='nominal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'nominal',${sortKey==='nominal'?!asc:false})`)}
     </div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_tabunganData.length} data</div>
-    <div class="space-y-2.5">
-      ${filtered.length===0 ? emptyState('💰', query?'Tidak ada hasil':'Belum ada catatan tabungan') :
-        filtered.map(r => dataCard(`
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <div class="font-semibold text-sm text-gray-800">${r.keterangan||'—'}</div>
-              <div class="text-xs text-gray-400 mt-0.5">${r.tanggal} · ${r.jenis}</div>
-            </div>
-            <div class="font-serif font-bold text-green-600 text-base whitespace-nowrap">${rupiah(r.nominal)}</div>
-          </div>
-          <div class="flex items-center gap-2 mb-1">
-            ${badge(r.pihak, r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama')}
-            <span class="text-xs text-gray-400">Saldo: <strong class="text-gray-600">${rupiah(r.saldo)}</strong></span>
-          </div>
-          ${actionBtns(`openEditTabungan(${JSON.stringify(r).replace(/"/g,'&quot;')})`,`deleteItem('Tabungan',${r.rowIndex},loadTabungan)`)}
-        `)).join('')}
-    </div>`;
+    ${tabel(
+      ['Tanggal','Keterangan','Pihak','Jenis','Nominal','Saldo','Aksi'],
+      filtered.map(r => [
+        td(r.tanggal,'text-gray-500 whitespace-nowrap text-xs'),
+        td(r.keterangan||'—','font-medium text-gray-800'),
+        td(badge(r.pihak, r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama')),
+        td(`<span class="text-xs text-gray-500">${r.jenis}</span>`),
+        td(`<span class="font-semibold text-green-600 whitespace-nowrap">${rupiah(r.nominal)}</span>`,'text-right'),
+        td(`<span class="font-semibold text-gray-700 whitespace-nowrap">${rupiah(r.saldo)}</span>`,'text-right'),
+        td(`<div class="flex gap-1.5">
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditTabungan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tabungan',${r.rowIndex},loadTabungan)">🗑</button>
+        </div>`,'whitespace-nowrap'),
+      ].join('')),
+      '💰','Belum ada catatan tabungan'
+    )}`;
 }
 
 function openEditTabungan(r) {
@@ -1072,33 +1093,27 @@ function renderKebutuhan(query='', filter=_kebutuhanFilter, sortKey=_kebutuhanSo
       ${chips.map(c=>chipFilter(c,filter===c,`renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),'${c}')`)).join('')}
     </div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_kebutuhanData.length} item · Total: <strong>${rupiah(totalEst)}</strong></div>
-    <div class="space-y-2.5">
-      ${filtered.length===0?emptyState('📋',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada kebutuhan'):
-        filtered.map(r=>dataCard(`
-          <div class="flex justify-between items-start mb-2">
-            <div class="flex-1">
-              <div class="font-semibold text-sm text-gray-800">${r.item}</div>
-              <div class="text-xs text-gray-400 mt-0.5">${r.kategori}</div>
-            </div>
-            <div class="font-serif font-bold text-rose text-base whitespace-nowrap ml-2">${rupiah(r.estimasi)}</div>
-          </div>
-          <div class="flex items-center gap-2 mb-2">
-            ${badge(r.prioritas,r.prioritas.toLowerCase())}
-            ${badge(r.status,r.status.toLowerCase())}
-          </div>
-          ${r.catatan?`<div class="text-xs text-gray-400 italic bg-cream px-2.5 py-1.5 rounded-lg mb-2">📝 ${r.catatan}</div>`:''}
-          <div class="flex items-center gap-2 pt-3 border-t border-gray-50 mt-1">
-            <select class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-rose transition"
+    ${tabel(
+      ['Kategori','Item Kebutuhan','Prioritas','Estimasi','Status','Catatan','Aksi'],
+      filtered.map(r => [
+        td(`<span class="text-xs text-gray-400">${r.kategori}</span>`),
+        td(`<span class="font-medium text-gray-800">${r.item}</span>`),
+        td(badge(r.prioritas,r.prioritas.toLowerCase())),
+        td(`<span class="font-semibold text-rose whitespace-nowrap">${rupiah(r.estimasi)}</span>`,'text-right'),
+        td(`<select class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:border-rose transition w-24"
               onchange="updateStatusKebutuhan(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
               <option ${r.status==='Belum'?'selected':''}>Belum</option>
               <option ${r.status==='Proses'?'selected':''}>Proses</option>
               <option ${r.status==='Lunas'?'selected':''}>Lunas</option>
-            </select>
-            <button class="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-            <button class="px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Kebutuhan',${r.rowIndex},loadKebutuhan)">🗑</button>
-          </div>
-        `)).join('')}
-    </div>`;
+            </select>`),
+        td(`<span class="text-xs text-gray-400 italic">${r.catatan||'—'}</span>`,'max-w-[140px] truncate'),
+        td(`<div class="flex gap-1.5">
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Kebutuhan',${r.rowIndex},loadKebutuhan)">🗑</button>
+        </div>`,'whitespace-nowrap'),
+      ].join('')),
+      '📋','Belum ada kebutuhan'
+    )}`;
 }
 
 function openFormKebutuhan() {
@@ -1174,20 +1189,22 @@ function renderPengeluaran(query='',filter=_pengeluaranFilter,sortKey=_pengeluar
     </div>
     <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),'${c}')`)).join('')}</div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_pengeluaranData.length} · Ditampilkan: <strong>${rupiah(filtTotal)}</strong></div>
-    <div class="space-y-2.5">
-      ${filtered.length===0?emptyState('💸',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada pengeluaran'):
-        filtered.map(r=>dataCard(`
-          <div class="flex justify-between items-start mb-2">
-            <div><div class="font-semibold text-sm text-gray-800">${r.item}</div><div class="text-xs text-gray-400 mt-0.5">${r.tanggal} · ${r.kategori}</div></div>
-            <div class="font-serif font-bold text-rose text-base whitespace-nowrap ml-2">${rupiah(r.nominal)}</div>
-          </div>
-          <div class="flex items-center gap-2">
-            ${badge(r.dibayar,r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama')}
-            <span class="text-xs text-gray-400">${r.metode}</span>
-          </div>
-          ${actionBtns(`openEditPengeluaran(${JSON.stringify(r).replace(/"/g,'&quot;')})`,`deleteItem('Pengeluaran',${r.rowIndex},loadPengeluaran)`)}
-        `)).join('')}
-    </div>`;
+    ${tabel(
+      ['Tanggal','Item','Kategori','Nominal','Dibayar','Metode','Aksi'],
+      filtered.map(r => [
+        td(r.tanggal,'text-gray-500 whitespace-nowrap text-xs'),
+        td(`<span class="font-medium text-gray-800">${r.item}</span>`),
+        td(`<span class="text-xs text-gray-400">${r.kategori}</span>`),
+        td(`<span class="font-semibold text-rose whitespace-nowrap">${rupiah(r.nominal)}</span>`,'text-right'),
+        td(badge(r.dibayar,r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama')),
+        td(`<span class="text-xs text-gray-500">${r.metode}</span>`),
+        td(`<div class="flex gap-1.5">
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditPengeluaran(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Pengeluaran',${r.rowIndex},loadPengeluaran)">🗑</button>
+        </div>`,'whitespace-nowrap'),
+      ].join('')),
+      '💸','Belum ada pengeluaran'
+    )}`;
 }
 
 function openEditPengeluaran(r) {
@@ -1243,31 +1260,28 @@ function renderVendor(query='',filter=_vendorFilter,sortKey=_vendorSort.key,asc=
     </div>
     <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),'${c}')`)).join('')}</div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_vendorData.length} vendor</div>
-    <div class="space-y-2.5">
-      ${filtered.length===0?emptyState('🤝',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada vendor'):
-        filtered.map(r=>dataCard(`
-          <div class="flex justify-between items-start mb-2">
-            <div><div class="font-semibold text-sm text-gray-800">${r.nama}</div><div class="text-xs text-gray-400 mt-0.5">${r.kategori}</div></div>
-            <div class="font-serif font-bold text-gray-700 text-base whitespace-nowrap ml-2">${rupiah(r.harga)}</div>
-          </div>
-          <div class="flex items-center gap-2 mb-1">
-            ${badge(r.status,r.status==='Deal'?'deal':r.status==='Negosiasi'?'negosiasi':r.status==='Batal'?'batal':'kandidat')}
-            ${r.kontak?`<span class="text-xs text-gray-400">📞 ${r.kontak}</span>`:''}
-          </div>
-          ${r.catatan?`<div class="text-xs text-gray-400 italic bg-cream px-2.5 py-1.5 rounded-lg mb-1">📝 ${r.catatan}</div>`:''}
-          <div class="flex items-center gap-2 pt-3 border-t border-gray-50 mt-2">
-            <select class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-rose transition"
+    ${tabel(
+      ['Nama Vendor','Kategori','Harga','Status','Kontak','Catatan','Aksi'],
+      filtered.map(r => [
+        td(`<span class="font-semibold text-gray-800">${r.nama}</span>`),
+        td(`<span class="text-xs text-gray-400">${r.kategori}</span>`),
+        td(`<span class="font-semibold text-gray-700 whitespace-nowrap">${rupiah(r.harga)}</span>`,'text-right'),
+        td(`<select class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:border-rose transition w-28"
               onchange="updateVendorStatus(${r.rowIndex},this.value)">
               <option ${r.status==='Kandidat'?'selected':''}>Kandidat</option>
               <option ${r.status==='Negosiasi'?'selected':''}>Negosiasi</option>
               <option ${r.status==='Deal'?'selected':''}>Deal</option>
               <option ${r.status==='Batal'?'selected':''}>Batal</option>
-            </select>
-            <button class="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="openEditVendor(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-            <button class="px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Vendor',${r.rowIndex},loadVendor)">🗑</button>
-          </div>
-        `)).join('')}
-    </div>`;
+            </select>`),
+        td(`<span class="text-xs text-gray-500">${r.kontak||'—'}</span>`),
+        td(`<span class="text-xs text-gray-400 italic">${r.catatan||'—'}</span>`,'max-w-[120px] truncate'),
+        td(`<div class="flex gap-1.5">
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditVendor(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Vendor',${r.rowIndex},loadVendor)">🗑</button>
+        </div>`,'whitespace-nowrap'),
+      ].join('')),
+      '🤝','Belum ada vendor'
+    )}`;
 }
 
 async function updateVendorStatus(rowIndex,status) {
@@ -1333,29 +1347,26 @@ function renderTamu(query='',filter=_tamuFilter,sortKey=_tamuSort.key,asc=_tamuS
     </div>
     <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),'${c}')`)).join('')}</div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_tamuData.length} tamu</div>
-    <div class="space-y-2.5">
-      ${filtered.length===0?emptyState('👥',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada tamu'):
-        filtered.map(r=>dataCard(`
-          <div class="flex justify-between items-start mb-2">
-            <div><div class="font-semibold text-sm text-gray-800">${r.nama}</div><div class="text-xs text-gray-400 mt-0.5">${r.hubungan||'—'}</div></div>
-            ${badge(r.konfirmasi,r.konfirmasi==='Hadir'?'hadir':r.konfirmasi==='Tidak Hadir'?'tidak hadir':'belum')}
-          </div>
-          <div class="flex items-center gap-2 mb-1">
-            ${badge(r.pihak,r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama')}
-            <span class="text-xs text-gray-400">👥 ${r.jumlah} orang</span>
-          </div>
-          <div class="flex items-center gap-2 pt-3 border-t border-gray-50 mt-2">
-            <select class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-rose transition"
+    ${tabel(
+      ['Nama Tamu','Hubungan','Pihak','Jml','Konfirmasi','Aksi'],
+      filtered.map(r => [
+        td(`<span class="font-medium text-gray-800">${r.nama}</span>`),
+        td(`<span class="text-xs text-gray-400">${r.hubungan||'—'}</span>`),
+        td(badge(r.pihak,r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama')),
+        td(`<span class="text-center font-medium text-gray-700">${r.jumlah}</span>`,'text-center'),
+        td(`<select class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:border-rose transition w-32"
               onchange="updateKonfirmasiTamu(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
               <option ${r.konfirmasi==='Belum'?'selected':''}>Belum</option>
               <option ${r.konfirmasi==='Hadir'?'selected':''}>Hadir</option>
               <option ${r.konfirmasi==='Tidak Hadir'?'selected':''}>Tidak Hadir</option>
-            </select>
-            <button class="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="openEditTamu(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-            <button class="px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tamu',${r.rowIndex},loadTamu)">🗑</button>
-          </div>
-        `)).join('')}
-    </div>`;
+            </select>`),
+        td(`<div class="flex gap-1.5">
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditTamu(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tamu',${r.rowIndex},loadTamu)">🗑</button>
+        </div>`,'whitespace-nowrap'),
+      ].join('')),
+      '👥','Belum ada tamu'
+    )}`;
 }
 
 async function updateKonfirmasiTamu(rowIndex,konfirmasi,r) {
