@@ -1120,7 +1120,22 @@ window.addEventListener('load', async () => {
     alert('⚠️ Buka file index.html, cari GAS_URL dan ganti dengan URL deploy GAS kamu!');
     return;
   }
-  showLoginScreen();
+  try {
+    const res = await callAPI('getConfig');
+    if (res && res.pria && res.wanita) {
+      // Config sudah ada — langsung ke dashboard
+      appConfig = res;
+      applyConfig();
+      loadPage('dashboard');
+    } else {
+      // Config belum ada — tampilkan setup screen
+      document.getElementById('setupScreen').style.display = 'flex';
+    }
+  } catch (e) {
+    console.error('Gagal load config:', e);
+    // Jika gagal konek, tampilkan setup screen agar user bisa mulai
+    document.getElementById('setupScreen').style.display = 'flex';
+  }
 });
 
 
