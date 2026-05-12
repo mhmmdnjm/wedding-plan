@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wedding Budget Planner</title>
+<title>💍 Wedding Budget Planner v5</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ===================== RESET & BASE ===================== */
@@ -1179,6 +1179,22 @@ tbody tr:hover { background: var(--rose-pale); }
 let appConfig = {};
 let currentPage = 'dashboard';
 
+// applyConfig — didefinisikan di sini agar selalu tersedia
+function applyConfig() {
+  const pria = appConfig.pria || '—';
+  const wanita = appConfig.wanita || '—';
+  const el = document.getElementById('sidebarNames');
+  if (el) el.textContent = `${pria} & ${wanita}`;
+  const cfgPria = document.getElementById('cfgPria');
+  const cfgWanita = document.getElementById('cfgWanita');
+  const cfgTanggal = document.getElementById('cfgTanggal');
+  const cfgAngpao = document.getElementById('cfgAngpao');
+  if (cfgPria) cfgPria.value = appConfig.pria || '';
+  if (cfgWanita) cfgWanita.value = appConfig.wanita || '';
+  if (cfgTanggal) cfgTanggal.value = appConfig.tanggal || '';
+  if (cfgAngpao) cfgAngpao.value = appConfig.angpao || 150000;
+}
+
 // Cache data — supaya tidak fetch ulang tiap pindah halaman
 const _cache = {
   dashboard: null,
@@ -1317,15 +1333,7 @@ function logout() {
 }
 
 
-function applyConfig() {
-  const pria = appConfig.pria || '—';
-  const wanita = appConfig.wanita || '—';
-  document.getElementById('sidebarNames').textContent = `${pria} & ${wanita}`;
-  document.getElementById('cfgPria').value = appConfig.pria || '';
-  document.getElementById('cfgWanita').value = appConfig.wanita || '';
-  document.getElementById('cfgTanggal').value = appConfig.tanggal || '';
-  document.getElementById('cfgAngpao').value = appConfig.angpao || 150000;
-}
+
 
 // ============================================================
 // NAVIGATION
@@ -1721,7 +1729,7 @@ function renderKebutuhan(query = '', filter = _kebutuhanFilter, sortKey = _kebut
           </div>`).join('')}
     </div>`;
 }
-
+}
 
 function openFormKebutuhan() {
   document.getElementById('modalKebutuhanTitle').textContent = 'Tambah Kebutuhan';
