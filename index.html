@@ -189,6 +189,33 @@ h1,h2,h3 { font-family: 'Playfair Display', serif; }
 .page { display: none; }
 .page.active { display: block; }
 
+/* ===================== LOGIN SCREEN ===================== */
+.login-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, var(--rose) 0%, #7B241C 100%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.login-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 40px 36px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.login-logo { font-size: 48px; margin-bottom: 12px; }
+.login-card h2 { font-size: 26px; color: var(--rose); margin-bottom: 4px; }
+.login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+.login-input-wrap { position: relative; margin-bottom: 16px; }
+.login-input-wrap .form-control { padding-right: 44px; text-align: center; font-size: 18px; letter-spacing: .2em; }
+.toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); }
+.login-error { color: var(--rose); font-size: 13px; margin-bottom: 12px; min-height: 20px; font-weight: 500; }
+
 /* ===================== SETUP SCREEN ===================== */
 .setup-screen {
   display: flex;
@@ -788,7 +815,7 @@ tbody tr:hover { background: var(--rose-pale); }
 
     <!-- ===== PENGATURAN ===== -->
     <div class="page" id="page-pengaturan">
-      <div class="card" style="max-width:480px">
+      <div class="card" style="max-width:480px;margin-bottom:16px">
         <div class="section-header"><div class="section-title">⚙️ Pengaturan Pernikahan</div></div>
         <div class="form-group">
           <label class="form-label">Nama Calon Suami</label>
@@ -808,7 +835,27 @@ tbody tr:hover { background: var(--rose-pale); }
         </div>
         <button class="btn btn-primary" onclick="saveConfig()">💾 Simpan Pengaturan</button>
       </div>
+
+      <div class="card" style="max-width:480px;margin-bottom:16px">
+        <div class="section-header"><div class="section-title">🔒 Ganti Password</div></div>
+        <div class="form-group">
+          <label class="form-label">Password Baru</label>
+          <input id="cfgPassBaru" class="form-control" type="password" placeholder="Minimal 4 karakter" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Konfirmasi Password Baru</label>
+          <input id="cfgPassKonfirm" class="form-control" type="password" placeholder="Ulangi password baru" />
+        </div>
+        <button class="btn btn-outline" onclick="savePassword()">🔑 Simpan Password Baru</button>
+      </div>
+
+      <div class="card" style="max-width:480px">
+        <div class="section-title" style="margin-bottom:12px">🚪 Sesi</div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Keluar dari aplikasi. Kamu perlu login lagi untuk mengaksesnya.</p>
+        <button class="btn btn-danger" onclick="logout()" style="width:100%">🔒 Logout</button>
+      </div>
     </div>
+
 
   </div><!-- /page-content -->
 </main>
@@ -1058,6 +1105,26 @@ tbody tr:hover { background: var(--rose-pale); }
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">💍</div>
+    <h2>Nikah Budget</h2>
+    <p>Masukkan password untuk membuka aplikasi</p>
+    <div class="login-input-wrap">
+      <input class="form-control" type="password" id="loginPassword"
+        placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') submitLogin()"
+        autofocus />
+      <button class="toggle-pass" onclick="togglePasswordVisibility()" tabindex="-1">👁</button>
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px" onclick="submitLogin()">
+      🔓 Masuk
+    </button>
+  </div>
+</div>
+
 <!-- ===== SETUP SCREEN ===== -->
 <div class="setup-screen" id="setupScreen" style="display:none">
   <div class="setup-card">
@@ -1123,8 +1190,75 @@ window.addEventListener('load', async () => {
   showLoginScreen();
 });
 
+// ============================================================
+// LOGIN & SESSION
+// ============================================================
+function showLoginScreen() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+  setTimeout(() => document.getElementById('loginPassword').focus(), 100);
+}
 
-function applyConfig() {
+async function submitLogin() {
+  const inputPass = document.getElementById('loginPassword').value.trim();
+  const errEl     = document.getElementById('loginError');
+
+  if (!inputPass) { errEl.textContent = 'Password tidak boleh kosong.'; return; }
+
+  const btn = document.querySelector('#loginScreen .btn-primary');
+  btn.textContent = '⏳ Memeriksa...';
+  btn.disabled = true;
+
+  try {
+    await callAPI('initSheets');
+    const cfg = await callAPI('getConfig');
+    appConfig = (cfg && cfg.data) ? cfg.data : {};
+  } catch(e) {
+    appConfig = {};
+    showToast('Gagal konek ke server', 'error');
+  }
+
+  btn.textContent = '🔓 Masuk';
+  btn.disabled = false;
+
+  const savedPass = appConfig.password || 'nikah123';
+
+  if (inputPass !== savedPass) {
+    errEl.textContent = '❌ Password salah. Coba lagi.';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+    const card = document.querySelector('.login-card');
+    card.style.transition = 'transform .1s';
+    card.style.transform = 'translateX(-8px)';
+    setTimeout(() => card.style.transform = 'translateX(8px)', 100);
+    setTimeout(() => card.style.transform = 'translateX(0)',   200);
+    return;
+  }
+
+  // Sukses
+  document.getElementById('loginScreen').style.display = 'none';
+
+  if (!appConfig.pria && !appConfig.wanita) {
+    document.getElementById('setupScreen').style.display = 'flex';
+  } else {
+    applyConfig();
+    loadPage('dashboard');
+  }
+}
+
+function togglePasswordVisibility() {
+  const inp = document.getElementById('loginPassword');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function logout() {
+  if (!confirm('Yakin ingin keluar?')) return;
+  appConfig = {};
+  showLoginScreen();
+}
+
+
   const pria = appConfig.pria || '—';
   const wanita = appConfig.wanita || '—';
   document.getElementById('sidebarNames').textContent = `${pria} & ${wanita}`;
@@ -2005,11 +2139,26 @@ async function saveConfig() {
     wanita: document.getElementById('cfgWanita').value,
     tanggal: document.getElementById('cfgTanggal').value,
     angpao: document.getElementById('cfgAngpao').value || 150000,
+    password: appConfig.password || 'nikah123',
   };
   await callAPI('saveConfig', { data });
-  appConfig = data;
+  appConfig = { ...appConfig, ...data };
   applyConfig();
   showToast('Pengaturan disimpan! ⚙️', 'success');
+}
+
+async function savePassword() {
+  const baru    = document.getElementById('cfgPassBaru').value.trim();
+  const konfirm = document.getElementById('cfgPassKonfirm').value.trim();
+  if (!baru)            return showToast('Password baru tidak boleh kosong', 'error');
+  if (baru.length < 4)  return showToast('Password minimal 4 karakter', 'error');
+  if (baru !== konfirm) return showToast('Konfirmasi password tidak cocok ❌', 'error');
+  const data = { ...appConfig, password: baru };
+  await callAPI('saveConfig', { data });
+  appConfig = data;
+  document.getElementById('cfgPassBaru').value = '';
+  document.getElementById('cfgPassKonfirm').value = '';
+  showToast('Password berhasil diubah! 🔑', 'success');
 }
 
 async function finishSetup() {
