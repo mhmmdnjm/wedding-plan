@@ -764,9 +764,10 @@ tbody tr:hover { background: var(--rose-pale); }
       <div class="topbar-title" id="topbarTitle">Dashboard</div>
       <div class="topbar-subtitle" id="topbarSub">Ringkasan budget pernikahanmu</div>
     </div>
-    <button class="btn btn-primary btn-sm" id="topbarAction" onclick="topbarActionFn()">
-      + Tambah
-    </button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-ghost btn-sm" onclick="refreshPage()" title="Refresh data">🔄</button>
+      <button class="btn btn-primary btn-sm" id="topbarAction" onclick="topbarActionFn()">+ Tambah</button>
+    </div>
   </header>
 
   <div class="page-content">
@@ -1155,6 +1156,40 @@ tbody tr:hover { background: var(--rose-pale); }
 let appConfig = {};
 let currentPage = 'dashboard';
 
+// Cache data — supaya tidak fetch ulang tiap pindah halaman
+const _cache = {
+  dashboard: null,
+  tabungan: null,
+  kebutuhan: null,
+  pengeluaran: null,
+  vendor: null,
+  tamu: null,
+};
+const _cacheTime = {};
+const CACHE_TTL = 30000; // 30 detik
+
+function isCacheValid(key) {
+  return _cache[key] !== null && _cacheTime[key] && (Date.now() - _cacheTime[key] < CACHE_TTL);
+}
+
+function setCache(key, data) {
+  _cache[key] = data;
+  _cacheTime[key] = Date.now();
+}
+
+function clearCache(key) {
+  if (key) { _cache[key] = null; }
+  else { Object.keys(_cache).forEach(k => _cache[k] = null); }
+}
+
+// Tombol refresh manual di topbar
+function refreshPage() {
+  clearCache(currentPage);
+  if (currentPage === 'dashboard') clearCache(); // dashboard butuh semua data
+  loadPage(currentPage, true);
+  showToast('Data diperbarui 🔄', '');
+}
+
 const PAGE_META = {
   dashboard:   { title: 'Dashboard', sub: 'Ringkasan budget pernikahanmu', action: null },
   tabungan:    { title: '💰 Tabungan', sub: 'Catatan tabungan pernikahan', action: () => openModal('modalTabungan') },
@@ -1305,29 +1340,40 @@ function topbarActionFn() {
   if (meta.action) meta.action();
 }
 
-function loadPage(page) {
-  if (page === 'dashboard') loadDashboard();
-  else if (page === 'tabungan') loadTabungan();
-  else if (page === 'kebutuhan') loadKebutuhan();
-  else if (page === 'pengeluaran') loadPengeluaran();
-  else if (page === 'vendor') loadVendor();
-  else if (page === 'tamu') loadTamu();
+function loadPage(page, force = false) {
+  if (page === 'dashboard') loadDashboard(force);
+  else if (page === 'tabungan') loadTabungan(force);
+  else if (page === 'kebutuhan') loadKebutuhan(force);
+  else if (page === 'pengeluaran') loadPengeluaran(force);
+  else if (page === 'vendor') loadVendor(force);
+  else if (page === 'tamu') loadTamu(force);
 }
 
 // ============================================================
 // DASHBOARD
 // ============================================================
-async function loadDashboard() {
+async function loadDashboard(force = false) {
   const el = document.getElementById('dashboardContent');
+  if (!force && isCacheValid('dashboard')) {
+    _renderDashboard(_cache['dashboard']);
+    return;
+  }
   el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat dashboard...</div>';
-  
   try {
     const res = await callAPI('getDashboard');
     if (!res || !res.success) {
       el.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error: ${res?.error || 'Gagal memuat data'}</p></div>`;
       return;
     }
-    const d = res.data;
+    setCache('dashboard', res.data);
+    _renderDashboard(res.data);
+  } catch(err) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error: ${err.message||err}</p></div>`;
+  }
+}
+
+function _renderDashboard(d) {
+  const el = document.getElementById('dashboardContent');
 
     // Countdown — diff dideklarasi di LUAR if
     let cdDays = '—';
@@ -1435,25 +1481,25 @@ async function loadDashboard() {
         </div>
       </div>
     `;
-  } catch(err) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error: ${err.message || err.toString()}</p></div>`;
-    showToast('Gagal memuat dashboard: ' + (err.message || err), 'error');
-  }
 }
 
-// ============================================================
-// TABUNGAN
-// ============================================================
+
 // ============================================================
 // TABUNGAN — card list + search + sort + edit
 // ============================================================
 let _tabunganData = [], _tabunganSort = { key: 'tanggal', asc: false };
 
-async function loadTabungan() {
+async function loadTabungan(force = false) {
   const el = document.getElementById('tabunganContent');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  if (!force && isCacheValid('tabungan')) {
+    _tabunganData = _cache['tabungan'];
+    renderTabungan();
+    return;
+  }
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
   const res = await callAPI('getTabungan');
   _tabunganData = res.data || [];
+  setCache('tabungan', _tabunganData);
   renderTabungan();
 }
 
@@ -1549,11 +1595,17 @@ function openEditTabungan(r) {
 // ============================================================
 let _kebutuhanData = [], _kebutuhanSort = { key: 'prioritas', asc: true }, _kebutuhanFilter = 'Semua';
 
-async function loadKebutuhan() {
+async function loadKebutuhan(force = false) {
   const el = document.getElementById('kebutuhanContent');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  if (!force && isCacheValid('kebutuhan')) {
+    _kebutuhanData = _cache['kebutuhan'];
+    renderKebutuhan();
+    return;
+  }
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
   const res = await callAPI('getKebutuhan');
   _kebutuhanData = res.data || [];
+  setCache('kebutuhan', _kebutuhanData);
   renderKebutuhan();
 }
 
@@ -1682,11 +1734,17 @@ async function updateStatusKebutuhan(rowIndex, newStatus, r) {
 // ============================================================
 let _pengeluaranData = [], _pengeluaranSort = { key: 'tanggal', asc: false }, _pengeluaranFilter = 'Semua';
 
-async function loadPengeluaran() {
+async function loadPengeluaran(force = false) {
   const el = document.getElementById('pengeluaranContent');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  if (!force && isCacheValid('pengeluaran')) {
+    _pengeluaranData = _cache['pengeluaran'];
+    renderPengeluaran();
+    return;
+  }
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
   const res = await callAPI('getPengeluaran');
   _pengeluaranData = res.data || [];
+  setCache('pengeluaran', _pengeluaranData);
   renderPengeluaran();
 }
 
@@ -1787,11 +1845,17 @@ function openEditPengeluaran(r) {
 // ============================================================
 let _vendorData = [], _vendorSort = { key: 'nama', asc: true }, _vendorFilter = 'Semua';
 
-async function loadVendor() {
+async function loadVendor(force = false) {
   const el = document.getElementById('vendorContent');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  if (!force && isCacheValid('vendor')) {
+    _vendorData = _cache['vendor'];
+    renderVendor();
+    return;
+  }
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
   const res = await callAPI('getVendor');
   _vendorData = res.data || [];
+  setCache('vendor', _vendorData);
   renderVendor();
 }
 
@@ -1898,11 +1962,17 @@ function openEditVendor(r) {
 // ============================================================
 let _tamuData = [], _tamuSort = { key: 'nama', asc: true }, _tamuFilter = 'Semua';
 
-async function loadTamu() {
+async function loadTamu(force = false) {
   const el = document.getElementById('tamuContent');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  if (!force && isCacheValid('tamu')) {
+    _tamuData = _cache['tamu'];
+    renderTamu();
+    return;
+  }
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
   const res = await callAPI('getTamu');
   _tamuData = res.data || [];
+  setCache('tamu', _tamuData);
   renderTamu();
 }
 
@@ -2031,8 +2101,9 @@ async function submitTabungan() {
     await callAPI('addTabungan', { data });
     showToast('Tabungan ditambahkan! 💰', 'success');
   }
+  clearCache('tabungan'); clearCache('dashboard');
   closeModal('modalTabungan');
-  loadTabungan();
+  loadTabungan(true);
 }
 
 async function submitKebutuhan() {
@@ -2053,8 +2124,9 @@ async function submitKebutuhan() {
     await callAPI('addKebutuhan', { data });
     showToast('Kebutuhan ditambahkan! 📋', 'success');
   }
+  clearCache('kebutuhan'); clearCache('dashboard');
   closeModal('modalKebutuhan');
-  loadKebutuhan();
+  loadKebutuhan(true);
 }
 
 async function submitPengeluaran() {
@@ -2075,8 +2147,9 @@ async function submitPengeluaran() {
     await callAPI('addPengeluaran', { data });
     showToast('Pengeluaran dicatat! 💸', 'success');
   }
+  clearCache('pengeluaran'); clearCache('dashboard');
   closeModal('modalPengeluaran');
-  loadPengeluaran();
+  loadPengeluaran(true);
 }
 
 async function submitVendor() {
@@ -2097,8 +2170,9 @@ async function submitVendor() {
     await callAPI('addVendor', { data });
     showToast('Vendor ditambahkan! 🤝', 'success');
   }
+  clearCache('vendor');
   closeModal('modalVendor');
-  loadVendor();
+  loadVendor(true);
 }
 
 async function submitTamu() {
@@ -2118,16 +2192,21 @@ async function submitTamu() {
     await callAPI('addTamu', { data });
     showToast('Tamu ditambahkan! 👥', 'success');
   }
+  clearCache('tamu'); clearCache('dashboard');
   closeModal('modalTamu');
-  loadTamu();
+  loadTamu(true);
 }
 
 
 async function deleteItem(type, rowIndex, reloadFn) {
   if (!confirm('Hapus data ini?')) return;
   await callAPI(`delete${type}`, { rowIndex });
+  // Clear cache halaman ini + dashboard
+  const cacheKey = type.toLowerCase();
+  clearCache(cacheKey);
+  clearCache('dashboard');
   showToast('Data dihapus', 'success');
-  reloadFn();
+  reloadFn(true); // force reload
 }
 
 // ============================================================
