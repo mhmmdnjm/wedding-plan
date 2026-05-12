@@ -43,7 +43,6 @@ body {
   background: var(--cream);
   color: var(--text);
   min-height: 100vh;
-  display: flex;
   overflow-x: hidden;
 }
 
@@ -60,6 +59,19 @@ h1,h2,h3 { font-family: 'Playfair Display', serif; }
   flex-direction: column;
   z-index: 100;
   transition: transform .3s ease;
+  transform: translateX(-100%); /* hidden by default (mobile first) */
+}
+
+.sidebar.open {
+  transform: translateX(0);
+  box-shadow: 4px 0 24px rgba(44,32,23,.25);
+}
+
+@media (min-width: 769px) {
+  .sidebar {
+    transform: translateX(0) !important; /* selalu tampil di desktop */
+  }
+  .mob-toggle { display: none !important; }
 }
 
 .sidebar-brand {
@@ -134,11 +146,18 @@ h1,h2,h3 { font-family: 'Playfair Display', serif; }
 
 /* ===================== MAIN CONTENT ===================== */
 .main {
-  margin-left: var(--sidebar-w);
-  flex: 1;
+  margin-left: 0;
+  width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+@media (min-width: 769px) {
+  .main {
+    margin-left: var(--sidebar-w);
+    width: calc(100% - var(--sidebar-w));
+  }
 }
 
 .topbar {
@@ -511,7 +530,9 @@ tbody tr:hover { background: var(--rose-pale); }
 
 /* ===================== MOBILE TOGGLE ===================== */
 .mob-toggle {
-  display: none;
+  display: flex; /* tampil by default - mobile first */
+  align-items: center;
+  justify-content: center;
   position: fixed;
   bottom: 20px; right: 20px;
   background: var(--rose);
@@ -525,31 +546,33 @@ tbody tr:hover { background: var(--rose-pale); }
   box-shadow: var(--shadow-lg);
 }
 
-/* ===================== RESPONSIVE ===================== */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%) !important; /* Memastikan sidebar tersembunyi */
-  }
-  .sidebar.open {
-    transform: none !important; /* Sidebar terbuka jika class "open" ditambahkan */
-  }
-  .main { margin-left: 0; }
-  .mob-toggle { display: flex; align-items: center; justify-content: center; }
+/* ===================== RESPONSIVE — mobile first ===================== */
+/* Mobile default */
+.stats-grid { grid-template-columns: 1fr; }
+.dashboard-row { grid-template-columns: 1fr; }
+.form-row { grid-template-columns: 1fr; }
+.page-content { padding: 20px 16px; }
+.topbar { padding: 14px 16px; }
+.tamu-summary { grid-template-columns: 1fr; }
+
+/* Tablet */
+@media (min-width: 480px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
-  .dashboard-row { grid-template-columns: 1fr; }
-  .form-row { grid-template-columns: 1fr; }
-  .page-content { padding: 20px 16px; }
-  .topbar { padding: 14px 16px; }
+  .tamu-summary { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr; }
+/* Desktop */
+@media (min-width: 769px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .dashboard-row { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr 1fr; }
+  .page-content { padding: 28px 32px; }
+  .topbar { padding: 16px 32px; }
 }
 
 /* ===================== TAMU SUMMARY ===================== */
 .tamu-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -1294,16 +1317,15 @@ function logout() {
 }
 
 
+function applyConfig() {
   const pria = appConfig.pria || '—';
   const wanita = appConfig.wanita || '—';
   document.getElementById('sidebarNames').textContent = `${pria} & ${wanita}`;
-  
-  // Prefill pengaturan
   document.getElementById('cfgPria').value = appConfig.pria || '';
   document.getElementById('cfgWanita').value = appConfig.wanita || '';
   document.getElementById('cfgTanggal').value = appConfig.tanggal || '';
   document.getElementById('cfgAngpao').value = appConfig.angpao || 150000;
-
+}
 
 // ============================================================
 // NAVIGATION
