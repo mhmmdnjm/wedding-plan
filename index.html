@@ -3,1000 +3,385 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💍 Wedding Budget Planner v5</title>
+<title>💍 Wedding Budget Planner v6</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        rose:    { DEFAULT:'#9B2335', light:'#C0392B', pale:'#FDF0EF', soft:'#F5C6C2' },
+        cream:   { DEFAULT:'#FDF8F3', dark:'#F0E6D3' },
+        gold:    { DEFAULT:'#B8960C', light:'#F0D060', pale:'#FEFCE8' },
+        marun:   { DEFAULT:'#6B1A1A', dark:'#4A0E0E' },
+      },
+      fontFamily: {
+        serif: ['Playfair Display', 'serif'],
+        sans:  ['DM Sans', 'sans-serif'],
+      },
+    }
+  }
+}
+</script>
 <style>
-/* ===================== RESET & BASE ===================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; }
+  .font-serif { font-family: 'Playfair Display', serif; }
 
-:root {
-  --rose:       #C0392B;
-  --rose-light: #E74C3C;
-  --rose-pale:  #FDEDEC;
-  --rose-soft:  #F9CECA;
-  --cream:      #FDF8F3;
-  --cream-dark: #F5EDE0;
-  --gold:       #C9A84C;
-  --gold-light: #F0D68A;
-  --text:       #2C2017;
-  --text-muted: #8B7355;
-  --white:      #FFFFFF;
-  --border:     #EDE0D4;
-  --shadow:     0 4px 24px rgba(44,32,23,.08);
-  --shadow-lg:  0 12px 48px rgba(44,32,23,.14);
-  --radius:     16px;
-  --radius-sm:  10px;
-  --sidebar-w:  240px;
-  --green:      #1E8449;
-  --green-pale: #D5F5E3;
-  --amber:      #B7950B;
-  --amber-pale: #FEF9E7;
-  --blue:       #1A5276;
-  --blue-pale:  #D6EAF8;
-  --red-pale:   #FADBD8;
-}
+  /* Sidebar transition */
+  .sidebar { transition: transform .3s ease; }
 
-html { scroll-behavior: smooth; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #f5f5f5; }
+  ::-webkit-scrollbar-thumb { background: #C0392B; border-radius: 99px; }
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--cream);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+  /* Modal animation */
+  .modal-overlay { transition: opacity .25s; }
+  .modal-overlay.open .modal-box { transform: translateY(0) !important; }
+  .modal-box { transition: transform .25s; transform: translateY(24px); }
 
-h1,h2,h3 { font-family: 'Playfair Display', serif; }
+  /* Toast animation */
+  @keyframes slideIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:none; } }
+  .toast { animation: slideIn .3s ease; }
 
-/* ===================== SIDEBAR ===================== */
-.sidebar {
-  width: var(--sidebar-w);
-  min-height: 100vh;
-  background: var(--rose);
-  position: fixed;
-  top: 0; left: 0;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-  transition: transform .3s ease;
-  transform: translateX(-100%); /* hidden by default (mobile first) */
-}
+  /* Progress bar */
+  .progress-fill { transition: width 1s ease; }
 
-.sidebar.open {
-  transform: translateX(0);
-  box-shadow: 4px 0 24px rgba(44,32,23,.25);
-}
+  /* Chip active */
+  .chip.active { background:#9B2335; color:white; border-color:#9B2335; }
 
-@media (min-width: 769px) {
-  .sidebar {
-    transform: translateX(0) !important; /* selalu tampil di desktop */
+  /* Custom input */
+  input[type=date]::-webkit-calendar-picker-indicator { opacity:.5; cursor:pointer; }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { animation: spin .7s linear infinite; }
+
+  /* Nav active */
+  .nav-item.active { background: rgba(255,255,255,.15); border-left: 3px solid #F0D060; }
+  .nav-item { border-left: 3px solid transparent; }
+
+  /* Shake */
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    20%,60%  { transform:translateX(-8px); }
+    40%,80%  { transform:translateX(8px); }
   }
-  .mob-toggle { display: none !important; }
-}
-
-.sidebar-brand {
-  padding: 28px 20px 20px;
-  border-bottom: 1px solid rgba(255,255,255,.15);
-}
-
-.sidebar-brand .logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--white);
-  line-height: 1.2;
-}
-
-.sidebar-brand .tagline {
-  font-size: 11px;
-  color: rgba(255,255,255,.65);
-  margin-top: 4px;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-}
-
-.sidebar-nav { flex: 1; padding: 16px 0; }
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 20px;
-  cursor: pointer;
-  color: rgba(255,255,255,.75);
-  font-size: 14px;
-  font-weight: 500;
-  transition: all .2s;
-  border-left: 3px solid transparent;
-  user-select: none;
-}
-
-.nav-item:hover { background: rgba(255,255,255,.1); color: var(--white); }
-
-.nav-item.active {
-  background: rgba(255,255,255,.15);
-  color: var(--white);
-  border-left-color: var(--gold-light);
-}
-
-.nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; flex-shrink: 0; }
-
-.sidebar-footer {
-  padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,.15);
-}
-
-.couple-names {
-  font-family: 'Playfair Display', serif;
-  font-size: 13px;
-  color: var(--white);
-  text-align: center;
-  line-height: 1.5;
-}
-
-.couple-names small {
-  display: block;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 10px;
-  color: rgba(255,255,255,.55);
-  margin-bottom: 2px;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-
-/* ===================== MAIN CONTENT ===================== */
-.main {
-  margin-left: 0;
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 769px) {
-  .main {
-    margin-left: var(--sidebar-w);
-    width: calc(100% - var(--sidebar-w));
-  }
-}
-
-.topbar {
-  background: var(--white);
-  padding: 16px 32px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: 0 1px 8px rgba(44,32,23,.06);
-}
-
-.topbar-title { font-size: 20px; font-weight: 700; color: var(--text); }
-.topbar-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 18px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all .2s;
-  font-family: 'DM Sans', sans-serif;
-}
-
-.btn-primary { background: var(--rose); color: var(--white); }
-.btn-primary:hover { background: var(--rose-light); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(192,57,43,.3); }
-.btn-outline { background: transparent; color: var(--rose); border: 1.5px solid var(--rose); }
-.btn-outline:hover { background: var(--rose-pale); }
-.btn-ghost { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
-.btn-ghost:hover { background: var(--cream-dark); color: var(--text); }
-.btn-sm { padding: 6px 12px; font-size: 12px; }
-.btn-danger { background: #FADBD8; color: var(--rose); border: none; }
-.btn-danger:hover { background: var(--rose); color: var(--white); }
-.btn-success { background: var(--green-pale); color: var(--green); border: none; }
-.btn-success:hover { background: var(--green); color: var(--white); }
-
-.page-content { padding: 28px 32px; flex: 1; }
-
-/* ===================== PAGES ===================== */
-.page { display: none; }
-.page.active { display: block; }
-
-/* ===================== LOGIN SCREEN ===================== */
-.login-screen {
-  position: fixed; inset: 0;
-  background: linear-gradient(135deg, var(--rose) 0%, #7B241C 100%);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.login-card {
-  background: var(--white);
-  border-radius: 24px;
-  padding: 40px 36px;
-  max-width: 380px;
-  width: 100%;
-  box-shadow: var(--shadow-lg);
-  text-align: center;
-}
-.login-logo { font-size: 48px; margin-bottom: 12px; }
-.login-card h2 { font-size: 26px; color: var(--rose); margin-bottom: 4px; }
-.login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
-.login-input-wrap { position: relative; margin-bottom: 16px; }
-.login-input-wrap .form-control { padding-right: 44px; text-align: center; font-size: 18px; letter-spacing: .2em; }
-.toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); }
-.login-error { color: var(--rose); font-size: 13px; margin-bottom: 12px; min-height: 20px; font-weight: 500; }
-
-/* ===================== SETUP SCREEN ===================== */
-.setup-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--rose) 0%, #8B1A0F 100%);
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  flex-direction: column;
-  gap: 24px;
-  padding: 32px;
-}
-
-.setup-card {
-  background: var(--white);
-  border-radius: 24px;
-  padding: 40px;
-  max-width: 480px;
-  width: 100%;
-  box-shadow: var(--shadow-lg);
-}
-
-.setup-card h2 {
-  font-size: 28px;
-  color: var(--rose);
-  margin-bottom: 6px;
-}
-
-.setup-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
-
-/* ===================== FORM CONTROLS ===================== */
-.form-group { margin-bottom: 18px; }
-.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-.form-control {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text);
-  background: var(--white);
-  transition: border-color .2s, box-shadow .2s;
-  outline: none;
-}
-.form-control:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(192,57,43,.1); }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-/* ===================== CARDS ===================== */
-.card {
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 22px 24px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-}
-
-.card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 4px;
-}
-
-.card-value {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--text);
-  margin-top: 2px;
-}
-
-.card-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-
-/* ===================== DASHBOARD GRID ===================== */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 20px 22px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-
-.stat-card.green::before { background: var(--green); }
-.stat-card.rose::before { background: var(--rose); }
-.stat-card.blue::before { background: var(--blue); }
-.stat-card.amber::before { background: var(--amber); }
-.stat-card.gold::before { background: var(--gold); }
-
-.stat-icon { font-size: 28px; margin-bottom: 8px; }
-.stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
-.stat-value { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); margin-top: 4px; }
-.stat-value.green { color: var(--green); }
-.stat-value.rose { color: var(--rose); }
-.stat-value.amber { color: var(--amber); }
-
-.dashboard-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-.dashboard-row.single { grid-template-columns: 1fr; }
-
-/* Progress bar */
-.progress-wrap { margin-top: 8px; }
-.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-.progress-bar { height: 10px; background: var(--cream-dark); border-radius: 99px; overflow: hidden; }
-.progress-fill {
-  height: 100%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--rose), var(--gold));
-  transition: width 1s ease;
-}
-
-/* Status pills */
-.status-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
-.status-pill {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  min-width: 80px;
-  flex: 1;
-}
-.status-pill .pill-count { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
-.status-pill .pill-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
-.status-pill.belum { background: var(--red-pale); color: var(--rose); }
-.status-pill.proses { background: var(--amber-pale); color: var(--amber); }
-.status-pill.lunas { background: var(--green-pale); color: var(--green); }
-
-/* Countdown */
-.countdown-box {
-  background: linear-gradient(135deg, var(--rose) 0%, #8B1A0F 100%);
-  border-radius: var(--radius);
-  padding: 24px;
-  color: var(--white);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.countdown-box::after {
-  content: '💍';
-  position: absolute;
-  font-size: 80px;
-  right: -10px; bottom: -10px;
-  opacity: .12;
-}
-
-.countdown-box .cd-days { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; line-height: 1; }
-.countdown-box .cd-label { font-size: 12px; opacity: .75; text-transform: uppercase; letter-spacing: .1em; margin-top: 4px; }
-.countdown-box .cd-date { font-size: 14px; margin-top: 10px; opacity: .85; }
-.countdown-box .cd-couple { font-family: 'Playfair Display', serif; font-size: 16px; margin-top: 4px; }
-
-/* ===================== TABLE ===================== */
-.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead th { background: var(--cream-dark); padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); white-space: nowrap; }
-tbody td { padding: 11px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
-tbody tr:hover { background: var(--rose-pale); }
-
-/* ===================== BADGE ===================== */
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.badge-wajib { background: var(--red-pale); color: var(--rose); }
-.badge-penting { background: var(--amber-pale); color: var(--amber); }
-.badge-opsional { background: var(--blue-pale); color: var(--blue); }
-.badge-belum { background: var(--red-pale); color: var(--rose); }
-.badge-proses { background: var(--amber-pale); color: var(--amber); }
-.badge-lunas { background: var(--green-pale); color: var(--green); }
-.badge-kandidat { background: var(--cream-dark); color: var(--text-muted); }
-.badge-deal { background: var(--green-pale); color: var(--green); }
-.badge-negosiasi { background: var(--amber-pale); color: var(--amber); }
-.badge-batal { background: var(--red-pale); color: var(--rose); }
-.badge-pria { background: var(--blue-pale); color: var(--blue); }
-.badge-wanita { background: #F5EEF8; color: #6C3483; }
-.badge-bersama { background: var(--green-pale); color: var(--green); }
-
-/* ===================== MODAL ===================== */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(44,32,23,.45);
-  backdrop-filter: blur(4px);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  opacity: 0; pointer-events: none;
-  transition: opacity .25s;
-}
-
-.modal-overlay.open { opacity: 1; pointer-events: auto; }
-
-.modal {
-  background: var(--white);
-  border-radius: 20px;
-  padding: 32px;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: var(--shadow-lg);
-  transform: translateY(24px);
-  transition: transform .25s;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-overlay.open .modal { transform: translateY(0); }
-
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.modal-title { font-size: 20px; color: var(--rose); }
-.modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 2px 6px; border-radius: 6px; }
-.modal-close:hover { background: var(--cream-dark); }
-.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
-
-/* ===================== TOAST ===================== */
-.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
-.toast {
-  background: var(--text);
-  color: var(--white);
-  padding: 12px 18px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  box-shadow: var(--shadow-lg);
-  animation: toastIn .3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 300px;
-}
-.toast.success { background: var(--green); }
-.toast.error { background: var(--rose); }
-@keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
-
-/* ===================== SECTION HEADER ===================== */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-.section-title { font-size: 16px; font-weight: 700; color: var(--text); }
-.section-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-/* ===================== EMPTY STATE ===================== */
-.empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
-.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-.empty-state p { font-size: 14px; }
-
-/* ===================== LOADING ===================== */
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 32px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.spinner {
-  width: 20px; height: 20px;
-  border: 2.5px solid var(--border);
-  border-top-color: var(--rose);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ===================== MOBILE TOGGLE ===================== */
-.mob-toggle {
-  display: flex; /* tampil by default - mobile first */
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  bottom: 20px; right: 20px;
-  background: var(--rose);
-  color: var(--white);
-  border: none;
-  border-radius: 50%;
-  width: 52px; height: 52px;
-  font-size: 22px;
-  cursor: pointer;
-  z-index: 200;
-  box-shadow: var(--shadow-lg);
-}
-
-/* ===================== RESPONSIVE — mobile first ===================== */
-/* Mobile default */
-.stats-grid { grid-template-columns: 1fr; }
-.dashboard-row { grid-template-columns: 1fr; }
-.form-row { grid-template-columns: 1fr; }
-.page-content { padding: 20px 16px; }
-.topbar { padding: 14px 16px; }
-.tamu-summary { grid-template-columns: 1fr; }
-
-/* Tablet */
-@media (min-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .tamu-summary { grid-template-columns: repeat(3, 1fr); }
-}
-
-/* Desktop */
-@media (min-width: 769px) {
-  .stats-grid { grid-template-columns: repeat(3, 1fr); }
-  .dashboard-row { grid-template-columns: 1fr 1fr; }
-  .form-row { grid-template-columns: 1fr 1fr; }
-  .page-content { padding: 28px 32px; }
-  .topbar { padding: 16px 32px; }
-}
-
-/* ===================== TAMU SUMMARY ===================== */
-.tamu-summary {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-/* ===================== SEARCH & SORT BAR ===================== */
-.list-toolbar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.search-input-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 160px;
-}
-
-.search-input-wrap .search-icon {
-  position: absolute;
-  left: 11px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  padding: 9px 12px 9px 34px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  background: var(--white);
-  color: var(--text);
-  outline: none;
-  transition: border-color .2s;
-}
-
-.search-input:focus { border-color: var(--rose); }
-
-.sort-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 9px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all .2s;
-}
-
-.sort-btn.active { border-color: var(--rose); color: var(--rose); background: var(--rose-pale); }
-.sort-btn:hover { border-color: var(--rose); color: var(--rose); }
-
-.filter-chips {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.chip {
-  padding: 5px 12px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1.5px solid var(--border);
-  background: var(--white);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all .2s;
-  white-space: nowrap;
-}
-
-.chip.active { background: var(--rose); color: var(--white); border-color: var(--rose); }
-.chip:hover { border-color: var(--rose); color: var(--rose); }
-
-/* ===================== DATA CARDS (mobile-first) ===================== */
-.data-list { display: flex; flex-direction: column; gap: 10px; }
-
-.data-card {
-  background: var(--white);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  padding: 14px 16px;
-  box-shadow: 0 2px 8px rgba(44,32,23,.05);
-  transition: box-shadow .2s;
-}
-
-.data-card:active { box-shadow: var(--shadow); }
-
-.dc-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.dc-title {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text);
-  flex: 1;
-  line-height: 1.3;
-}
-
-.dc-amount {
-  font-family: 'Playfair Display', serif;
-  font-size: 15px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.dc-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.dc-meta-item {
-  font-size: 11px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.dc-actions {
-  display: flex;
-  gap: 6px;
-  justify-content: flex-end;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  margin-top: 4px;
-}
-
-.dc-note {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-style: italic;
-  margin-top: 4px;
-  padding: 6px 10px;
-  background: var(--cream);
-  border-radius: 6px;
-}
-
-.result-count {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-  padding: 0 2px;
-}
+  .shake { animation: shake .4s ease; }
+
+  /* Data card hover */
+  .data-card:hover { box-shadow: 0 4px 20px rgba(155,35,53,.1); }
+
+  /* Stat card accent line */
+  .stat-rose::before  { content:''; display:block; height:3px; background:#9B2335; border-radius:9999px 9999px 0 0; margin:-1px -1px 12px; }
+  .stat-green::before { content:''; display:block; height:3px; background:#16a34a; border-radius:9999px 9999px 0 0; margin:-1px -1px 12px; }
+  .stat-blue::before  { content:''; display:block; height:3px; background:#1d4ed8; border-radius:9999px 9999px 0 0; margin:-1px -1px 12px; }
+  .stat-amber::before { content:''; display:block; height:3px; background:#d97706; border-radius:9999px 9999px 0 0; margin:-1px -1px 12px; }
+  .stat-gold::before  { content:''; display:block; height:3px; background:#B8960C; border-radius:9999px 9999px 0 0; margin:-1px -1px 12px; }
 </style>
 </head>
-<body>
+<body class="bg-cream min-h-screen">
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <div class="logo">💍 Nikah<br>Budget</div>
-    <div class="tagline">Wedding Planner</div>
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar" class="sidebar fixed top-0 left-0 h-screen w-60 bg-rose flex flex-col z-50 -translate-x-full lg:translate-x-0">
+  <!-- Brand -->
+  <div class="px-5 py-7 border-b border-white/20">
+    <div class="font-serif text-white text-xl font-bold leading-tight">💍 Nikah<br>Budget</div>
+    <div class="text-white/60 text-xs mt-1 uppercase tracking-widest">Wedding Planner</div>
   </div>
-  <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="goTo('dashboard')">
-      <span class="nav-icon">🏠</span> Dashboard
+
+  <!-- Nav -->
+  <nav class="flex-1 py-4">
+    <div class="nav-item active flex items-center gap-3 px-5 py-3 cursor-pointer text-white text-sm font-medium hover:bg-white/10 transition-colors" onclick="goTo('dashboard')">
+      <span class="text-lg w-6 text-center">🏠</span> Dashboard
     </div>
-    <div class="nav-item" onclick="goTo('tabungan')">
-      <span class="nav-icon">💰</span> Tabungan
+    <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('tabungan')">
+      <span class="text-lg w-6 text-center">💰</span> Tabungan
     </div>
-    <div class="nav-item" onclick="goTo('kebutuhan')">
-      <span class="nav-icon">📋</span> Kebutuhan
+    <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('kebutuhan')">
+      <span class="text-lg w-6 text-center">📋</span> Kebutuhan
     </div>
-    <div class="nav-item" onclick="goTo('pengeluaran')">
-      <span class="nav-icon">💸</span> Pengeluaran
+    <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('pengeluaran')">
+      <span class="text-lg w-6 text-center">💸</span> Pengeluaran
     </div>
-    <div class="nav-item" onclick="goTo('vendor')">
-      <span class="nav-icon">🤝</span> Vendor
+    <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('vendor')">
+      <span class="text-lg w-6 text-center">🤝</span> Vendor
     </div>
-    <div class="nav-item" onclick="goTo('tamu')">
-      <span class="nav-icon">👥</span> Tamu
+    <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('tamu')">
+      <span class="text-lg w-6 text-center">👥</span> Tamu
     </div>
-    <div class="nav-item" onclick="goTo('pengaturan')">
-      <span class="nav-icon">⚙️</span> Pengaturan
+    <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('pengaturan')">
+      <span class="text-lg w-6 text-center">⚙️</span> Pengaturan
     </div>
   </nav>
-  <div class="sidebar-footer">
-    <div class="couple-names">
-      <small>Calon Pengantin</small>
-      <span id="sidebarNames">— & —</span>
+
+  <!-- Footer -->
+  <div class="px-5 py-4 border-t border-white/20">
+    <div class="text-center">
+      <div class="text-white/50 text-xs uppercase tracking-widest mb-1">Calon Pengantin</div>
+      <div id="sidebarNames" class="font-serif text-white text-sm">— & —</div>
     </div>
+    <button onclick="logout()" class="mt-3 w-full py-2 text-xs text-white/70 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-colors">
+      🔒 Keluar
+    </button>
   </div>
 </aside>
 
-<!-- MOBILE TOGGLE -->
-<button class="mob-toggle" onclick="toggleSidebar()">☰</button>
+<!-- Sidebar overlay (mobile) -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-<!-- MAIN -->
-<main class="main">
-  <header class="topbar">
-    <div>
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
-      <div class="topbar-subtitle" id="topbarSub">Ringkasan budget pernikahanmu</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn btn-ghost btn-sm" onclick="refreshPage()" title="Refresh data">🔄</button>
-      <button class="btn btn-primary btn-sm" id="topbarAction" onclick="topbarActionFn()">+ Tambah</button>
+<!-- Mobile toggle button -->
+<button onclick="toggleSidebar()" class="lg:hidden fixed bottom-5 right-5 z-50 w-13 h-13 bg-rose text-white rounded-full shadow-xl text-xl flex items-center justify-center w-12 h-12">☰</button>
+
+<!-- ===== MAIN ===== -->
+<main class="lg:ml-60 min-h-screen flex flex-col">
+
+  <!-- Topbar -->
+  <header class="bg-white sticky top-0 z-30 border-b border-cream-dark shadow-sm">
+    <div class="px-4 lg:px-8 py-4 flex items-center justify-between">
+      <div>
+        <div id="topbarTitle" class="font-serif text-lg font-bold text-gray-800">Dashboard</div>
+        <div id="topbarSub" class="text-xs text-gray-400 mt-0.5">Ringkasan budget pernikahanmu</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="refreshPage()" title="Refresh" class="p-2 text-gray-400 hover:text-rose hover:bg-rose-pale rounded-lg transition-colors text-sm">🔄</button>
+        <button id="topbarAction" onclick="topbarActionFn()" class="hidden bg-rose hover:bg-rose-light text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-md">
+          + Tambah
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="page-content">
+  <!-- Page content -->
+  <div class="p-4 lg:p-8 flex-1">
 
-    <!-- ===== DASHBOARD ===== -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div id="dashboardContent">
-        <div class="loading"><div class="spinner"></div> Memuat data...</div>
+        <div class="flex items-center justify-center gap-3 py-16 text-gray-400">
+          <div class="w-5 h-5 border-2 border-rose/30 border-t-rose rounded-full spinner"></div>
+          Memuat dashboard...
+        </div>
       </div>
     </div>
 
-    <!-- ===== TABUNGAN ===== -->
-    <div class="page" id="page-tabungan">
+    <!-- TABUNGAN -->
+    <div class="page hidden" id="page-tabungan">
       <div id="tabunganContent">
-        <div class="loading"><div class="spinner"></div> Memuat...</div>
+        <div class="flex items-center justify-center gap-3 py-16 text-gray-400">
+          <div class="w-5 h-5 border-2 border-rose/30 border-t-rose rounded-full spinner"></div>
+          Memuat...
+        </div>
       </div>
     </div>
 
-    <!-- ===== KEBUTUHAN ===== -->
-    <div class="page" id="page-kebutuhan">
+    <!-- KEBUTUHAN -->
+    <div class="page hidden" id="page-kebutuhan">
       <div id="kebutuhanContent">
-        <div class="loading"><div class="spinner"></div> Memuat...</div>
+        <div class="flex items-center justify-center gap-3 py-16 text-gray-400">
+          <div class="w-5 h-5 border-2 border-rose/30 border-t-rose rounded-full spinner"></div>
+          Memuat...
+        </div>
       </div>
     </div>
 
-    <!-- ===== PENGELUARAN ===== -->
-    <div class="page" id="page-pengeluaran">
+    <!-- PENGELUARAN -->
+    <div class="page hidden" id="page-pengeluaran">
       <div id="pengeluaranContent">
-        <div class="loading"><div class="spinner"></div> Memuat...</div>
+        <div class="flex items-center justify-center gap-3 py-16 text-gray-400">
+          <div class="w-5 h-5 border-2 border-rose/30 border-t-rose rounded-full spinner"></div>
+          Memuat...
+        </div>
       </div>
     </div>
 
-    <!-- ===== VENDOR ===== -->
-    <div class="page" id="page-vendor">
+    <!-- VENDOR -->
+    <div class="page hidden" id="page-vendor">
       <div id="vendorContent">
-        <div class="loading"><div class="spinner"></div> Memuat...</div>
+        <div class="flex items-center justify-center gap-3 py-16 text-gray-400">
+          <div class="w-5 h-5 border-2 border-rose/30 border-t-rose rounded-full spinner"></div>
+          Memuat...
+        </div>
       </div>
     </div>
 
-    <!-- ===== TAMU ===== -->
-    <div class="page" id="page-tamu">
+    <!-- TAMU -->
+    <div class="page hidden" id="page-tamu">
       <div id="tamuContent">
-        <div class="loading"><div class="spinner"></div> Memuat...</div>
+        <div class="flex items-center justify-center gap-3 py-16 text-gray-400">
+          <div class="w-5 h-5 border-2 border-rose/30 border-t-rose rounded-full spinner"></div>
+          Memuat...
+        </div>
       </div>
     </div>
 
-    <!-- ===== PENGATURAN ===== -->
-    <div class="page" id="page-pengaturan">
-      <div class="card" style="max-width:480px;margin-bottom:16px">
-        <div class="section-header"><div class="section-title">⚙️ Pengaturan Pernikahan</div></div>
-        <div class="form-group">
-          <label class="form-label">Nama Calon Suami</label>
-          <input id="cfgPria" class="form-control" placeholder="Nama pria" />
+    <!-- PENGATURAN -->
+    <div class="page hidden" id="page-pengaturan">
+      <div class="max-w-lg space-y-4">
+        <!-- Info pernikahan -->
+        <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-6">
+          <h3 class="font-serif text-rose font-semibold text-lg mb-5">⚙️ Pengaturan Pernikahan</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nama Calon Suami</label>
+              <input id="cfgPria" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="Nama pria" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nama Calon Istri</label>
+              <input id="cfgWanita" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="Nama wanita" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Tanggal Pernikahan</label>
+              <input id="cfgTanggal" type="date" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Estimasi Angpao per Tamu (Rp)</label>
+              <input id="cfgAngpao" type="number" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="150000" />
+            </div>
+          </div>
+          <button onclick="saveConfig()" class="mt-5 w-full bg-rose hover:bg-rose-light text-white font-semibold py-2.5 rounded-xl text-sm transition-all hover:shadow-md">💾 Simpan Pengaturan</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Nama Calon Istri</label>
-          <input id="cfgWanita" class="form-control" placeholder="Nama wanita" />
+        <!-- Ganti password -->
+        <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-6">
+          <h3 class="font-serif text-rose font-semibold text-lg mb-5">🔒 Ganti Password</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Password Baru</label>
+              <input id="cfgPassBaru" type="password" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="Minimal 4 karakter" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Konfirmasi Password</label>
+              <input id="cfgPassKonfirm" type="password" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="Ulangi password baru" />
+            </div>
+          </div>
+          <button onclick="savePassword()" class="mt-5 w-full border-2 border-rose text-rose hover:bg-rose hover:text-white font-semibold py-2.5 rounded-xl text-sm transition-all">🔑 Simpan Password Baru</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Tanggal Pernikahan</label>
-          <input id="cfgTanggal" class="form-control" type="date" />
+        <!-- Logout -->
+        <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-6">
+          <h3 class="font-serif text-gray-700 font-semibold text-lg mb-2">🚪 Sesi</h3>
+          <p class="text-sm text-gray-400 mb-4">Keluar dari aplikasi. Kamu perlu login lagi untuk mengakses.</p>
+          <button onclick="logout()" class="w-full bg-rose-pale text-rose hover:bg-rose hover:text-white font-semibold py-2.5 rounded-xl text-sm transition-all border border-rose-soft">🔒 Logout</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Estimasi Angpao per Tamu (Rp)</label>
-          <input id="cfgAngpao" class="form-control" type="number" placeholder="150000" />
-        </div>
-        <button class="btn btn-primary" onclick="saveConfig()">💾 Simpan Pengaturan</button>
-      </div>
-
-      <div class="card" style="max-width:480px;margin-bottom:16px">
-        <div class="section-header"><div class="section-title">🔒 Ganti Password</div></div>
-        <div class="form-group">
-          <label class="form-label">Password Baru</label>
-          <input id="cfgPassBaru" class="form-control" type="password" placeholder="Minimal 4 karakter" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Konfirmasi Password Baru</label>
-          <input id="cfgPassKonfirm" class="form-control" type="password" placeholder="Ulangi password baru" />
-        </div>
-        <button class="btn btn-outline" onclick="savePassword()">🔑 Simpan Password Baru</button>
-      </div>
-
-      <div class="card" style="max-width:480px">
-        <div class="section-title" style="margin-bottom:12px">🚪 Sesi</div>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Keluar dari aplikasi. Kamu perlu login lagi untuk mengaksesnya.</p>
-        <button class="btn btn-danger" onclick="logout()" style="width:100%">🔒 Logout</button>
       </div>
     </div>
 
-
-  </div><!-- /page-content -->
+  </div>
 </main>
 
 <!-- ===== MODAL TABUNGAN ===== -->
-<div class="modal-overlay" id="modalTabungan">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title">💰 <span id="modalTabunganTitle">Tambah Tabungan</span></h3>
-      <button class="modal-close" onclick="closeModal('modalTabungan')">×</button>
+<div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalTabungan">
+  <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="font-serif text-rose text-xl font-bold">💰 <span id="modalTabunganTitle">Tambah Tabungan</span></h3>
+      <button onclick="closeModal('modalTabungan')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="tbRowIndex" />
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Tanggal</label>
-        <input id="tbTgl" class="form-control" type="date" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Tanggal</label>
+        <input id="tbTgl" type="date" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Dari Pihak</label>
-        <select id="tbPihak" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Dari Pihak</label>
+        <select id="tbPihak" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Pihak Pria</option><option>Pihak Wanita</option>
           <option>Bersama</option><option>Hadiah/Sumbangan</option>
         </select>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Keterangan</label>
-      <input id="tbKet" class="form-control" placeholder="Contoh: Menabung bulan Mei" />
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Keterangan</label>
+      <input id="tbKet" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Contoh: Menabung bulan Mei" />
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Nominal (Rp)</label>
-        <input id="tbNominal" class="form-control" type="number" placeholder="0" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nominal (Rp)</label>
+        <input id="tbNominal" type="number" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="0" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Jenis</label>
-        <select id="tbJenis" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Jenis</label>
+        <select id="tbJenis" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Menabung</option><option>Bonus/THR</option>
           <option>Hadiah</option><option>Transfer</option><option>Lainnya</option>
         </select>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalTabungan')">Batal</button>
-      <button class="btn btn-primary" onclick="submitTabungan()">💾 Simpan</button>
+    <div class="flex gap-2 mt-6">
+      <button onclick="closeModal('modalTabungan')" class="flex-1 py-2.5 border border-gray-200 text-gray-500 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Batal</button>
+      <button onclick="submitTabungan()" class="flex-1 py-2.5 bg-rose text-white rounded-xl text-sm font-semibold hover:bg-rose-light transition hover:shadow-md">💾 Simpan</button>
     </div>
   </div>
 </div>
 
 <!-- ===== MODAL KEBUTUHAN ===== -->
-<div class="modal-overlay" id="modalKebutuhan">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title">📋 <span id="modalKebutuhanTitle">Tambah Kebutuhan</span></h3>
-      <button class="modal-close" onclick="closeModal('modalKebutuhan')">×</button>
+<div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalKebutuhan">
+  <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="font-serif text-rose text-xl font-bold">📋 <span id="modalKebutuhanTitle">Tambah Kebutuhan</span></h3>
+      <button onclick="closeModal('modalKebutuhan')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="kbRowIndex" />
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Kategori</label>
-        <select id="kbKat" class="form-control">
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kategori</label>
+        <select id="kbKat" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Akad & Admin</option><option>Resepsi</option>
           <option>Busana</option><option>Dokumentasi</option>
           <option>Mahar & Seserahan</option><option>Undangan</option>
           <option>Hiburan</option><option>Transportasi</option><option>Lain-lain</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Prioritas</label>
-        <select id="kbPrioritas" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Prioritas</label>
+        <select id="kbPrioritas" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Wajib</option><option>Penting</option><option>Opsional</option>
         </select>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Item Kebutuhan</label>
-      <input id="kbItem" class="form-control" placeholder="Nama item" />
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Item Kebutuhan</label>
+      <input id="kbItem" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Nama item" />
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Estimasi Biaya (Rp)</label>
-        <input id="kbEstimasi" class="form-control" type="number" placeholder="0" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Estimasi (Rp)</label>
+        <input id="kbEstimasi" type="number" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="0" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <select id="kbStatus" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Status</label>
+        <select id="kbStatus" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Belum</option><option>Proses</option><option>Lunas</option>
         </select>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Catatan</label>
-      <input id="kbCatatan" class="form-control" placeholder="Opsional" />
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Catatan</label>
+      <input id="kbCatatan" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Opsional" />
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalKebutuhan')">Batal</button>
-      <button class="btn btn-primary" onclick="submitKebutuhan()">💾 Simpan</button>
+    <div class="flex gap-2 mt-6">
+      <button onclick="closeModal('modalKebutuhan')" class="flex-1 py-2.5 border border-gray-200 text-gray-500 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Batal</button>
+      <button onclick="submitKebutuhan()" class="flex-1 py-2.5 bg-rose text-white rounded-xl text-sm font-semibold hover:bg-rose-light transition hover:shadow-md">💾 Simpan</button>
     </div>
   </div>
 </div>
 
 <!-- ===== MODAL PENGELUARAN ===== -->
-<div class="modal-overlay" id="modalPengeluaran">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title">💸 <span id="modalPengeluaranTitle">Catat Pengeluaran</span></h3>
-      <button class="modal-close" onclick="closeModal('modalPengeluaran')">×</button>
+<div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalPengeluaran">
+  <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="font-serif text-rose text-xl font-bold">💸 <span id="modalPengeluaranTitle">Catat Pengeluaran</span></h3>
+      <button onclick="closeModal('modalPengeluaran')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="peRowIndex" />
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Tanggal</label>
-        <input id="peTgl" class="form-control" type="date" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Tanggal</label>
+        <input id="peTgl" type="date" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Kategori</label>
-        <select id="peKat" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kategori</label>
+        <select id="peKat" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Akad & Admin</option><option>Resepsi</option>
           <option>Busana</option><option>Dokumentasi</option>
           <option>Mahar & Seserahan</option><option>Undangan</option>
@@ -1004,51 +389,51 @@ tbody tr:hover { background: var(--rose-pale); }
         </select>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Item / Nama Pembayaran</label>
-      <input id="peItem" class="form-control" placeholder="Contoh: DP Gedung" />
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Item / Nama Pembayaran</label>
+      <input id="peItem" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Contoh: DP Gedung" />
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Nominal (Rp)</label>
-        <input id="peNominal" class="form-control" type="number" placeholder="0" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nominal (Rp)</label>
+        <input id="peNominal" type="number" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="0" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Dibayar Oleh</label>
-        <select id="peDibayar" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Dibayar Oleh</label>
+        <select id="peDibayar" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Pihak Pria</option><option>Pihak Wanita</option><option>Bersama</option>
         </select>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Metode Bayar</label>
-      <select id="peMetode" class="form-control">
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Metode Bayar</label>
+      <select id="peMetode" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
         <option>Tunai</option><option>Transfer</option><option>QRIS</option><option>Cicilan</option>
       </select>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalPengeluaran')">Batal</button>
-      <button class="btn btn-primary" onclick="submitPengeluaran()">💾 Simpan</button>
+    <div class="flex gap-2 mt-6">
+      <button onclick="closeModal('modalPengeluaran')" class="flex-1 py-2.5 border border-gray-200 text-gray-500 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Batal</button>
+      <button onclick="submitPengeluaran()" class="flex-1 py-2.5 bg-rose text-white rounded-xl text-sm font-semibold hover:bg-rose-light transition hover:shadow-md">💾 Simpan</button>
     </div>
   </div>
 </div>
 
 <!-- ===== MODAL VENDOR ===== -->
-<div class="modal-overlay" id="modalVendor">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title">🤝 <span id="modalVendorTitle">Tambah Vendor</span></h3>
-      <button class="modal-close" onclick="closeModal('modalVendor')">×</button>
+<div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalVendor">
+  <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="font-serif text-rose text-xl font-bold">🤝 <span id="modalVendorTitle">Tambah Vendor</span></h3>
+      <button onclick="closeModal('modalVendor')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="vnRowIndex" />
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Nama Vendor</label>
-        <input id="vnNama" class="form-control" placeholder="Nama vendor/jasa" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nama Vendor</label>
+        <input id="vnNama" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Nama vendor" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Kategori</label>
-        <select id="vnKat" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kategori</label>
+        <select id="vnKat" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Gedung/Tenda</option><option>Catering</option>
           <option>Dekorasi</option><option>Busana & Rias</option>
           <option>Fotografer</option><option>Videografer</option>
@@ -1056,200 +441,247 @@ tbody tr:hover { background: var(--rose-pale); }
         </select>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Harga Penawaran (Rp)</label>
-        <input id="vnHarga" class="form-control" type="number" placeholder="0" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Harga (Rp)</label>
+        <input id="vnHarga" type="number" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="0" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <select id="vnStatus" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Status</label>
+        <select id="vnStatus" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Kandidat</option><option>Negosiasi</option><option>Deal</option><option>Batal</option>
         </select>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Kontak (WA/IG)</label>
-      <input id="vnKontak" class="form-control" placeholder="08xxxxxxxx" />
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Kontak</label>
+      <input id="vnKontak" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="No. WA / Instagram" />
     </div>
-    <div class="form-group">
-      <label class="form-label">Catatan</label>
-      <input id="vnCatatan" class="form-control" placeholder="Opsional" />
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Catatan</label>
+      <input id="vnCatatan" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Opsional" />
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalVendor')">Batal</button>
-      <button class="btn btn-primary" onclick="submitVendor()">💾 Simpan</button>
+    <div class="flex gap-2 mt-6">
+      <button onclick="closeModal('modalVendor')" class="flex-1 py-2.5 border border-gray-200 text-gray-500 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Batal</button>
+      <button onclick="submitVendor()" class="flex-1 py-2.5 bg-rose text-white rounded-xl text-sm font-semibold hover:bg-rose-light transition hover:shadow-md">💾 Simpan</button>
     </div>
   </div>
 </div>
 
 <!-- ===== MODAL TAMU ===== -->
-<div class="modal-overlay" id="modalTamu">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title">👥 <span id="modalTamuTitle">Tambah Tamu</span></h3>
-      <button class="modal-close" onclick="closeModal('modalTamu')">×</button>
+<div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalTamu">
+  <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="font-serif text-rose text-xl font-bold">👥 <span id="modalTamuTitle">Tambah Tamu</span></h3>
+      <button onclick="closeModal('modalTamu')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="tmRowIndex" />
-    <div class="form-group">
-      <label class="form-label">Nama Tamu</label>
-      <input id="tmNama" class="form-control" placeholder="Nama tamu / keluarga" />
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nama Tamu</label>
+      <input id="tmNama" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Nama tamu / keluarga" />
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Hubungan</label>
-        <input id="tmHubungan" class="form-control" placeholder="Contoh: Paman" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Hubungan</label>
+        <input id="tmHubungan" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" placeholder="Contoh: Paman" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Dari Pihak</label>
-        <select id="tmPihak" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Dari Pihak</label>
+        <select id="tmPihak" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Pihak Pria</option><option>Pihak Wanita</option><option>Bersama</option>
         </select>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Jumlah Orang</label>
-        <input id="tmJumlah" class="form-control" type="number" value="1" min="1" />
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Jumlah Orang</label>
+        <input id="tmJumlah" type="number" value="1" min="1" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Konfirmasi</label>
-        <select id="tmKonfirmasi" class="form-control">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Konfirmasi</label>
+        <select id="tmKonfirmasi" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-rose transition">
           <option>Belum</option><option>Hadir</option><option>Tidak Hadir</option>
         </select>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalTamu')">Batal</button>
-      <button class="btn btn-primary" onclick="submitTamu()">💾 Simpan</button>
+    <div class="flex gap-2 mt-6">
+      <button onclick="closeModal('modalTamu')" class="flex-1 py-2.5 border border-gray-200 text-gray-500 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Batal</button>
+      <button onclick="submitTamu()" class="flex-1 py-2.5 bg-rose text-white rounded-xl text-sm font-semibold hover:bg-rose-light transition hover:shadow-md">💾 Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST CONTAINER -->
-<div class="toast-container" id="toastContainer"></div>
-
 <!-- ===== LOGIN SCREEN ===== -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">💍</div>
-    <h2>Nikah Budget</h2>
-    <p>Masukkan password untuk membuka aplikasi</p>
-    <div class="login-input-wrap">
-      <input class="form-control" type="password" id="loginPassword"
-        placeholder="••••••••"
-        onkeydown="if(event.key==='Enter') submitLogin()"
-        autofocus />
-      <button class="toggle-pass" onclick="togglePasswordVisibility()" tabindex="-1">👁</button>
+<div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-rose via-marun to-marun-dark z-[999] flex items-center justify-center p-6">
+  <div class="bg-white rounded-3xl p-10 w-full max-w-sm shadow-2xl text-center">
+    <div class="text-6xl mb-4">💍</div>
+    <h2 class="font-serif text-rose text-2xl font-bold mb-1">Nikah Budget</h2>
+    <p class="text-gray-400 text-sm mb-8">Masukkan password untuk membuka aplikasi</p>
+    <div class="relative mb-3">
+      <input id="loginPassword" type="password" placeholder="••••••••"
+        class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-center text-xl tracking-widest focus:outline-none focus:border-rose transition"
+        onkeydown="if(event.key==='Enter') submitLogin()" autofocus />
+      <button onclick="togglePasswordVisibility()" tabindex="-1" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">👁</button>
     </div>
-    <div class="login-error" id="loginError"></div>
-    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px" onclick="submitLogin()">
+    <div id="loginError" class="text-rose text-sm font-medium mb-3 min-h-[20px]"></div>
+    <button onclick="submitLogin()" class="w-full bg-rose hover:bg-rose-light text-white font-bold py-3.5 rounded-2xl text-base transition-all hover:shadow-lg hover:-translate-y-0.5">
       🔓 Masuk
     </button>
   </div>
 </div>
 
 <!-- ===== SETUP SCREEN ===== -->
-<div class="setup-screen" id="setupScreen" style="display:none">
-  <div class="setup-card">
-    <h2>💍 Selamat Datang!</h2>
-    <p>Aplikasi ini akan membantu mengatur budget pernikahan dengan mudah. Semua data tersimpan di Google Spreadsheet milikmu.</p>
-    <div class="form-group">
-      <label class="form-label">Nama Calon Suami</label>
-      <input id="setupPria" class="form-control" placeholder="Nama pria" />
+<div id="setupScreen" class="fixed inset-0 bg-gradient-to-br from-rose via-marun to-marun-dark z-[998] items-center justify-center p-6 hidden">
+  <div class="bg-white rounded-3xl p-10 w-full max-w-sm shadow-2xl">
+    <h2 class="font-serif text-rose text-2xl font-bold mb-1">💍 Selamat Datang!</h2>
+    <p class="text-gray-400 text-sm mb-7 leading-relaxed">Isi data berikut untuk memulai merencanakan pernikahan impianmu.</p>
+    <div class="space-y-4 mb-6">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nama Calon Suami</label>
+        <input id="setupPria" class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-rose transition" placeholder="Nama pria" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nama Calon Istri</label>
+        <input id="setupWanita" class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-rose transition" placeholder="Nama wanita" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Tanggal Pernikahan</label>
+        <input id="setupTanggal" type="date" class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm focus:outline-none focus:border-rose transition" />
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Nama Calon Istri</label>
-      <input id="setupWanita" class="form-control" placeholder="Nama wanita" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tanggal Pernikahan</label>
-      <input id="setupTanggal" class="form-control" type="date" />
-    </div>
-    <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px" onclick="finishSetup()">
+    <button onclick="finishSetup()" class="w-full bg-rose hover:bg-rose-light text-white font-bold py-3.5 rounded-2xl text-base transition-all hover:shadow-lg">
       🚀 Mulai Rencanakan
     </button>
   </div>
 </div>
 
+<!-- ===== TOAST CONTAINER ===== -->
+<div id="toastContainer" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
 <script>
+// ============================================================
+// HELPER FUNCTIONS — UI rendering pakai Tailwind classes
+// ============================================================
+
+function badge(text, type) {
+  const map = {
+    wajib:     'bg-red-50 text-red-600 border border-red-200',
+    penting:   'bg-amber-50 text-amber-600 border border-amber-200',
+    opsional:  'bg-blue-50 text-blue-600 border border-blue-200',
+    belum:     'bg-red-50 text-red-600 border border-red-200',
+    proses:    'bg-amber-50 text-amber-600 border border-amber-200',
+    lunas:     'bg-green-50 text-green-600 border border-green-200',
+    pria:      'bg-blue-50 text-blue-700 border border-blue-200',
+    wanita:    'bg-purple-50 text-purple-700 border border-purple-200',
+    bersama:   'bg-green-50 text-green-700 border border-green-200',
+    kandidat:  'bg-gray-100 text-gray-500 border border-gray-200',
+    negosiasi: 'bg-amber-50 text-amber-600 border border-amber-200',
+    deal:      'bg-green-50 text-green-600 border border-green-200',
+    batal:     'bg-red-50 text-red-600 border border-red-200',
+    hadir:     'bg-green-50 text-green-600 border border-green-200',
+    'tidak hadir': 'bg-red-50 text-red-600 border border-red-200',
+  };
+  const cls = map[(text||'').toLowerCase()] || 'bg-gray-100 text-gray-500';
+  return `<span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}">${text}</span>`;
+}
+
+function statCard(icon, label, value, colorClass) {
+  return `
+    <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 overflow-hidden ${colorClass}">
+      <div class="text-2xl mb-2">${icon}</div>
+      <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">${label}</div>
+      <div class="font-serif text-xl font-bold text-gray-800 mt-1">${value}</div>
+    </div>`;
+}
+
+function dataCard(content) {
+  return `<div class="data-card bg-white rounded-2xl border border-cream-dark shadow-sm p-4 transition-shadow">${content}</div>`;
+}
+
+function searchBar(id, placeholder, oninput) {
+  return `
+    <div class="relative flex-1 min-w-0">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm">🔍</span>
+      <input id="${id}" class="w-full pl-9 pr-4 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose transition bg-white" placeholder="${placeholder}" oninput="${oninput}" />
+    </div>`;
+}
+
+function sortBtn(label, active, onclick) {
+  const cls = active
+    ? 'bg-rose-pale text-rose border-rose'
+    : 'bg-white text-gray-500 border-cream-dark hover:border-rose hover:text-rose';
+  return `<button class="flex items-center gap-1 px-3 py-2.5 border rounded-xl text-xs font-semibold whitespace-nowrap transition ${cls}" onclick="${onclick}">${label}</button>`;
+}
+
+function chipFilter(label, active, onclick) {
+  const cls = active
+    ? 'bg-rose text-white border-rose'
+    : 'bg-white text-gray-500 border-cream-dark hover:border-rose hover:text-rose';
+  return `<button class="chip px-3 py-1.5 rounded-full text-xs font-semibold border transition whitespace-nowrap ${cls}" onclick="${onclick}">${label}</button>`;
+}
+
+function emptyState(icon, msg) {
+  return `<div class="text-center py-16 text-gray-300"><div class="text-5xl mb-3">${icon}</div><p class="text-sm">${msg}</p></div>`;
+}
+
+function loadingSpinner() {
+  return `<div class="flex items-center justify-center gap-3 py-16 text-gray-400"><div class="w-5 h-5 border-2 border-rose/30 border-t-rose rounded-full spinner"></div> Memuat...</div>`;
+}
+
+function actionBtns(editFn, deleteFn) {
+  return `
+    <div class="flex gap-2 justify-end pt-3 border-t border-gray-50 mt-2">
+      <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="${editFn}">✏️ Edit</button>
+      <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="${deleteFn}">🗑 Hapus</button>
+    </div>`;
+}
+
 // ============================================================
 // STATE & CONFIG
 // ============================================================
 let appConfig = {};
 let currentPage = 'dashboard';
 
-// applyConfig — didefinisikan di sini agar selalu tersedia
 function applyConfig() {
   const pria = appConfig.pria || '—';
   const wanita = appConfig.wanita || '—';
   const el = document.getElementById('sidebarNames');
   if (el) el.textContent = `${pria} & ${wanita}`;
-  const cfgPria = document.getElementById('cfgPria');
-  const cfgWanita = document.getElementById('cfgWanita');
-  const cfgTanggal = document.getElementById('cfgTanggal');
-  const cfgAngpao = document.getElementById('cfgAngpao');
-  if (cfgPria) cfgPria.value = appConfig.pria || '';
-  if (cfgWanita) cfgWanita.value = appConfig.wanita || '';
-  if (cfgTanggal) cfgTanggal.value = appConfig.tanggal || '';
-  if (cfgAngpao) cfgAngpao.value = appConfig.angpao || 150000;
+  ['cfgPria','cfgWanita','cfgTanggal','cfgAngpao'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (id === 'cfgPria') el.value = appConfig.pria || '';
+    else if (id === 'cfgWanita') el.value = appConfig.wanita || '';
+    else if (id === 'cfgTanggal') el.value = appConfig.tanggal || '';
+    else if (id === 'cfgAngpao') el.value = appConfig.angpao || 150000;
+  });
 }
 
-// Cache data — supaya tidak fetch ulang tiap pindah halaman
-const _cache = {
-  dashboard: null,
-  tabungan: null,
-  kebutuhan: null,
-  pengeluaran: null,
-  vendor: null,
-  tamu: null,
-};
+// Cache
+const _cache = { dashboard:null, tabungan:null, kebutuhan:null, pengeluaran:null, vendor:null, tamu:null };
 const _cacheTime = {};
-const CACHE_TTL = 30000; // 30 detik
-
-function isCacheValid(key) {
-  return _cache[key] !== null && _cacheTime[key] && (Date.now() - _cacheTime[key] < CACHE_TTL);
-}
-
-function setCache(key, data) {
-  _cache[key] = data;
-  _cacheTime[key] = Date.now();
-}
-
-function clearCache(key) {
-  if (key) { _cache[key] = null; }
-  else { Object.keys(_cache).forEach(k => _cache[k] = null); }
-}
-
-// Tombol refresh manual di topbar
-function refreshPage() {
-  clearCache(currentPage);
-  if (currentPage === 'dashboard') clearCache(); // dashboard butuh semua data
-  loadPage(currentPage, true);
-  showToast('Data diperbarui 🔄', '');
-}
+const CACHE_TTL = 30000;
+function isCacheValid(k) { return _cache[k]!==null && _cacheTime[k] && (Date.now()-_cacheTime[k]<CACHE_TTL); }
+function setCache(k,d) { _cache[k]=d; _cacheTime[k]=Date.now(); }
+function clearCache(k) { if(k){_cache[k]=null;}else{Object.keys(_cache).forEach(x=>_cache[x]=null);} }
 
 const PAGE_META = {
-  dashboard:   { title: 'Dashboard', sub: 'Ringkasan budget pernikahanmu', action: null },
-  tabungan:    { title: '💰 Tabungan', sub: 'Catatan tabungan pernikahan', action: () => openModal('modalTabungan') },
-  kebutuhan:   { title: '📋 Kebutuhan', sub: 'Daftar & prioritas kebutuhan', action: () => openFormKebutuhan() },
-  pengeluaran: { title: '💸 Pengeluaran', sub: 'Catatan pengeluaran', action: () => openModal('modalPengeluaran') },
-  vendor:      { title: '🤝 Vendor', sub: 'Database vendor & jasa', action: () => openModal('modalVendor') },
-  tamu:        { title: '👥 Tamu', sub: 'Daftar tamu undangan', action: () => openModal('modalTamu') },
-  pengaturan:  { title: '⚙️ Pengaturan', sub: 'Konfigurasi pernikahan', action: null },
+  dashboard:   { title: 'Dashboard',       sub: 'Ringkasan budget pernikahanmu',  action: null },
+  tabungan:    { title: '💰 Tabungan',      sub: 'Catatan tabungan pernikahan',    action: () => openModal('modalTabungan') },
+  kebutuhan:   { title: '📋 Kebutuhan',     sub: 'Daftar & prioritas kebutuhan',   action: () => openFormKebutuhan() },
+  pengeluaran: { title: '💸 Pengeluaran',   sub: 'Catatan pengeluaran',            action: () => openModal('modalPengeluaran') },
+  vendor:      { title: '🤝 Vendor',        sub: 'Database vendor & jasa',         action: () => openModal('modalVendor') },
+  tamu:        { title: '👥 Tamu',          sub: 'Daftar tamu undangan',           action: () => openModal('modalTamu') },
+  pengaturan:  { title: '⚙️ Pengaturan',    sub: 'Konfigurasi pernikahan',         action: null },
 };
 
-
 // ============================================================
-// API — ganti URL di bawah dengan URL deploy GAS kamu
+// API
 // ============================================================
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzv3Ivfhne_Sy4z8vd9taBr1M56cNaNmvq_3yvj3tRMHqTvtFzrCASSfNAtXjPf8U7wNA/exec';
 
 async function callAPI(action, data = {}) {
-  const res = await fetch(GAS_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action, ...data }),
-  });
+  const res = await fetch(GAS_URL, { method:'POST', body: JSON.stringify({ action, ...data }) });
   return res.json();
 }
 
@@ -1258,14 +690,14 @@ async function callAPI(action, data = {}) {
 // ============================================================
 window.addEventListener('load', async () => {
   if (GAS_URL === 'GANTI_DENGAN_URL_GAS_KAMU') {
-    alert('⚠️ Buka file index.html, cari GAS_URL dan ganti dengan URL deploy GAS kamu!');
+    alert('⚠️ Isi GAS_URL dulu di file index.html!');
     return;
   }
   showLoginScreen();
 });
 
 // ============================================================
-// LOGIN & SESSION
+// LOGIN
 // ============================================================
 function showLoginScreen() {
   document.getElementById('loginScreen').style.display = 'flex';
@@ -1276,43 +708,32 @@ function showLoginScreen() {
 
 async function submitLogin() {
   const inputPass = document.getElementById('loginPassword').value.trim();
-  const errEl     = document.getElementById('loginError');
-
+  const errEl = document.getElementById('loginError');
   if (!inputPass) { errEl.textContent = 'Password tidak boleh kosong.'; return; }
 
-  const btn = document.querySelector('#loginScreen .btn-primary');
-  btn.textContent = '⏳ Memeriksa...';
-  btn.disabled = true;
+  const btn = document.querySelector('#loginScreen button:last-of-type');
+  btn.textContent = '⏳ Memeriksa...'; btn.disabled = true;
 
   try {
     await callAPI('initSheets');
     const cfg = await callAPI('getConfig');
     appConfig = (cfg && cfg.data) ? cfg.data : {};
-  } catch(e) {
-    appConfig = {};
-    showToast('Gagal konek ke server', 'error');
-  }
+  } catch(e) { appConfig = {}; }
 
-  btn.textContent = '🔓 Masuk';
-  btn.disabled = false;
+  btn.textContent = '🔓 Masuk'; btn.disabled = false;
 
   const savedPass = appConfig.password || 'nikah123';
-
   if (inputPass !== savedPass) {
     errEl.textContent = '❌ Password salah. Coba lagi.';
     document.getElementById('loginPassword').value = '';
     document.getElementById('loginPassword').focus();
-    const card = document.querySelector('.login-card');
-    card.style.transition = 'transform .1s';
-    card.style.transform = 'translateX(-8px)';
-    setTimeout(() => card.style.transform = 'translateX(8px)', 100);
-    setTimeout(() => card.style.transform = 'translateX(0)',   200);
+    const card = document.querySelector('#loginScreen > div');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 500);
     return;
   }
 
-  // Sukses
   document.getElementById('loginScreen').style.display = 'none';
-
   if (!appConfig.pria && !appConfig.wanita) {
     document.getElementById('setupScreen').style.display = 'flex';
   } else {
@@ -1329,38 +750,44 @@ function togglePasswordVisibility() {
 function logout() {
   if (!confirm('Yakin ingin keluar?')) return;
   appConfig = {};
+  clearCache();
   showLoginScreen();
 }
-
-
-
 
 // ============================================================
 // NAVIGATION
 // ============================================================
 function goTo(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  
+  document.querySelectorAll('.page').forEach(p => { p.classList.add('hidden'); p.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.remove('hidden');
   document.getElementById('page-' + page).classList.add('active');
+
   document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.textContent.trim().toLowerCase().includes(page === 'dashboard' ? 'dashboard' :
-        page === 'tabungan' ? 'tabungan' : page === 'kebutuhan' ? 'kebutuhan' :
-        page === 'pengeluaran' ? 'pengeluaran' : page === 'vendor' ? 'vendor' :
-        page === 'tamu' ? 'tamu' : 'pengaturan')) n.classList.add('active');
+    n.classList.remove('active');
+    n.classList.add('text-white/75');
+    n.classList.remove('text-white');
   });
+  // Tandai nav aktif berdasarkan urutan
+  const pages = ['dashboard','tabungan','kebutuhan','pengeluaran','vendor','tamu','pengaturan'];
+  const idx = pages.indexOf(page);
+  const navItems = document.querySelectorAll('.nav-item');
+  if (navItems[idx]) {
+    navItems[idx].classList.add('active','text-white');
+    navItems[idx].classList.remove('text-white/75');
+  }
 
   currentPage = page;
   const meta = PAGE_META[page];
   document.getElementById('topbarTitle').textContent = meta.title;
   document.getElementById('topbarSub').textContent = meta.sub;
-  
-  const actionBtn = document.getElementById('topbarAction');
-  if (meta.action) { actionBtn.style.display = ''; }
-  else { actionBtn.style.display = 'none'; }
 
-  // Close sidebar on mobile
-  document.getElementById('sidebar').classList.remove('open');
+  const actionBtn = document.getElementById('topbarAction');
+  if (meta.action) actionBtn.classList.remove('hidden');
+  else actionBtn.classList.add('hidden');
+
+  document.getElementById('sidebar').classList.add('-translate-x-full');
+  document.getElementById('sidebar').classList.remove('translate-x-0');
+  document.getElementById('sidebarOverlay').classList.add('hidden');
 
   loadPage(page);
 }
@@ -1371,12 +798,32 @@ function topbarActionFn() {
 }
 
 function loadPage(page, force = false) {
-  if (page === 'dashboard') loadDashboard(force);
-  else if (page === 'tabungan') loadTabungan(force);
-  else if (page === 'kebutuhan') loadKebutuhan(force);
+  if (page === 'dashboard')   loadDashboard(force);
+  else if (page === 'tabungan')    loadTabungan(force);
+  else if (page === 'kebutuhan')   loadKebutuhan(force);
   else if (page === 'pengeluaran') loadPengeluaran(force);
-  else if (page === 'vendor') loadVendor(force);
-  else if (page === 'tamu') loadTamu(force);
+  else if (page === 'vendor')      loadVendor(force);
+  else if (page === 'tamu')        loadTamu(force);
+}
+
+function refreshPage() {
+  clearCache(currentPage);
+  if (currentPage === 'dashboard') clearCache();
+  loadPage(currentPage, true);
+  showToast('Data diperbarui 🔄', '');
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  const isHidden = sb.classList.contains('-translate-x-full');
+  if (isHidden) {
+    sb.classList.remove('-translate-x-full'); sb.classList.add('translate-x-0');
+    ov.classList.remove('hidden');
+  } else {
+    sb.classList.add('-translate-x-full'); sb.classList.remove('translate-x-0');
+    ov.classList.add('hidden');
+  }
 }
 
 // ============================================================
@@ -1384,966 +831,715 @@ function loadPage(page, force = false) {
 // ============================================================
 async function loadDashboard(force = false) {
   const el = document.getElementById('dashboardContent');
-  if (!force && isCacheValid('dashboard')) {
-    _renderDashboard(_cache['dashboard']);
-    return;
-  }
-  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat dashboard...</div>';
+  if (!force && isCacheValid('dashboard')) { _renderDashboard(_cache['dashboard']); return; }
+  el.innerHTML = loadingSpinner();
   try {
     const res = await callAPI('getDashboard');
-    if (!res || !res.success) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error: ${res?.error || 'Gagal memuat data'}</p></div>`;
-      return;
-    }
+    if (!res || !res.success) { el.innerHTML = emptyState('❌', res?.error||'Gagal memuat'); return; }
     setCache('dashboard', res.data);
     _renderDashboard(res.data);
-  } catch(err) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error: ${err.message||err}</p></div>`;
-  }
+  } catch(e) { el.innerHTML = emptyState('❌', e.message||'Error'); }
 }
 
 function _renderDashboard(d) {
   const el = document.getElementById('dashboardContent');
+  const pria = appConfig.pria||'—', wanita = appConfig.wanita||'—';
+  let cdDays='—', cdDate='Tanggal belum diatur', cdLabel='', diff=0;
 
-    // Countdown — diff dideklarasi di LUAR if
-    let cdDays = '—';
-    let cdDate = 'Tanggal belum diatur';
-    let cdLabel = '';
-    let diff = 0;
-    const pria = appConfig.pria || '—';
-    const wanita = appConfig.wanita || '—';
-    const cdCouple = `${pria} & ${wanita}`;
+  if (appConfig.tanggal) {
+    const tgl = new Date(appConfig.tanggal);
+    const today = new Date(); today.setHours(0,0,0,0);
+    diff = Math.ceil((tgl - today) / 86400000);
+    cdDays = diff > 0 ? diff : (diff === 0 ? '🎉' : Math.abs(diff));
+    cdLabel = diff > 0 ? 'hari lagi' : diff === 0 ? 'Hari ini!' : 'hari yang lalu';
+    cdDate = tgl.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
 
-    if (appConfig.tanggal) {
-      const tgl = new Date(appConfig.tanggal);
-      const todayDate = new Date();
-      todayDate.setHours(0, 0, 0, 0);
-      diff = Math.ceil((tgl - todayDate) / 86400000);
-      cdDays = diff > 0 ? diff : (diff === 0 ? '🎉' : Math.abs(diff));
-      cdDate = tgl.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      cdLabel = diff > 0 ? 'hari lagi' : (diff === 0 ? 'Hari ini!' : 'hari yang lalu');
-    }
+  const progressPct = d.progress || 0;
+  const progressColor = progressPct >= 100 ? 'bg-green-500' : progressPct >= 75 ? 'bg-emerald-500' : progressPct >= 50 ? 'bg-amber-500' : 'bg-rose';
 
-    el.innerHTML = `
-      <div class="countdown-box" style="margin-bottom:20px">
-        <div class="cd-couple">${cdCouple}</div>
-        <div class="cd-days">${cdDays}</div>
-        <div class="cd-label">${cdLabel}</div>
-        <div class="cd-date">${cdDate}</div>
+  el.innerHTML = `
+    <!-- Countdown -->
+    <div class="relative bg-gradient-to-br from-rose to-marun rounded-3xl p-7 mb-5 overflow-hidden text-white">
+      <div class="absolute right-4 bottom-0 text-[80px] opacity-10 select-none">💍</div>
+      <div class="font-serif text-base opacity-80 mb-1">${pria} & ${wanita}</div>
+      <div class="font-serif text-6xl font-bold leading-none">${cdDays}</div>
+      <div class="text-sm opacity-70 mt-1 uppercase tracking-wider">${cdLabel}</div>
+      <div class="text-sm opacity-75 mt-3">${cdDate}</div>
+    </div>
+
+    <!-- Stats row 1 -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+      ${statCard('💰','Total Tabungan', rupiah(d.totalTabungan), 'stat-green')}
+      ${statCard('💸','Total Pengeluaran', rupiah(d.totalPengeluaran), 'stat-rose')}
+      ${statCard('📋','Estimasi Kebutuhan', rupiah(d.totalEstimasi), 'stat-blue')}
+    </div>
+
+    <!-- Stats row 2 -->
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 stat-green">
+        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">✅ Sisa Dana</div>
+        <div class="font-serif text-xl font-bold mt-1 ${d.sisaDana >= 0 ? 'text-green-600' : 'text-rose'}">${rupiah(d.sisaDana)}</div>
+        <div class="text-xs text-gray-300 mt-0.5">Tabungan − Pengeluaran</div>
       </div>
-
-      <div class="stats-grid">
-        <div class="stat-card green">
-          <div class="stat-icon">💰</div>
-          <div class="stat-label">Total Tabungan</div>
-          <div class="stat-value green">${rupiah(d.totalTabungan)}</div>
-        </div>
-        <div class="stat-card rose">
-          <div class="stat-icon">💸</div>
-          <div class="stat-label">Total Pengeluaran</div>
-          <div class="stat-value rose">${rupiah(d.totalPengeluaran)}</div>
-        </div>
-        <div class="stat-card blue">
-          <div class="stat-icon">📋</div>
-          <div class="stat-label">Estimasi Kebutuhan</div>
-          <div class="stat-value">${rupiah(d.totalEstimasi)}</div>
-        </div>
+      <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 stat-amber">
+        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">⚠️ Kekurangan</div>
+        <div class="font-serif text-xl font-bold mt-1 ${d.kekurangan > 0 ? 'text-amber-600' : 'text-green-600'}">${rupiah(d.kekurangan)}</div>
+        <div class="text-xs text-gray-300 mt-0.5">Estimasi − Tabungan</div>
       </div>
+    </div>
 
-      <div class="dashboard-row" style="margin-top:16px">
-        <div class="card">
-          <div class="card-title">✅ Sisa Dana</div>
-          <div class="card-value" style="color:${d.sisaDana >= 0 ? 'var(--green)' : 'var(--rose)'}">${rupiah(d.sisaDana)}</div>
-          <div class="card-sub">Tabungan − Pengeluaran</div>
-        </div>
-        <div class="card">
-          <div class="card-title">⚠️ Kekurangan Dana</div>
-          <div class="card-value" style="color:${d.kekurangan > 0 ? 'var(--amber)' : 'var(--green)'}">${rupiah(d.kekurangan)}</div>
-          <div class="card-sub">Estimasi − Tabungan</div>
-        </div>
+    <!-- Progress -->
+    <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 mb-3">
+      <div class="flex justify-between items-center mb-3">
+        <div class="font-semibold text-sm text-gray-700">📈 Progress Kesiapan Dana</div>
+        <div class="font-serif font-bold text-rose text-lg">${progressPct}%</div>
       </div>
-
-      <div class="card" style="margin-top:16px;margin-bottom:16px">
-        <div class="section-header" style="margin-bottom:10px">
-          <div class="section-title">📈 Progress Kesiapan Dana</div>
-          <strong style="color:var(--rose)">${d.progress}%</strong>
-        </div>
-        <div class="progress-wrap">
-          <div class="progress-label"><span>Rp 0</span><span>${rupiah(d.totalEstimasi)}</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${d.progress}%"></div></div>
-        </div>
+      <div class="h-2.5 bg-cream-dark rounded-full overflow-hidden">
+        <div class="progress-fill h-full rounded-full ${progressColor}" style="width:${progressPct}%"></div>
       </div>
+      <div class="flex justify-between text-xs text-gray-300 mt-1.5">
+        <span>Rp 0</span><span>${rupiah(d.totalEstimasi)}</span>
+      </div>
+    </div>
 
-      <div class="dashboard-row">
-        <div class="card">
-          <div class="section-title" style="margin-bottom:12px">📋 Status Kebutuhan</div>
-          <div class="status-row">
-            <div class="status-pill belum">
-              <span class="pill-count">${d.statusKebutuhan.belum}</span>
-              <span class="pill-label">Belum</span>
-            </div>
-            <div class="status-pill proses">
-              <span class="pill-count">${d.statusKebutuhan.proses}</span>
-              <span class="pill-label">Proses</span>
-            </div>
-            <div class="status-pill lunas">
-              <span class="pill-count">${d.statusKebutuhan.lunas}</span>
-              <span class="pill-label">Lunas</span>
-            </div>
+    <!-- Status & Tamu -->
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5">
+        <div class="font-semibold text-sm text-gray-700 mb-3">📋 Status Kebutuhan</div>
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-400">🔴 Belum</span>
+            <span class="font-serif font-bold text-rose text-base">${d.statusKebutuhan.belum}</span>
           </div>
-        </div>
-        <div class="card">
-          <div class="section-title" style="margin-bottom:12px">👥 Info Tamu</div>
-          <div class="status-row">
-            <div class="status-pill" style="background:var(--blue-pale);color:var(--blue)">
-              <span class="pill-count">${d.tamu.total}</span>
-              <span class="pill-label">Diundang</span>
-            </div>
-            <div class="status-pill lunas">
-              <span class="pill-count">${d.tamu.hadir}</span>
-              <span class="pill-label">Hadir</span>
-            </div>
-            <div class="status-pill" style="background:#E8DAEF;color:#6C3483">
-              <span class="pill-count" style="font-size:14px">${rupiah(d.tamu.estAngpao)}</span>
-              <span class="pill-label">Est. Angpao</span>
-            </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-400">🟡 Proses</span>
+            <span class="font-serif font-bold text-amber-500 text-base">${d.statusKebutuhan.proses}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-400">🟢 Lunas</span>
+            <span class="font-serif font-bold text-green-600 text-base">${d.statusKebutuhan.lunas}</span>
           </div>
         </div>
       </div>
-    `;
+      <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5">
+        <div class="font-semibold text-sm text-gray-700 mb-3">👥 Info Tamu</div>
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-400">📨 Diundang</span>
+            <span class="font-serif font-bold text-blue-600 text-base">${d.tamu.total}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-400">✅ Hadir</span>
+            <span class="font-serif font-bold text-green-600 text-base">${d.tamu.hadir}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-400">💰 Est. Angpao</span>
+            <span class="font-bold text-purple-600 text-xs">${rupiah(d.tamu.estAngpao)}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
 }
 
-
 // ============================================================
-// TABUNGAN — card list + search + sort + edit
+// TABUNGAN
 // ============================================================
-let _tabunganData = [], _tabunganSort = { key: 'tanggal', asc: false };
+let _tabunganData = [], _tabunganSort = { key:'tanggal', asc:false };
 
 async function loadTabungan(force = false) {
   const el = document.getElementById('tabunganContent');
-  if (!force && isCacheValid('tabungan')) {
-    _tabunganData = _cache['tabungan'];
-    renderTabungan();
-    return;
-  }
-  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
+  if (!force && isCacheValid('tabungan')) { _tabunganData = _cache['tabungan']; renderTabungan(); return; }
+  el.innerHTML = loadingSpinner();
   const res = await callAPI('getTabungan');
   _tabunganData = res.data || [];
   setCache('tabungan', _tabunganData);
   renderTabungan();
 }
 
-function renderTabungan(query = '', sortKey = _tabunganSort.key, asc = _tabunganSort.asc) {
-  _tabunganSort = { key: sortKey, asc };
+function renderTabungan(query='', sortKey=_tabunganSort.key, asc=_tabunganSort.asc) {
+  _tabunganSort = { key:sortKey, asc };
   const el = document.getElementById('tabunganContent');
+  const total = _tabunganData.reduce((s,r) => s+(r.nominal||0), 0);
+  let saldo=0;
+  const withSaldo = [..._tabunganData].reverse().map(r => { saldo += r.nominal; return {...r,saldo}; }).reverse();
 
-  const totalTabungan = _tabunganData.reduce((s, r) => s + (r.nominal || 0), 0);
-  let saldo = 0;
-  const withSaldo = [..._tabunganData].reverse().map(r => { saldo += r.nominal; return { ...r, saldo }; }).reverse();
-
-  let filtered = withSaldo.filter(r =>
-    !query ||
+  let filtered = withSaldo.filter(r => !query ||
     (r.keterangan||'').toLowerCase().includes(query) ||
     (r.pihak||'').toLowerCase().includes(query) ||
     (r.jenis||'').toLowerCase().includes(query) ||
     (r.tanggal||'').includes(query)
   );
-
-  filtered.sort((a, b) => {
-    let va = a[sortKey], vb = b[sortKey];
-    if (sortKey === 'nominal') { va = Number(va); vb = Number(vb); }
-    if (va < vb) return asc ? -1 : 1;
-    if (va > vb) return asc ? 1 : -1;
-    return 0;
+  filtered.sort((a,b) => {
+    let va=a[sortKey], vb=b[sortKey];
+    if (sortKey==='nominal'){va=Number(va);vb=Number(vb);}
+    if (va<vb) return asc?-1:1; if (va>vb) return asc?1:-1; return 0;
   });
-
-  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
+  const si = k => sortKey===k?(asc?' ↑':' ↓'):'';
 
   el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:16px">
-      <div class="stat-card green"><div class="stat-label">Total Terkumpul</div><div class="stat-value green">${rupiah(totalTabungan)}</div></div>
-      <div class="stat-card blue"><div class="stat-label">Transaksi</div><div class="stat-value">${_tabunganData.length}x</div></div>
-      <div class="stat-card rose"><div class="stat-label">Rata-rata</div><div class="stat-value">${_tabunganData.length ? rupiah(Math.round(totalTabungan / _tabunganData.length)) : 'Rp 0'}</div></div>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      ${statCard('💰','Total Terkumpul',rupiah(total),'stat-green')}
+      ${statCard('🔢','Transaksi',_tabunganData.length+'x','stat-blue')}
+      ${statCard('📊','Rata-rata',_tabunganData.length?rupiah(Math.round(total/_tabunganData.length)):'Rp 0','stat-rose')}
     </div>
-
-    <div class="list-toolbar">
-      <div class="search-input-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" placeholder="Cari keterangan, pihak..." id="searchTabungan"
-          oninput="renderTabungan(this.value.toLowerCase())" value="${query}" />
-      </div>
-      <button class="sort-btn ${sortKey==='tanggal'?'active':''}" onclick="renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'tanggal',${sortKey==='tanggal'?!asc:false})">
-        📅 Tgl${sortIcon('tanggal')}
-      </button>
-      <button class="sort-btn ${sortKey==='nominal'?'active':''}" onclick="renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'nominal',${sortKey==='nominal'?!asc:false})">
-        💰 Nominal${sortIcon('nominal')}
-      </button>
+    <div class="flex gap-2 mb-3 flex-wrap">
+      ${searchBar('searchTabungan','Cari keterangan, pihak...','renderTabungan(this.value.toLowerCase())')}
+      ${sortBtn('📅 Tgl'+si('tanggal'), sortKey==='tanggal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'tanggal',${sortKey==='tanggal'?!asc:false})`)}
+      ${sortBtn('💰 Nominal'+si('nominal'), sortKey==='nominal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'nominal',${sortKey==='nominal'?!asc:false})`)}
     </div>
-
-    <div class="result-count">${filtered.length} dari ${_tabunganData.length} data</div>
-
-    <div class="data-list">
-      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">💰</div><p>${query ? 'Tidak ada hasil pencarian' : 'Belum ada catatan tabungan'}</p></div>` :
-        filtered.map(r => `
-          <div class="data-card">
-            <div class="dc-top">
-              <div class="dc-title">${r.keterangan || '—'}</div>
-              <div class="dc-amount" style="color:var(--green)">${rupiah(r.nominal)}</div>
+    <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_tabunganData.length} data</div>
+    <div class="space-y-2.5">
+      ${filtered.length===0 ? emptyState('💰', query?'Tidak ada hasil':'Belum ada catatan tabungan') :
+        filtered.map(r => dataCard(`
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="font-semibold text-sm text-gray-800">${r.keterangan||'—'}</div>
+              <div class="text-xs text-gray-400 mt-0.5">${r.tanggal} · ${r.jenis}</div>
             </div>
-            <div class="dc-meta">
-              <span class="dc-meta-item">📅 ${r.tanggal}</span>
-              <span class="badge badge-${r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama'}">${r.pihak}</span>
-              <span class="dc-meta-item">• ${r.jenis}</span>
-            </div>
-            <div class="dc-meta-item" style="font-size:12px;color:var(--text-muted)">Saldo setelah: <strong>${rupiah(r.saldo)}</strong></div>
-            <div class="dc-actions">
-              <button class="btn btn-ghost btn-sm" onclick="openEditTabungan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteItem('Tabungan',${r.rowIndex},loadTabungan)">🗑 Hapus</button>
-            </div>
-          </div>`).join('')}
+            <div class="font-serif font-bold text-green-600 text-base whitespace-nowrap">${rupiah(r.nominal)}</div>
+          </div>
+          <div class="flex items-center gap-2 mb-1">
+            ${badge(r.pihak, r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama')}
+            <span class="text-xs text-gray-400">Saldo: <strong class="text-gray-600">${rupiah(r.saldo)}</strong></span>
+          </div>
+          ${actionBtns(`openEditTabungan(${JSON.stringify(r).replace(/"/g,'&quot;')})`,`deleteItem('Tabungan',${r.rowIndex},loadTabungan)`)}
+        `)).join('')}
     </div>`;
 }
 
 function openEditTabungan(r) {
   document.getElementById('modalTabunganTitle').textContent = 'Edit Tabungan';
   document.getElementById('tbRowIndex').value = r.rowIndex;
-  // parse tanggal dd/MM/yyyy ke yyyy-MM-dd
-  const parts = (r.tanggal||'').split('/');
-  document.getElementById('tbTgl').value = parts.length===3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : today();
-  document.getElementById('tbKet').value = r.keterangan || '';
-  document.getElementById('tbPihak').value = r.pihak || 'Pihak Pria';
-  document.getElementById('tbNominal').value = r.nominal || '';
-  document.getElementById('tbJenis').value = r.jenis || 'Menabung';
+  const p = (r.tanggal||'').split('/');
+  document.getElementById('tbTgl').value = p.length===3?`${p[2]}-${p[1]}-${p[0]}`:today();
+  document.getElementById('tbKet').value = r.keterangan||'';
+  document.getElementById('tbPihak').value = r.pihak||'Pihak Pria';
+  document.getElementById('tbNominal').value = r.nominal||'';
+  document.getElementById('tbJenis').value = r.jenis||'Menabung';
   openModal('modalTabungan');
 }
 
 // ============================================================
 // KEBUTUHAN
 // ============================================================
-// ============================================================
-// KEBUTUHAN — card list + search + filter + sort + edit
-// ============================================================
-let _kebutuhanData = [], _kebutuhanSort = { key: 'prioritas', asc: true }, _kebutuhanFilter = 'Semua';
+let _kebutuhanData=[], _kebutuhanSort={key:'prioritas',asc:true}, _kebutuhanFilter='Semua';
 
-async function loadKebutuhan(force = false) {
+async function loadKebutuhan(force=false) {
   const el = document.getElementById('kebutuhanContent');
-  if (!force && isCacheValid('kebutuhan')) {
-    _kebutuhanData = _cache['kebutuhan'];
-    renderKebutuhan();
-    return;
-  }
-  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
+  if (!force && isCacheValid('kebutuhan')) { _kebutuhanData=_cache['kebutuhan']; renderKebutuhan(); return; }
+  el.innerHTML = loadingSpinner();
   const res = await callAPI('getKebutuhan');
-  _kebutuhanData = res.data || [];
-  setCache('kebutuhan', _kebutuhanData);
+  _kebutuhanData = res.data||[];
+  setCache('kebutuhan',_kebutuhanData);
   renderKebutuhan();
 }
 
-function renderKebutuhan(query = '', filter = _kebutuhanFilter, sortKey = _kebutuhanSort.key, asc = _kebutuhanSort.asc) {
-  _kebutuhanSort = { key: sortKey, asc };
-  _kebutuhanFilter = filter;
+function renderKebutuhan(query='', filter=_kebutuhanFilter, sortKey=_kebutuhanSort.key, asc=_kebutuhanSort.asc) {
+  _kebutuhanSort={key:sortKey,asc}; _kebutuhanFilter=filter;
   const el = document.getElementById('kebutuhanContent');
-  const totalEst = _kebutuhanData.reduce((s, r) => s + (r.estimasi || 0), 0);
-  const wajib = _kebutuhanData.filter(r => r.prioritas === 'Wajib').length;
-  const lunas = _kebutuhanData.filter(r => r.status === 'Lunas').length;
-
-  const prioritasOrder = { 'Wajib': 0, 'Penting': 1, 'Opsional': 2 };
-  const statusOrder = { 'Belum': 0, 'Proses': 1, 'Lunas': 2 };
+  const totalEst = _kebutuhanData.reduce((s,r)=>s+(r.estimasi||0),0);
+  const prioOrder={Wajib:0,Penting:1,Opsional:2}, statOrder={Belum:0,Proses:1,Lunas:2};
 
   let filtered = _kebutuhanData.filter(r => {
-    const matchQ = !query ||
-      (r.item||'').toLowerCase().includes(query) ||
-      (r.kategori||'').toLowerCase().includes(query) ||
-      (r.catatan||'').toLowerCase().includes(query);
-    const matchF = filter === 'Semua' || r.prioritas === filter || r.status === filter;
-    return matchQ && matchF;
+    const mQ = !query||(r.item||'').toLowerCase().includes(query)||(r.kategori||'').toLowerCase().includes(query);
+    const mF = filter==='Semua'||r.prioritas===filter||r.status===filter;
+    return mQ&&mF;
   });
-
-  filtered.sort((a, b) => {
-    let va, vb;
-    if (sortKey === 'prioritas') { va = prioritasOrder[a.prioritas]??9; vb = prioritasOrder[b.prioritas]??9; }
-    else if (sortKey === 'status') { va = statusOrder[a.status]??9; vb = statusOrder[b.status]??9; }
-    else if (sortKey === 'estimasi') { va = Number(a.estimasi); vb = Number(b.estimasi); }
-    else { va = (a[sortKey]||'').toString(); vb = (b[sortKey]||'').toString(); }
-    if (va < vb) return asc ? -1 : 1;
-    if (va > vb) return asc ? 1 : -1;
-    return 0;
+  filtered.sort((a,b) => {
+    let va,vb;
+    if (sortKey==='prioritas'){va=prioOrder[a.prioritas]??9;vb=prioOrder[b.prioritas]??9;}
+    else if(sortKey==='status'){va=statOrder[a.status]??9;vb=statOrder[b.status]??9;}
+    else if(sortKey==='estimasi'){va=Number(a.estimasi);vb=Number(b.estimasi);}
+    else{va=(a[sortKey]||'').toString();vb=(b[sortKey]||'').toString();}
+    if(va<vb)return asc?-1:1; if(va>vb)return asc?1:-1; return 0;
   });
-
-  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
-  const chips = ['Semua','Wajib','Penting','Opsional','Belum','Proses','Lunas'];
+  const si=k=>sortKey===k?(asc?' ↑':' ↓'):'';
+  const chips=['Semua','Wajib','Penting','Opsional','Belum','Proses','Lunas'];
 
   el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:16px">
-      <div class="stat-card blue"><div class="stat-label">Total Item</div><div class="stat-value">${_kebutuhanData.length}</div></div>
-      <div class="stat-card rose"><div class="stat-label">Item Wajib</div><div class="stat-value rose">${wajib}</div></div>
-      <div class="stat-card green"><div class="stat-label">Sudah Lunas</div><div class="stat-value green">${lunas}</div></div>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      ${statCard('📋','Total Item',_kebutuhanData.length,'stat-blue')}
+      ${statCard('🔴','Item Wajib',_kebutuhanData.filter(r=>r.prioritas==='Wajib').length,'stat-rose')}
+      ${statCard('✅','Sudah Lunas',_kebutuhanData.filter(r=>r.status==='Lunas').length,'stat-green')}
     </div>
-
-    <div class="list-toolbar">
-      <div class="search-input-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" placeholder="Cari item, kategori..." id="searchKebutuhan"
-          oninput="renderKebutuhan(this.value.toLowerCase(), _kebutuhanFilter)" value="${query}" />
-      </div>
-      <button class="sort-btn ${sortKey==='prioritas'?'active':''}" onclick="renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'prioritas',${sortKey==='prioritas'?!asc:true})">
-        ⚡ Prioritas${sortIcon('prioritas')}
-      </button>
-      <button class="sort-btn ${sortKey==='estimasi'?'active':''}" onclick="renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'estimasi',${sortKey==='estimasi'?!asc:false})">
-        💰 Biaya${sortIcon('estimasi')}
-      </button>
+    <div class="flex gap-2 mb-3 flex-wrap">
+      ${searchBar('searchKebutuhan','Cari item, kategori...','renderKebutuhan(this.value.toLowerCase(),_kebutuhanFilter)')}
+      ${sortBtn('⚡ Prioritas'+si('prioritas'), sortKey==='prioritas', `renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'prioritas',${sortKey==='prioritas'?!asc:true})`)}
+      ${sortBtn('💰 Biaya'+si('estimasi'), sortKey==='estimasi', `renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'estimasi',${sortKey==='estimasi'?!asc:false})`)}
     </div>
-
-    <div class="filter-chips">
-      ${chips.map(c => `<span class="chip ${filter===c?'active':''}" onclick="renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
+    <div class="flex gap-2 flex-wrap mb-3">
+      ${chips.map(c=>chipFilter(c,filter===c,`renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),'${c}')`)).join('')}
     </div>
-
-    <div class="result-count">${filtered.length} dari ${_kebutuhanData.length} item · Total estimasi: <strong>${rupiah(totalEst)}</strong></div>
-
-    <div class="data-list">
-      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">📋</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada item kebutuhan'}</p></div>` :
-        filtered.map(r => `
-          <div class="data-card">
-            <div class="dc-top">
-              <div>
-                <div class="dc-title">${r.item}</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.kategori}</div>
-              </div>
-              <div class="dc-amount" style="color:var(--rose)">${rupiah(r.estimasi)}</div>
+    <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_kebutuhanData.length} item · Total: <strong>${rupiah(totalEst)}</strong></div>
+    <div class="space-y-2.5">
+      ${filtered.length===0?emptyState('📋',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada kebutuhan'):
+        filtered.map(r=>dataCard(`
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex-1">
+              <div class="font-semibold text-sm text-gray-800">${r.item}</div>
+              <div class="text-xs text-gray-400 mt-0.5">${r.kategori}</div>
             </div>
-            <div class="dc-meta">
-              <span class="badge badge-${r.prioritas.toLowerCase()}">${r.prioritas}</span>
-              <span class="badge badge-${r.status.toLowerCase()}">${r.status}</span>
-            </div>
-            ${r.catatan ? `<div class="dc-note">📝 ${r.catatan}</div>` : ''}
-            <div class="dc-actions">
-              <select class="form-control" style="padding:6px 10px;font-size:12px;flex:1;max-width:130px"
-                onchange="updateStatusKebutuhan(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
-                <option ${r.status==='Belum'?'selected':''}>Belum</option>
-                <option ${r.status==='Proses'?'selected':''}>Proses</option>
-                <option ${r.status==='Lunas'?'selected':''}>Lunas</option>
-              </select>
-              <button class="btn btn-ghost btn-sm" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteItem('Kebutuhan',${r.rowIndex},loadKebutuhan)">🗑</button>
-            </div>
-          </div>`).join('')}
+            <div class="font-serif font-bold text-rose text-base whitespace-nowrap ml-2">${rupiah(r.estimasi)}</div>
+          </div>
+          <div class="flex items-center gap-2 mb-2">
+            ${badge(r.prioritas,r.prioritas.toLowerCase())}
+            ${badge(r.status,r.status.toLowerCase())}
+          </div>
+          ${r.catatan?`<div class="text-xs text-gray-400 italic bg-cream px-2.5 py-1.5 rounded-lg mb-2">📝 ${r.catatan}</div>`:''}
+          <div class="flex items-center gap-2 pt-3 border-t border-gray-50 mt-1">
+            <select class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-rose transition"
+              onchange="updateStatusKebutuhan(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
+              <option ${r.status==='Belum'?'selected':''}>Belum</option>
+              <option ${r.status==='Proses'?'selected':''}>Proses</option>
+              <option ${r.status==='Lunas'?'selected':''}>Lunas</option>
+            </select>
+            <button class="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+            <button class="px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Kebutuhan',${r.rowIndex},loadKebutuhan)">🗑</button>
+          </div>
+        `)).join('')}
     </div>`;
 }
 
-
 function openFormKebutuhan() {
   document.getElementById('modalKebutuhanTitle').textContent = 'Tambah Kebutuhan';
-  document.getElementById('kbRowIndex').value = '';
-  document.getElementById('kbItem').value = '';
-  document.getElementById('kbEstimasi').value = '';
-  document.getElementById('kbCatatan').value = '';
-  document.getElementById('kbStatus').value = 'Belum';
+  document.getElementById('kbRowIndex').value='';
+  document.getElementById('kbItem').value='';
+  document.getElementById('kbEstimasi').value='';
+  document.getElementById('kbCatatan').value='';
+  document.getElementById('kbStatus').value='Belum';
   openModal('modalKebutuhan');
 }
 
 function openEditKebutuhan(r) {
-  document.getElementById('modalKebutuhanTitle').textContent = 'Edit Kebutuhan';
-  document.getElementById('kbRowIndex').value = r.rowIndex;
-  document.getElementById('kbKat').value = r.kategori;
-  document.getElementById('kbItem').value = r.item;
-  document.getElementById('kbPrioritas').value = r.prioritas;
-  document.getElementById('kbEstimasi').value = r.estimasi;
-  document.getElementById('kbStatus').value = r.status;
-  document.getElementById('kbCatatan').value = r.catatan || '';
+  document.getElementById('modalKebutuhanTitle').textContent='Edit Kebutuhan';
+  document.getElementById('kbRowIndex').value=r.rowIndex;
+  document.getElementById('kbKat').value=r.kategori;
+  document.getElementById('kbItem').value=r.item;
+  document.getElementById('kbPrioritas').value=r.prioritas;
+  document.getElementById('kbEstimasi').value=r.estimasi;
+  document.getElementById('kbStatus').value=r.status;
+  document.getElementById('kbCatatan').value=r.catatan||'';
   openModal('modalKebutuhan');
 }
 
-async function updateStatusKebutuhan(rowIndex, newStatus, r) {
-  r.status = newStatus;
-  await callAPI('updateKebutuhan', { rowIndex, data: r });
-  showToast('Status diperbarui', 'success');
+async function updateStatusKebutuhan(rowIndex, status, r) {
+  r.status=status;
+  await callAPI('updateKebutuhan',{rowIndex,data:r});
+  const idx=_kebutuhanData.findIndex(d=>d.rowIndex===rowIndex);
+  if(idx!==-1){_kebutuhanData[idx].status=status; setCache('kebutuhan',_kebutuhanData);}
+  clearCache('dashboard');
+  showToast('Status diperbarui ✅','success');
 }
 
 // ============================================================
-// PENGELUARAN — card list + search + filter + sort + edit
+// PENGELUARAN
 // ============================================================
-let _pengeluaranData = [], _pengeluaranSort = { key: 'tanggal', asc: false }, _pengeluaranFilter = 'Semua';
+let _pengeluaranData=[], _pengeluaranSort={key:'tanggal',asc:false}, _pengeluaranFilter='Semua';
 
-async function loadPengeluaran(force = false) {
-  const el = document.getElementById('pengeluaranContent');
-  if (!force && isCacheValid('pengeluaran')) {
-    _pengeluaranData = _cache['pengeluaran'];
-    renderPengeluaran();
-    return;
-  }
-  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
-  const res = await callAPI('getPengeluaran');
-  _pengeluaranData = res.data || [];
-  setCache('pengeluaran', _pengeluaranData);
+async function loadPengeluaran(force=false) {
+  const el=document.getElementById('pengeluaranContent');
+  if(!force&&isCacheValid('pengeluaran')){_pengeluaranData=_cache['pengeluaran'];renderPengeluaran();return;}
+  el.innerHTML=loadingSpinner();
+  const res=await callAPI('getPengeluaran');
+  _pengeluaranData=res.data||[];
+  setCache('pengeluaran',_pengeluaranData);
   renderPengeluaran();
 }
 
-function renderPengeluaran(query = '', filter = _pengeluaranFilter, sortKey = _pengeluaranSort.key, asc = _pengeluaranSort.asc) {
-  _pengeluaranSort = { key: sortKey, asc };
-  _pengeluaranFilter = filter;
-  const el = document.getElementById('pengeluaranContent');
-  const total = _pengeluaranData.reduce((s, r) => s + (r.nominal || 0), 0);
-
-  let filtered = _pengeluaranData.filter(r => {
-    const matchQ = !query ||
-      (r.item||'').toLowerCase().includes(query) ||
-      (r.kategori||'').toLowerCase().includes(query) ||
-      (r.dibayar||'').toLowerCase().includes(query) ||
-      (r.tanggal||'').includes(query);
-    const matchF = filter === 'Semua' || r.dibayar === filter || r.kategori === filter;
-    return matchQ && matchF;
+function renderPengeluaran(query='',filter=_pengeluaranFilter,sortKey=_pengeluaranSort.key,asc=_pengeluaranSort.asc) {
+  _pengeluaranSort={key:sortKey,asc}; _pengeluaranFilter=filter;
+  const el=document.getElementById('pengeluaranContent');
+  const total=_pengeluaranData.reduce((s,r)=>s+(r.nominal||0),0);
+  let filtered=_pengeluaranData.filter(r=>{
+    const mQ=!query||(r.item||'').toLowerCase().includes(query)||(r.kategori||'').toLowerCase().includes(query)||(r.tanggal||'').includes(query);
+    const mF=filter==='Semua'||r.dibayar===filter;
+    return mQ&&mF;
   });
+  filtered.sort((a,b)=>{let va=a[sortKey],vb=b[sortKey];if(sortKey==='nominal'){va=Number(va);vb=Number(vb);}if(va<vb)return asc?-1:1;if(va>vb)return asc?1:-1;return 0;});
+  const si=k=>sortKey===k?(asc?' ↑':' ↓'):'';
+  const chips=['Semua','Pihak Pria','Pihak Wanita','Bersama'];
+  const filtTotal=filtered.reduce((s,r)=>s+(r.nominal||0),0);
 
-  filtered.sort((a, b) => {
-    let va = a[sortKey], vb = b[sortKey];
-    if (sortKey === 'nominal') { va = Number(va); vb = Number(vb); }
-    if (va < vb) return asc ? -1 : 1;
-    if (va > vb) return asc ? 1 : -1;
-    return 0;
-  });
-
-  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
-  const filterChips = ['Semua','Pihak Pria','Pihak Wanita','Bersama'];
-
-  el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:16px">
-      <div class="stat-card rose"><div class="stat-label">Total Pengeluaran</div><div class="stat-value rose">${rupiah(total)}</div></div>
-      <div class="stat-card blue"><div class="stat-label">Transaksi</div><div class="stat-value">${_pengeluaranData.length}x</div></div>
-      <div class="stat-card amber"><div class="stat-label">Rata-rata</div><div class="stat-value">${_pengeluaranData.length ? rupiah(Math.round(total/_pengeluaranData.length)) : 'Rp 0'}</div></div>
+  el.innerHTML=`
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      ${statCard('💸','Total Pengeluaran',rupiah(total),'stat-rose')}
+      ${statCard('🔢','Transaksi',_pengeluaranData.length+'x','stat-blue')}
+      ${statCard('📊','Rata-rata',_pengeluaranData.length?rupiah(Math.round(total/_pengeluaranData.length)):'Rp 0','stat-amber')}
     </div>
-
-    <div class="list-toolbar">
-      <div class="search-input-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" placeholder="Cari item, kategori..." id="searchPengeluaran"
-          oninput="renderPengeluaran(this.value.toLowerCase(),_pengeluaranFilter)" value="${query}" />
-      </div>
-      <button class="sort-btn ${sortKey==='tanggal'?'active':''}" onclick="renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'tanggal',${sortKey==='tanggal'?!asc:false})">
-        📅 Tgl${sortIcon('tanggal')}
-      </button>
-      <button class="sort-btn ${sortKey==='nominal'?'active':''}" onclick="renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'nominal',${sortKey==='nominal'?!asc:false})">
-        💰 Nominal${sortIcon('nominal')}
-      </button>
+    <div class="flex gap-2 mb-3 flex-wrap">
+      ${searchBar('searchPengeluaran','Cari item, kategori...','renderPengeluaran(this.value.toLowerCase(),_pengeluaranFilter)')}
+      ${sortBtn('📅 Tgl'+si('tanggal'),sortKey==='tanggal',`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'tanggal',${sortKey==='tanggal'?!asc:false})`)}
+      ${sortBtn('💰'+si('nominal'),sortKey==='nominal',`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'nominal',${sortKey==='nominal'?!asc:false})`)}
     </div>
-
-    <div class="filter-chips">
-      ${filterChips.map(c => `<span class="chip ${filter===c?'active':''}" onclick="renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
-    </div>
-
-    <div class="result-count">${filtered.length} dari ${_pengeluaranData.length} data · Ditampilkan: <strong>${rupiah(filtered.reduce((s,r)=>s+(r.nominal||0),0))}</strong></div>
-
-    <div class="data-list">
-      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">💸</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada pengeluaran'}</p></div>` :
-        filtered.map(r => `
-          <div class="data-card">
-            <div class="dc-top">
-              <div>
-                <div class="dc-title">${r.item}</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.kategori}</div>
-              </div>
-              <div class="dc-amount" style="color:var(--rose)">${rupiah(r.nominal)}</div>
-            </div>
-            <div class="dc-meta">
-              <span class="dc-meta-item">📅 ${r.tanggal}</span>
-              <span class="badge badge-${r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama'}">${r.dibayar}</span>
-              <span class="dc-meta-item">• ${r.metode}</span>
-            </div>
-            ${r.catatan ? `<div class="dc-note">📝 ${r.catatan}</div>` : ''}
-            <div class="dc-actions">
-              <button class="btn btn-ghost btn-sm" onclick="openEditPengeluaran(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteItem('Pengeluaran',${r.rowIndex},loadPengeluaran)">🗑 Hapus</button>
-            </div>
-          </div>`).join('')}
+    <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),'${c}')`)).join('')}</div>
+    <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_pengeluaranData.length} · Ditampilkan: <strong>${rupiah(filtTotal)}</strong></div>
+    <div class="space-y-2.5">
+      ${filtered.length===0?emptyState('💸',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada pengeluaran'):
+        filtered.map(r=>dataCard(`
+          <div class="flex justify-between items-start mb-2">
+            <div><div class="font-semibold text-sm text-gray-800">${r.item}</div><div class="text-xs text-gray-400 mt-0.5">${r.tanggal} · ${r.kategori}</div></div>
+            <div class="font-serif font-bold text-rose text-base whitespace-nowrap ml-2">${rupiah(r.nominal)}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            ${badge(r.dibayar,r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama')}
+            <span class="text-xs text-gray-400">${r.metode}</span>
+          </div>
+          ${actionBtns(`openEditPengeluaran(${JSON.stringify(r).replace(/"/g,'&quot;')})`,`deleteItem('Pengeluaran',${r.rowIndex},loadPengeluaran)`)}
+        `)).join('')}
     </div>`;
 }
 
 function openEditPengeluaran(r) {
-  document.getElementById('modalPengeluaranTitle').textContent = 'Edit Pengeluaran';
-  document.getElementById('peRowIndex').value = r.rowIndex;
-  const parts = (r.tanggal||'').split('/');
-  document.getElementById('peTgl').value = parts.length===3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : today();
-  document.getElementById('peItem').value = r.item || '';
-  document.getElementById('peKat').value = r.kategori || 'Lain-lain';
-  document.getElementById('peNominal').value = r.nominal || '';
-  document.getElementById('peDibayar').value = r.dibayar || 'Pihak Pria';
-  document.getElementById('peMetode').value = r.metode || 'Tunai';
+  document.getElementById('modalPengeluaranTitle').textContent='Edit Pengeluaran';
+  document.getElementById('peRowIndex').value=r.rowIndex;
+  const p=(r.tanggal||'').split('/');
+  document.getElementById('peTgl').value=p.length===3?`${p[2]}-${p[1]}-${p[0]}`:today();
+  document.getElementById('peItem').value=r.item||'';
+  document.getElementById('peKat').value=r.kategori||'Lain-lain';
+  document.getElementById('peNominal').value=r.nominal||'';
+  document.getElementById('peDibayar').value=r.dibayar||'Pihak Pria';
+  document.getElementById('peMetode').value=r.metode||'Tunai';
   openModal('modalPengeluaran');
 }
 
 // ============================================================
-// VENDOR — card list + search + filter + sort + edit
+// VENDOR
 // ============================================================
-let _vendorData = [], _vendorSort = { key: 'nama', asc: true }, _vendorFilter = 'Semua';
+let _vendorData=[], _vendorSort={key:'nama',asc:true}, _vendorFilter='Semua';
 
-async function loadVendor(force = false) {
-  const el = document.getElementById('vendorContent');
-  if (!force && isCacheValid('vendor')) {
-    _vendorData = _cache['vendor'];
-    renderVendor();
-    return;
-  }
-  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
-  const res = await callAPI('getVendor');
-  _vendorData = res.data || [];
-  setCache('vendor', _vendorData);
+async function loadVendor(force=false) {
+  const el=document.getElementById('vendorContent');
+  if(!force&&isCacheValid('vendor')){_vendorData=_cache['vendor'];renderVendor();return;}
+  el.innerHTML=loadingSpinner();
+  const res=await callAPI('getVendor');
+  _vendorData=res.data||[];
+  setCache('vendor',_vendorData);
   renderVendor();
 }
 
-function renderVendor(query = '', filter = _vendorFilter, sortKey = _vendorSort.key, asc = _vendorSort.asc) {
-  _vendorSort = { key: sortKey, asc };
-  _vendorFilter = filter;
-  const el = document.getElementById('vendorContent');
-  const deals = _vendorData.filter(r => r.status === 'Deal').length;
-
-  let filtered = _vendorData.filter(r => {
-    const matchQ = !query ||
-      (r.nama||'').toLowerCase().includes(query) ||
-      (r.kategori||'').toLowerCase().includes(query) ||
-      (r.kontak||'').toLowerCase().includes(query);
-    const matchF = filter === 'Semua' || r.status === filter || r.kategori === filter;
-    return matchQ && matchF;
+function renderVendor(query='',filter=_vendorFilter,sortKey=_vendorSort.key,asc=_vendorSort.asc) {
+  _vendorSort={key:sortKey,asc}; _vendorFilter=filter;
+  const el=document.getElementById('vendorContent');
+  let filtered=_vendorData.filter(r=>{
+    const mQ=!query||(r.nama||'').toLowerCase().includes(query)||(r.kategori||'').toLowerCase().includes(query);
+    const mF=filter==='Semua'||r.status===filter;
+    return mQ&&mF;
   });
+  filtered.sort((a,b)=>{let va=a[sortKey],vb=b[sortKey];if(sortKey==='harga'){va=Number(va);vb=Number(vb);}if(va<vb)return asc?-1:1;if(va>vb)return asc?1:-1;return 0;});
+  const si=k=>sortKey===k?(asc?' ↑':' ↓'):'';
+  const chips=['Semua','Kandidat','Negosiasi','Deal','Batal'];
 
-  filtered.sort((a, b) => {
-    let va = a[sortKey], vb = b[sortKey];
-    if (sortKey === 'harga') { va = Number(va); vb = Number(vb); }
-    if (va < vb) return asc ? -1 : 1;
-    if (va > vb) return asc ? 1 : -1;
-    return 0;
-  });
-
-  const sortIcon = (key) => sortKey === key ? (asc ? ' ↑' : ' ↓') : '';
-  const filterChips = ['Semua','Kandidat','Negosiasi','Deal','Batal'];
-  const statusColor = { 'Deal':'badge-lunas', 'Negosiasi':'badge-proses', 'Kandidat':'badge-kandidat', 'Batal':'badge-belum' };
-
-  el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:16px">
-      <div class="stat-card blue"><div class="stat-label">Total Vendor</div><div class="stat-value">${_vendorData.length}</div></div>
-      <div class="stat-card green"><div class="stat-label">Deal</div><div class="stat-value green">${deals}</div></div>
-      <div class="stat-card amber"><div class="stat-label">Kandidat</div><div class="stat-value amber">${_vendorData.filter(r=>r.status==='Kandidat').length}</div></div>
+  el.innerHTML=`
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      ${statCard('🤝','Total Vendor',_vendorData.length,'stat-blue')}
+      ${statCard('✅','Deal',_vendorData.filter(r=>r.status==='Deal').length,'stat-green')}
+      ${statCard('🔍','Kandidat',_vendorData.filter(r=>r.status==='Kandidat').length,'stat-amber')}
     </div>
-
-    <div class="list-toolbar">
-      <div class="search-input-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" placeholder="Cari nama, kategori..." id="searchVendor"
-          oninput="renderVendor(this.value.toLowerCase(),_vendorFilter)" value="${query}" />
-      </div>
-      <button class="sort-btn ${sortKey==='nama'?'active':''}" onclick="renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'nama',${sortKey==='nama'?!asc:true})">
-        🔤 Nama${sortIcon('nama')}
-      </button>
-      <button class="sort-btn ${sortKey==='harga'?'active':''}" onclick="renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'harga',${sortKey==='harga'?!asc:false})">
-        💰 Harga${sortIcon('harga')}
-      </button>
+    <div class="flex gap-2 mb-3 flex-wrap">
+      ${searchBar('searchVendor','Cari nama, kategori...','renderVendor(this.value.toLowerCase(),_vendorFilter)')}
+      ${sortBtn('🔤 Nama'+si('nama'),sortKey==='nama',`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'nama',${sortKey==='nama'?!asc:true})`)}
+      ${sortBtn('💰 Harga'+si('harga'),sortKey==='harga',`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'harga',${sortKey==='harga'?!asc:false})`)}
     </div>
-
-    <div class="filter-chips">
-      ${filterChips.map(c => `<span class="chip ${filter===c?'active':''}" onclick="renderVendor(document.getElementById('searchVendor').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
-    </div>
-
-    <div class="result-count">${filtered.length} dari ${_vendorData.length} vendor</div>
-
-    <div class="data-list">
-      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-icon">🤝</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada vendor'}</p></div>` :
-        filtered.map(r => `
-          <div class="data-card">
-            <div class="dc-top">
-              <div>
-                <div class="dc-title">${r.nama}</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.kategori}</div>
-              </div>
-              <div class="dc-amount" style="color:var(--text)">${rupiah(r.harga)}</div>
-            </div>
-            <div class="dc-meta">
-              <span class="badge ${statusColor[r.status]||'badge-kandidat'}">${r.status}</span>
-              ${r.kontak ? `<span class="dc-meta-item">📞 ${r.kontak}</span>` : ''}
-              ${r.rating ? `<span class="dc-meta-item">${r.rating}</span>` : ''}
-            </div>
-            ${r.catatan ? `<div class="dc-note">📝 ${r.catatan}</div>` : ''}
-            <div class="dc-actions">
-              <select class="form-control" style="padding:6px 10px;font-size:12px;flex:1;max-width:130px"
-                onchange="updateVendorStatus(${r.rowIndex},this.value)">
-                <option ${r.status==='Kandidat'?'selected':''}>Kandidat</option>
-                <option ${r.status==='Negosiasi'?'selected':''}>Negosiasi</option>
-                <option ${r.status==='Deal'?'selected':''}>Deal</option>
-                <option ${r.status==='Batal'?'selected':''}>Batal</option>
-              </select>
-              <button class="btn btn-ghost btn-sm" onclick="openEditVendor(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteItem('Vendor',${r.rowIndex},loadVendor)">🗑</button>
-            </div>
-          </div>`).join('')}
+    <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),'${c}')`)).join('')}</div>
+    <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_vendorData.length} vendor</div>
+    <div class="space-y-2.5">
+      ${filtered.length===0?emptyState('🤝',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada vendor'):
+        filtered.map(r=>dataCard(`
+          <div class="flex justify-between items-start mb-2">
+            <div><div class="font-semibold text-sm text-gray-800">${r.nama}</div><div class="text-xs text-gray-400 mt-0.5">${r.kategori}</div></div>
+            <div class="font-serif font-bold text-gray-700 text-base whitespace-nowrap ml-2">${rupiah(r.harga)}</div>
+          </div>
+          <div class="flex items-center gap-2 mb-1">
+            ${badge(r.status,r.status==='Deal'?'deal':r.status==='Negosiasi'?'negosiasi':r.status==='Batal'?'batal':'kandidat')}
+            ${r.kontak?`<span class="text-xs text-gray-400">📞 ${r.kontak}</span>`:''}
+          </div>
+          ${r.catatan?`<div class="text-xs text-gray-400 italic bg-cream px-2.5 py-1.5 rounded-lg mb-1">📝 ${r.catatan}</div>`:''}
+          <div class="flex items-center gap-2 pt-3 border-t border-gray-50 mt-2">
+            <select class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-rose transition"
+              onchange="updateVendorStatus(${r.rowIndex},this.value)">
+              <option ${r.status==='Kandidat'?'selected':''}>Kandidat</option>
+              <option ${r.status==='Negosiasi'?'selected':''}>Negosiasi</option>
+              <option ${r.status==='Deal'?'selected':''}>Deal</option>
+              <option ${r.status==='Batal'?'selected':''}>Batal</option>
+            </select>
+            <button class="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="openEditVendor(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+            <button class="px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Vendor',${r.rowIndex},loadVendor)">🗑</button>
+          </div>
+        `)).join('')}
     </div>`;
 }
 
+async function updateVendorStatus(rowIndex,status) {
+  await callAPI('updateVendor',{rowIndex,status});
+  const idx=_vendorData.findIndex(d=>d.rowIndex===rowIndex);
+  if(idx!==-1){_vendorData[idx].status=status; setCache('vendor',_vendorData);}
+  showToast('Status vendor diperbarui ✅','success');
+}
+
 function openEditVendor(r) {
-  document.getElementById('modalVendorTitle').textContent = 'Edit Vendor';
-  document.getElementById('vnRowIndex').value = r.rowIndex;
-  document.getElementById('vnNama').value = r.nama || '';
-  document.getElementById('vnKat').value = r.kategori || 'Lainnya';
-  document.getElementById('vnHarga').value = r.harga || '';
-  document.getElementById('vnStatus').value = r.status || 'Kandidat';
-  document.getElementById('vnKontak').value = r.kontak || '';
-  document.getElementById('vnCatatan').value = r.catatan || '';
+  document.getElementById('modalVendorTitle').textContent='Edit Vendor';
+  document.getElementById('vnRowIndex').value=r.rowIndex;
+  document.getElementById('vnNama').value=r.nama||'';
+  document.getElementById('vnKat').value=r.kategori||'Lainnya';
+  document.getElementById('vnHarga').value=r.harga||'';
+  document.getElementById('vnStatus').value=r.status||'Kandidat';
+  document.getElementById('vnKontak').value=r.kontak||'';
+  document.getElementById('vnCatatan').value=r.catatan||'';
   openModal('modalVendor');
 }
 
 // ============================================================
-// TAMU — card list + search + filter + sort + edit
+// TAMU
 // ============================================================
-let _tamuData = [], _tamuSort = { key: 'nama', asc: true }, _tamuFilter = 'Semua';
+let _tamuData=[], _tamuSort={key:'nama',asc:true}, _tamuFilter='Semua';
 
-async function loadTamu(force = false) {
-  const el = document.getElementById('tamuContent');
-  if (!force && isCacheValid('tamu')) {
-    _tamuData = _cache['tamu'];
-    renderTamu();
-    return;
-  }
-  el.innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
-  const res = await callAPI('getTamu');
-  _tamuData = res.data || [];
-  setCache('tamu', _tamuData);
+async function loadTamu(force=false) {
+  const el=document.getElementById('tamuContent');
+  if(!force&&isCacheValid('tamu')){_tamuData=_cache['tamu'];renderTamu();return;}
+  el.innerHTML=loadingSpinner();
+  const res=await callAPI('getTamu');
+  _tamuData=res.data||[];
+  setCache('tamu',_tamuData);
   renderTamu();
 }
 
-function renderTamu(query = '', filter = _tamuFilter, sortKey = _tamuSort.key, asc = _tamuSort.asc) {
-  _tamuSort = { key: sortKey, asc };
-  _tamuFilter = filter;
-  const el = document.getElementById('tamuContent');
-  const totalOrang = _tamuData.reduce((s,r) => s+(r.jumlah||1), 0);
-  const hadir = _tamuData.filter(r=>r.konfirmasi==='Hadir').reduce((s,r)=>s+(r.jumlah||1),0);
-  const estAngpao = hadir * (parseInt(appConfig.angpao)||150000);
+function renderTamu(query='',filter=_tamuFilter,sortKey=_tamuSort.key,asc=_tamuSort.asc) {
+  _tamuSort={key:sortKey,asc}; _tamuFilter=filter;
+  const el=document.getElementById('tamuContent');
+  const totalOrang=_tamuData.reduce((s,r)=>s+(r.jumlah||1),0);
+  const hadir=_tamuData.filter(r=>r.konfirmasi==='Hadir').reduce((s,r)=>s+(r.jumlah||1),0);
+  const estAngpao=hadir*(parseInt(appConfig.angpao)||150000);
 
-  let filtered = _tamuData.filter(r => {
-    const matchQ = !query ||
-      (r.nama||'').toLowerCase().includes(query) ||
-      (r.hubungan||'').toLowerCase().includes(query) ||
-      (r.pihak||'').toLowerCase().includes(query);
-    const matchF = filter==='Semua' || r.pihak===filter || r.konfirmasi===filter;
-    return matchQ && matchF;
+  let filtered=_tamuData.filter(r=>{
+    const mQ=!query||(r.nama||'').toLowerCase().includes(query)||(r.hubungan||'').toLowerCase().includes(query);
+    const mF=filter==='Semua'||r.pihak===filter||r.konfirmasi===filter;
+    return mQ&&mF;
   });
+  filtered.sort((a,b)=>{let va=a[sortKey],vb=b[sortKey];if(sortKey==='jumlah'){va=Number(va);vb=Number(vb);}if(va<vb)return asc?-1:1;if(va>vb)return asc?1:-1;return 0;});
+  const si=k=>sortKey===k?(asc?' ↑':' ↓'):'';
+  const chips=['Semua','Pihak Pria','Pihak Wanita','Hadir','Tidak Hadir','Belum'];
 
-  filtered.sort((a,b) => {
-    let va = a[sortKey], vb = b[sortKey];
-    if (sortKey==='jumlah'){va=Number(va);vb=Number(vb);}
-    if (va<vb) return asc?-1:1;
-    if (va>vb) return asc?1:-1;
-    return 0;
-  });
-
-  const sortIcon = (key) => sortKey===key?(asc?' ↑':' ↓'):'';
-  const filterChips = ['Semua','Pihak Pria','Pihak Wanita','Hadir','Tidak Hadir','Belum'];
-  const konfirmasiColor = { 'Hadir':'badge-lunas', 'Tidak Hadir':'badge-belum', 'Belum':'badge-kandidat' };
-
-  el.innerHTML = `
-    <div class="tamu-summary">
-      <div class="stat-card blue"><div class="stat-label">Diundang</div><div class="stat-value">${totalOrang}</div></div>
-      <div class="stat-card green"><div class="stat-label">Hadir</div><div class="stat-value green">${hadir}</div></div>
-      <div class="stat-card" style="--gold:#C9A84C"><div class="stat-label">Est. Angpao</div><div class="stat-value" style="color:var(--gold);font-size:16px">${rupiah(estAngpao)}</div></div>
+  el.innerHTML=`
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      ${statCard('📨','Diundang',totalOrang+' orang','stat-blue')}
+      ${statCard('✅','Konfirmasi Hadir',hadir+' orang','stat-green')}
+      ${statCard('💰','Est. Angpao',rupiah(estAngpao),'stat-gold')}
     </div>
-
-    <div class="list-toolbar">
-      <div class="search-input-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" placeholder="Cari nama, hubungan..." id="searchTamu"
-          oninput="renderTamu(this.value.toLowerCase(),_tamuFilter)" value="${query}" />
-      </div>
-      <button class="sort-btn ${sortKey==='nama'?'active':''}" onclick="renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'nama',${sortKey==='nama'?!asc:true})">
-        🔤 Nama${sortIcon('nama')}
-      </button>
-      <button class="sort-btn ${sortKey==='jumlah'?'active':''}" onclick="renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'jumlah',${sortKey==='jumlah'?!asc:false})">
-        👥 Jumlah${sortIcon('jumlah')}
-      </button>
+    <div class="flex gap-2 mb-3 flex-wrap">
+      ${searchBar('searchTamu','Cari nama, hubungan...','renderTamu(this.value.toLowerCase(),_tamuFilter)')}
+      ${sortBtn('🔤 Nama'+si('nama'),sortKey==='nama',`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'nama',${sortKey==='nama'?!asc:true})`)}
+      ${sortBtn('👥 Jml'+si('jumlah'),sortKey==='jumlah',`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'jumlah',${sortKey==='jumlah'?!asc:false})`)}
     </div>
-
-    <div class="filter-chips">
-      ${filterChips.map(c=>`<span class="chip ${filter===c?'active':''}" onclick="renderTamu(document.getElementById('searchTamu').value.toLowerCase(),'${c}')">${c}</span>`).join('')}
-    </div>
-
-    <div class="result-count">${filtered.length} dari ${_tamuData.length} tamu</div>
-
-    <div class="data-list">
-      ${filtered.length===0 ? `<div class="empty-state"><div class="empty-icon">👥</div><p>${query||filter!=='Semua'?'Tidak ada hasil':'Belum ada tamu'}</p></div>` :
-        filtered.map(r=>`
-          <div class="data-card">
-            <div class="dc-top">
-              <div>
-                <div class="dc-title">${r.nama}</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${r.hubungan||'—'}</div>
-              </div>
-              <span class="badge ${konfirmasiColor[r.konfirmasi]||'badge-kandidat'}">${r.konfirmasi}</span>
-            </div>
-            <div class="dc-meta">
-              <span class="badge badge-${r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama'}">${r.pihak}</span>
-              <span class="dc-meta-item">👥 ${r.jumlah} orang</span>
-            </div>
-            <div class="dc-actions">
-              <select class="form-control" style="padding:6px 10px;font-size:12px;flex:1;max-width:150px"
-                onchange="updateKonfirmasiTamu(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
-                <option ${r.konfirmasi==='Belum'?'selected':''}>Belum</option>
-                <option ${r.konfirmasi==='Hadir'?'selected':''}>Hadir</option>
-                <option ${r.konfirmasi==='Tidak Hadir'?'selected':''}>Tidak Hadir</option>
-              </select>
-              <button class="btn btn-ghost btn-sm" onclick="openEditTamu(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteItem('Tamu',${r.rowIndex},loadTamu)">🗑</button>
-            </div>
-          </div>`).join('')}
+    <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),'${c}')`)).join('')}</div>
+    <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_tamuData.length} tamu</div>
+    <div class="space-y-2.5">
+      ${filtered.length===0?emptyState('👥',query||filter!=='Semua'?'Tidak ada hasil':'Belum ada tamu'):
+        filtered.map(r=>dataCard(`
+          <div class="flex justify-between items-start mb-2">
+            <div><div class="font-semibold text-sm text-gray-800">${r.nama}</div><div class="text-xs text-gray-400 mt-0.5">${r.hubungan||'—'}</div></div>
+            ${badge(r.konfirmasi,r.konfirmasi==='Hadir'?'hadir':r.konfirmasi==='Tidak Hadir'?'tidak hadir':'belum')}
+          </div>
+          <div class="flex items-center gap-2 mb-1">
+            ${badge(r.pihak,r.pihak==='Pihak Pria'?'pria':r.pihak==='Pihak Wanita'?'wanita':'bersama')}
+            <span class="text-xs text-gray-400">👥 ${r.jumlah} orang</span>
+          </div>
+          <div class="flex items-center gap-2 pt-3 border-t border-gray-50 mt-2">
+            <select class="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-rose transition"
+              onchange="updateKonfirmasiTamu(${r.rowIndex},this.value,${JSON.stringify(r).replace(/"/g,'&quot;')})">
+              <option ${r.konfirmasi==='Belum'?'selected':''}>Belum</option>
+              <option ${r.konfirmasi==='Hadir'?'selected':''}>Hadir</option>
+              <option ${r.konfirmasi==='Tidak Hadir'?'selected':''}>Tidak Hadir</option>
+            </select>
+            <button class="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="openEditTamu(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+            <button class="px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tamu',${r.rowIndex},loadTamu)">🗑</button>
+          </div>
+        `)).join('')}
     </div>`;
 }
 
-async function updateKonfirmasiTamu(rowIndex, konfirmasi, r) {
-  r.konfirmasi = konfirmasi;
-  await callAPI('updateTamu', { rowIndex, data: r });
-  showToast('Konfirmasi diperbarui', 'success');
-  // update local data tanpa reload
-  const idx = _tamuData.findIndex(d => d.rowIndex === rowIndex);
-  if (idx !== -1) _tamuData[idx].konfirmasi = konfirmasi;
+async function updateKonfirmasiTamu(rowIndex,konfirmasi,r) {
+  r.konfirmasi=konfirmasi;
+  await callAPI('updateTamu',{rowIndex,data:r});
+  const idx=_tamuData.findIndex(d=>d.rowIndex===rowIndex);
+  if(idx!==-1){_tamuData[idx].konfirmasi=konfirmasi; setCache('tamu',_tamuData);}
+  clearCache('dashboard');
+  showToast('Konfirmasi diperbarui ✅','success');
 }
 
 function openEditTamu(r) {
-  document.getElementById('modalTamuTitle').textContent = 'Edit Tamu';
-  document.getElementById('tmRowIndex').value = r.rowIndex;
-  document.getElementById('tmNama').value = r.nama || '';
-  document.getElementById('tmHubungan').value = r.hubungan || '';
-  document.getElementById('tmPihak').value = r.pihak || 'Pihak Pria';
-  document.getElementById('tmJumlah').value = r.jumlah || 1;
-  document.getElementById('tmKonfirmasi').value = r.konfirmasi || 'Belum';
+  document.getElementById('modalTamuTitle').textContent='Edit Tamu';
+  document.getElementById('tmRowIndex').value=r.rowIndex;
+  document.getElementById('tmNama').value=r.nama||'';
+  document.getElementById('tmHubungan').value=r.hubungan||'';
+  document.getElementById('tmPihak').value=r.pihak||'Pihak Pria';
+  document.getElementById('tmJumlah').value=r.jumlah||1;
+  document.getElementById('tmKonfirmasi').value=r.konfirmasi||'Belum';
   openModal('modalTamu');
 }
 
 // ============================================================
-// SUBMIT FORMS — support tambah & edit
+// SUBMIT FORMS
 // ============================================================
 async function submitTabungan() {
-  const rowIndex = document.getElementById('tbRowIndex').value;
-  const data = {
-    tanggal: document.getElementById('tbTgl').value,
-    keterangan: document.getElementById('tbKet').value,
-    pihak: document.getElementById('tbPihak').value,
-    nominal: document.getElementById('tbNominal').value,
-    jenis: document.getElementById('tbJenis').value,
-  };
-  if (!data.tanggal || !data.nominal) return showToast('Tanggal & nominal wajib diisi', 'error');
-  if (rowIndex) {
-    await callAPI('updateTabungan', { rowIndex: parseInt(rowIndex), data });
-    showToast('Tabungan diperbarui! ✅', 'success');
-  } else {
-    await callAPI('addTabungan', { data });
-    showToast('Tabungan ditambahkan! 💰', 'success');
-  }
+  const ri=document.getElementById('tbRowIndex').value;
+  const data={tanggal:document.getElementById('tbTgl').value,keterangan:document.getElementById('tbKet').value,pihak:document.getElementById('tbPihak').value,nominal:document.getElementById('tbNominal').value,jenis:document.getElementById('tbJenis').value};
+  if(!data.tanggal||!data.nominal) return showToast('Tanggal & nominal wajib diisi','error');
+  if(ri){await callAPI('updateTabungan',{rowIndex:parseInt(ri),data});showToast('Tabungan diperbarui ✅','success');}
+  else{await callAPI('addTabungan',{data});showToast('Tabungan ditambahkan 💰','success');}
   clearCache('tabungan'); clearCache('dashboard');
-  closeModal('modalTabungan');
-  loadTabungan(true);
+  closeModal('modalTabungan'); loadTabungan(true);
 }
 
 async function submitKebutuhan() {
-  const rowIndex = document.getElementById('kbRowIndex').value;
-  const data = {
-    kategori: document.getElementById('kbKat').value,
-    item: document.getElementById('kbItem').value,
-    prioritas: document.getElementById('kbPrioritas').value,
-    estimasi: document.getElementById('kbEstimasi').value,
-    status: document.getElementById('kbStatus').value,
-    catatan: document.getElementById('kbCatatan').value,
-  };
-  if (!data.item) return showToast('Nama item wajib diisi', 'error');
-  if (rowIndex) {
-    await callAPI('updateKebutuhan', { rowIndex: parseInt(rowIndex), data });
-    showToast('Kebutuhan diperbarui! ✅', 'success');
-  } else {
-    await callAPI('addKebutuhan', { data });
-    showToast('Kebutuhan ditambahkan! 📋', 'success');
-  }
+  const ri=document.getElementById('kbRowIndex').value;
+  const data={kategori:document.getElementById('kbKat').value,item:document.getElementById('kbItem').value,prioritas:document.getElementById('kbPrioritas').value,estimasi:document.getElementById('kbEstimasi').value,status:document.getElementById('kbStatus').value,catatan:document.getElementById('kbCatatan').value};
+  if(!data.item) return showToast('Nama item wajib diisi','error');
+  if(ri){await callAPI('updateKebutuhan',{rowIndex:parseInt(ri),data});showToast('Kebutuhan diperbarui ✅','success');}
+  else{await callAPI('addKebutuhan',{data});showToast('Kebutuhan ditambahkan 📋','success');}
   clearCache('kebutuhan'); clearCache('dashboard');
-  closeModal('modalKebutuhan');
-  loadKebutuhan(true);
+  closeModal('modalKebutuhan'); loadKebutuhan(true);
 }
 
 async function submitPengeluaran() {
-  const rowIndex = document.getElementById('peRowIndex').value;
-  const data = {
-    tanggal: document.getElementById('peTgl').value,
-    item: document.getElementById('peItem').value,
-    kategori: document.getElementById('peKat').value,
-    nominal: document.getElementById('peNominal').value,
-    dibayar: document.getElementById('peDibayar').value,
-    metode: document.getElementById('peMetode').value,
-  };
-  if (!data.tanggal || !data.item || !data.nominal) return showToast('Lengkapi data dulu', 'error');
-  if (rowIndex) {
-    await callAPI('updatePengeluaran', { rowIndex: parseInt(rowIndex), data });
-    showToast('Pengeluaran diperbarui! ✅', 'success');
-  } else {
-    await callAPI('addPengeluaran', { data });
-    showToast('Pengeluaran dicatat! 💸', 'success');
-  }
+  const ri=document.getElementById('peRowIndex').value;
+  const data={tanggal:document.getElementById('peTgl').value,item:document.getElementById('peItem').value,kategori:document.getElementById('peKat').value,nominal:document.getElementById('peNominal').value,dibayar:document.getElementById('peDibayar').value,metode:document.getElementById('peMetode').value};
+  if(!data.tanggal||!data.item||!data.nominal) return showToast('Lengkapi data dulu','error');
+  if(ri){await callAPI('updatePengeluaran',{rowIndex:parseInt(ri),data});showToast('Pengeluaran diperbarui ✅','success');}
+  else{await callAPI('addPengeluaran',{data});showToast('Pengeluaran dicatat 💸','success');}
   clearCache('pengeluaran'); clearCache('dashboard');
-  closeModal('modalPengeluaran');
-  loadPengeluaran(true);
+  closeModal('modalPengeluaran'); loadPengeluaran(true);
 }
 
 async function submitVendor() {
-  const rowIndex = document.getElementById('vnRowIndex').value;
-  const data = {
-    nama: document.getElementById('vnNama').value,
-    kategori: document.getElementById('vnKat').value,
-    harga: document.getElementById('vnHarga').value,
-    status: document.getElementById('vnStatus').value,
-    kontak: document.getElementById('vnKontak').value,
-    catatan: document.getElementById('vnCatatan').value,
-  };
-  if (!data.nama) return showToast('Nama vendor wajib diisi', 'error');
-  if (rowIndex) {
-    await callAPI('updateVendorRow', { rowIndex: parseInt(rowIndex), data });
-    showToast('Vendor diperbarui! ✅', 'success');
-  } else {
-    await callAPI('addVendor', { data });
-    showToast('Vendor ditambahkan! 🤝', 'success');
-  }
+  const ri=document.getElementById('vnRowIndex').value;
+  const data={nama:document.getElementById('vnNama').value,kategori:document.getElementById('vnKat').value,harga:document.getElementById('vnHarga').value,status:document.getElementById('vnStatus').value,kontak:document.getElementById('vnKontak').value,catatan:document.getElementById('vnCatatan').value};
+  if(!data.nama) return showToast('Nama vendor wajib diisi','error');
+  if(ri){await callAPI('updateVendorRow',{rowIndex:parseInt(ri),data});showToast('Vendor diperbarui ✅','success');}
+  else{await callAPI('addVendor',{data});showToast('Vendor ditambahkan 🤝','success');}
   clearCache('vendor');
-  closeModal('modalVendor');
-  loadVendor(true);
+  closeModal('modalVendor'); loadVendor(true);
 }
 
 async function submitTamu() {
-  const rowIndex = document.getElementById('tmRowIndex').value;
-  const data = {
-    nama: document.getElementById('tmNama').value,
-    hubungan: document.getElementById('tmHubungan').value,
-    pihak: document.getElementById('tmPihak').value,
-    jumlah: document.getElementById('tmJumlah').value,
-    konfirmasi: document.getElementById('tmKonfirmasi').value,
-  };
-  if (!data.nama) return showToast('Nama tamu wajib diisi', 'error');
-  if (rowIndex) {
-    await callAPI('updateTamu', { rowIndex: parseInt(rowIndex), data });
-    showToast('Tamu diperbarui! ✅', 'success');
-  } else {
-    await callAPI('addTamu', { data });
-    showToast('Tamu ditambahkan! 👥', 'success');
-  }
+  const ri=document.getElementById('tmRowIndex').value;
+  const data={nama:document.getElementById('tmNama').value,hubungan:document.getElementById('tmHubungan').value,pihak:document.getElementById('tmPihak').value,jumlah:document.getElementById('tmJumlah').value,konfirmasi:document.getElementById('tmKonfirmasi').value};
+  if(!data.nama) return showToast('Nama tamu wajib diisi','error');
+  if(ri){await callAPI('updateTamu',{rowIndex:parseInt(ri),data});showToast('Tamu diperbarui ✅','success');}
+  else{await callAPI('addTamu',{data});showToast('Tamu ditambahkan 👥','success');}
   clearCache('tamu'); clearCache('dashboard');
-  closeModal('modalTamu');
-  loadTamu(true);
+  closeModal('modalTamu'); loadTamu(true);
 }
 
-
-async function deleteItem(type, rowIndex, reloadFn) {
-  if (!confirm('Hapus data ini?')) return;
-  await callAPI(`delete${type}`, { rowIndex });
-  // Clear cache halaman ini + dashboard
-  const cacheKey = type.toLowerCase();
-  clearCache(cacheKey);
-  clearCache('dashboard');
-  showToast('Data dihapus', 'success');
-  reloadFn(true); // force reload
+async function deleteItem(type,rowIndex,reloadFn) {
+  if(!confirm('Hapus data ini?')) return;
+  await callAPI(`delete${type}`,{rowIndex});
+  clearCache(type.toLowerCase()); clearCache('dashboard');
+  showToast('Data dihapus','success');
+  reloadFn(true);
 }
 
 // ============================================================
 // CONFIG & SETUP
 // ============================================================
 async function saveConfig() {
-  const data = {
-    pria: document.getElementById('cfgPria').value,
-    wanita: document.getElementById('cfgWanita').value,
-    tanggal: document.getElementById('cfgTanggal').value,
-    angpao: document.getElementById('cfgAngpao').value || 150000,
-    password: appConfig.password || 'nikah123',
-  };
-  await callAPI('saveConfig', { data });
-  appConfig = { ...appConfig, ...data };
+  const data={pria:document.getElementById('cfgPria').value,wanita:document.getElementById('cfgWanita').value,tanggal:document.getElementById('cfgTanggal').value,angpao:document.getElementById('cfgAngpao').value||150000,password:appConfig.password||'nikah123'};
+  await callAPI('saveConfig',{data});
+  appConfig={...appConfig,...data};
   applyConfig();
-  showToast('Pengaturan disimpan! ⚙️', 'success');
+  clearCache('dashboard');
+  showToast('Pengaturan disimpan ⚙️','success');
 }
 
 async function savePassword() {
-  const baru    = document.getElementById('cfgPassBaru').value.trim();
-  const konfirm = document.getElementById('cfgPassKonfirm').value.trim();
-  if (!baru)            return showToast('Password baru tidak boleh kosong', 'error');
-  if (baru.length < 4)  return showToast('Password minimal 4 karakter', 'error');
-  if (baru !== konfirm) return showToast('Konfirmasi password tidak cocok ❌', 'error');
-  const data = { ...appConfig, password: baru };
-  await callAPI('saveConfig', { data });
-  appConfig = data;
-  document.getElementById('cfgPassBaru').value = '';
-  document.getElementById('cfgPassKonfirm').value = '';
-  showToast('Password berhasil diubah! 🔑', 'success');
+  const baru=document.getElementById('cfgPassBaru').value.trim();
+  const konfirm=document.getElementById('cfgPassKonfirm').value.trim();
+  if(!baru) return showToast('Password baru tidak boleh kosong','error');
+  if(baru.length<4) return showToast('Password minimal 4 karakter','error');
+  if(baru!==konfirm) return showToast('Konfirmasi password tidak cocok ❌','error');
+  const data={...appConfig,password:baru};
+  await callAPI('saveConfig',{data});
+  appConfig=data;
+  document.getElementById('cfgPassBaru').value='';
+  document.getElementById('cfgPassKonfirm').value='';
+  showToast('Password berhasil diubah 🔑','success');
 }
 
 async function finishSetup() {
-  const pria = document.getElementById('setupPria').value.trim();
-  const wanita = document.getElementById('setupWanita').value.trim();
-  const tanggal = document.getElementById('setupTanggal').value;
-  if (!pria || !wanita) return showToast('Nama keduanya wajib diisi', 'error');
-  const data = { pria, wanita, tanggal, angpao: 150000 };
-  await callAPI('saveConfig', { data });
-  appConfig = data;
-  document.getElementById('setupScreen').style.display = 'none';
+  const pria=document.getElementById('setupPria').value.trim();
+  const wanita=document.getElementById('setupWanita').value.trim();
+  const tanggal=document.getElementById('setupTanggal').value;
+  if(!pria||!wanita) return showToast('Nama keduanya wajib diisi','error');
+  const data={pria,wanita,tanggal,angpao:150000,password:'nikah123'};
+  await callAPI('saveConfig',{data});
+  appConfig=data;
+  document.getElementById('setupScreen').style.display='none';
   applyConfig();
   loadPage('dashboard');
-  showToast(`Bismillah 💍 Selamat merencanakan, ${pria} & ${wanita}!`, 'success');
+  showToast(`Bismillah 💍 Selamat merencanakan, ${pria} & ${wanita}!`,'success');
+  setTimeout(()=>showToast('⚠️ Segera ganti password default di Pengaturan!',''),'4000');
 }
 
 // ============================================================
-// MODAL & HELPERS
+// MODAL
 // ============================================================
 function openModal(id) {
-  // Reset hidden rowIndex & judul ke mode "Tambah" saat buka fresh
   const resetMap = {
-    'modalTabungan':    { ri: 'tbRowIndex',  title: 'modalTabunganTitle',    label: 'Tambah Tabungan',    tgl: 'tbTgl' },
-    'modalPengeluaran': { ri: 'peRowIndex',  title: 'modalPengeluaranTitle', label: 'Catat Pengeluaran',  tgl: 'peTgl' },
-    'modalVendor':      { ri: 'vnRowIndex',  title: 'modalVendorTitle',      label: 'Tambah Vendor' },
-    'modalTamu':        { ri: 'tmRowIndex',  title: 'modalTamuTitle',        label: 'Tambah Tamu' },
+    'modalTabungan':    {ri:'tbRowIndex', title:'modalTabunganTitle',    label:'Tambah Tabungan',   tgl:'tbTgl'},
+    'modalPengeluaran': {ri:'peRowIndex', title:'modalPengeluaranTitle', label:'Catat Pengeluaran', tgl:'peTgl'},
+    'modalVendor':      {ri:'vnRowIndex', title:'modalVendorTitle',      label:'Tambah Vendor'},
+    'modalTamu':        {ri:'tmRowIndex', title:'modalTamuTitle',        label:'Tambah Tamu'},
   };
-  const cfg = resetMap[id];
-  if (cfg) {
-    // Hanya reset kalau dipanggil dari tombol "tambah" (rowIndex kosong)
-    // Kalau dari edit, rowIndex sudah diisi sebelum openModal dipanggil
-    if (!document.getElementById(cfg.ri).value) {
-      if (cfg.title) document.getElementById(cfg.title).textContent = cfg.label;
-      if (cfg.tgl) document.getElementById(cfg.tgl).value = today();
-    }
+  const cfg=resetMap[id];
+  if(cfg && !document.getElementById(cfg.ri).value) {
+    if(cfg.title) document.getElementById(cfg.title).textContent=cfg.label;
+    if(cfg.tgl)   document.getElementById(cfg.tgl).value=today();
   }
-  document.getElementById(id).classList.add('open');
+  const overlay=document.getElementById(id);
+  overlay.classList.remove('opacity-0','pointer-events-none');
+  overlay.classList.add('open');
 }
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  const overlay=document.getElementById(id);
+  overlay.classList.add('opacity-0','pointer-events-none');
+  overlay.classList.remove('open');
+  // Reset rowIndex
+  const riMap={modalTabungan:'tbRowIndex',modalPengeluaran:'peRowIndex',modalVendor:'vnRowIndex',modalTamu:'tmRowIndex',modalKebutuhan:'kbRowIndex'};
+  const ri=riMap[id];
+  if(ri) document.getElementById(ri).value='';
 }
 
-// Close modal on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.id && closeModal(o.id); });
 });
 
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-function rupiah(n) {
-  if (n === undefined || n === null) return 'Rp 0';
-  const abs = Math.abs(n);
-  const str = 'Rp ' + abs.toLocaleString('id-ID');
-  return n < 0 ? '-' + str : str;
-}
-
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function showToast(msg, type = '') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = 'toast ' + type;
-  toast.innerHTML = `${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'} ${msg}`;
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type='') {
+  const container=document.getElementById('toastContainer');
+  const toast=document.createElement('div');
+  const color=type==='success'?'bg-green-600':type==='error'?'bg-rose':'bg-gray-800';
+  const icon=type==='success'?'✅':type==='error'?'❌':'ℹ️';
+  toast.className=`toast pointer-events-auto ${color} text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 max-w-xs`;
+  toast.innerHTML=`${icon} ${msg}`;
   container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
+  setTimeout(()=>toast.remove(),3500);
 }
 
-// Set default topbar action button hidden on dashboard
-document.getElementById('topbarAction').style.display = 'none';
+// ============================================================
+// UTILS
+// ============================================================
+function rupiah(n) {
+  if(n===undefined||n===null) return 'Rp 0';
+  return (n<0?'-':'')+'Rp '+Math.abs(n).toLocaleString('id-ID');
+}
+
+function today() { return new Date().toISOString().slice(0,10); }
+
+// Initial topbar action hidden
+document.getElementById('topbarAction').classList.add('hidden');
 </script>
 </body>
 </html>
