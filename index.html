@@ -734,7 +734,7 @@ async function submitLogin() {
   if (!inputPass) { errEl.textContent = 'Password tidak boleh kosong.'; return; }
 
   const btn = document.querySelector('#loginScreen button:last-of-type');
-  btn.textContent = '⏳ Memeriksa...'; btn.disabled = true;
+  btn.textContent = '⏳'; btn.disabled = true;
 
   try {
     await callAPI('initSheets');
