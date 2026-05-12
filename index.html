@@ -1268,7 +1268,7 @@ function logout() {
   document.getElementById('cfgWanita').value = appConfig.wanita || '';
   document.getElementById('cfgTanggal').value = appConfig.tanggal || '';
   document.getElementById('cfgAngpao').value = appConfig.angpao || 150000;
-}
+
 
 // ============================================================
 // NAVIGATION
@@ -1647,7 +1647,7 @@ function renderKebutuhan(query = '', filter = _kebutuhanFilter, sortKey = _kebut
           </div>`).join('')}
     </div>`;
 }
-}
+
 
 function openFormKebutuhan() {
   document.getElementById('modalKebutuhanTitle').textContent = 'Tambah Kebutuhan';
