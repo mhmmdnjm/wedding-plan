@@ -1058,23 +1058,6 @@ tbody tr:hover { background: var(--rose-pale); }
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ===== LOGIN SCREEN ===== -->
-<div class="setup-screen" id="loginScreen">
-  <div class="setup-card" style="max-width:380px">
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="font-size:48px;margin-bottom:8px">&#x1F48D;</div>
-      <h2 style="font-size:24px">Wedding Planner</h2>
-      <p style="margin-bottom:0">Halaman ini masih maintenance</p>
-    </div>
-    <div class="form-group">
-      <label class="form-label"></label>
-    </div>
-    <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px" onclick="doLogin()">
-      &#x1F510; Masuk
-    </button>
-  </div>
-</div>
-
 <!-- ===== SETUP SCREEN ===== -->
 <div class="setup-screen" id="setupScreen" style="display:none">
   <div class="setup-card">
@@ -1119,7 +1102,7 @@ const PAGE_META = {
 // ============================================================
 // API — ganti URL di bawah dengan URL deploy GAS kamu
 // ============================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzD95h5T6oqKqJTs0mXGWIfl4iljbWZfx98Uts4tQE6Q1_SzshoYqavxihOAzDZ-1YtQA/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzv3Ivfhne_Sy4z8vd9taBr1M56cNaNmvq_3yvj3tRMHqTvtFzrCASSfNAtXjPf8U7wNA/exec';
 
 async function callAPI(action, data = {}) {
   const res = await fetch(GAS_URL, {
@@ -1132,46 +1115,12 @@ async function callAPI(action, data = {}) {
 // ============================================================
 // INIT
 // ============================================================
-const APP_PASSWORD = 'wedding2025';
-
-function doLogin() {
-  const val = document.getElementById('loginPassword').value;
-  const errEl = document.getElementById('loginError');
-  if (val === APP_PASSWORD) {
-    errEl.style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'none';
-    initApp();
-  } else {
-    errEl.style.display = 'block';
-    document.getElementById('loginPassword').value = '';
-    document.getElementById('loginPassword').focus();
-  }
-}
-
-async function initApp() {
+window.addEventListener('load', async () => {
   if (GAS_URL === 'GANTI_DENGAN_URL_GAS_KAMU') {
     alert('⚠️ Buka file index.html, cari GAS_URL dan ganti dengan URL deploy GAS kamu!');
     return;
   }
-  try {
-    const res = await callAPI('getConfig');
-    if (res && res.pria && res.wanita) {
-      // Config sudah ada — langsung ke dashboard
-      appConfig = res;
-      applyConfig();
-      loadPage('dashboard');
-    } else {
-      // Config belum ada — tampilkan setup screen
-      document.getElementById('setupScreen').style.display = 'flex';
-    }
-  } catch (e) {
-    console.error('Gagal load config:', e);
-    document.getElementById('setupScreen').style.display = 'flex';
-  }
-}
-
-window.addEventListener('load', () => {
-  // Langsung tampilkan login screen — semua sudah display:none kecuali loginScreen
+  showLoginScreen();
 });
 
 
@@ -1564,7 +1513,7 @@ function renderKebutuhan(query = '', filter = _kebutuhanFilter, sortKey = _kebut
           </div>`).join('')}
     </div>`;
 }
-
+}
 
 function openFormKebutuhan() {
   document.getElementById('modalKebutuhanTitle').textContent = 'Tambah Kebutuhan';
