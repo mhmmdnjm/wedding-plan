@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💍 Wedding Budget Planner v6</title>
+<title>Wedding Budget Planner v7</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -24,6 +25,16 @@ tailwind.config = {
   }
 }
 </script>
+<style>
+/* Lucide icons inline sizing */
+.icon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; }
+.icon svg { width:1em; height:1em; stroke-width:1.75; }
+.icon-sm svg { width:14px; height:14px; }
+.icon-md svg { width:18px; height:18px; }
+.icon-lg svg { width:22px; height:22px; }
+.icon-xl svg { width:28px; height:28px; }
+.nav-icon svg { width:18px; height:18px; stroke-width:1.75; }
+</style>
 <style>
   body { font-family: 'DM Sans', sans-serif; }
   .font-serif { font-family: 'Playfair Display', serif; }
@@ -87,32 +98,32 @@ tailwind.config = {
 <aside id="sidebar" class="sidebar fixed top-0 left-0 h-screen w-60 bg-rose flex flex-col z-50 -translate-x-full lg:translate-x-0">
   <!-- Brand -->
   <div class="px-5 py-7 border-b border-white/20">
-    <div class="font-serif text-white text-xl font-bold leading-tight">💍 Nikah<br>Budget</div>
+    <div class="font-serif text-white text-xl font-bold leading-tight"><span class="icon icon-xl text-white"><i data-lucide="heart"></i></span> Nikah<br>Budget</div>
     <div class="text-white/60 text-xs mt-1 uppercase tracking-widest">Wedding Planner</div>
   </div>
 
   <!-- Nav -->
   <nav class="flex-1 py-4">
     <div class="nav-item active flex items-center gap-3 px-5 py-3 cursor-pointer text-white text-sm font-medium hover:bg-white/10 transition-colors" onclick="goTo('dashboard')">
-      <span class="text-lg w-6 text-center">🏠</span> Dashboard
+      <span class="nav-icon icon w-6"><i data-lucide="layout-dashboard"></i></span> Dashboard
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('tabungan')">
-      <span class="text-lg w-6 text-center">💰</span> Tabungan
+      <span class="nav-icon icon w-6"><i data-lucide="piggy-bank"></i></span> Tabungan
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('kebutuhan')">
-      <span class="text-lg w-6 text-center">📋</span> Kebutuhan
+      <span class="nav-icon icon w-6"><i data-lucide="list-checks"></i></span> Kebutuhan
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('pengeluaran')">
-      <span class="text-lg w-6 text-center">💸</span> Pengeluaran
+      <span class="nav-icon icon w-6"><i data-lucide="receipt"></i></span> Pengeluaran
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('vendor')">
-      <span class="text-lg w-6 text-center">🤝</span> Vendor
+      <span class="nav-icon icon w-6"><i data-lucide="store"></i></span> Vendor
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('tamu')">
-      <span class="text-lg w-6 text-center">👥</span> Tamu
+      <span class="nav-icon icon w-6"><i data-lucide="users"></i></span> Tamu
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('pengaturan')">
-      <span class="text-lg w-6 text-center">⚙️</span> Pengaturan
+      <span class="nav-icon icon w-6"><i data-lucide="settings"></i></span> Pengaturan
     </div>
   </nav>
 
@@ -123,7 +134,7 @@ tailwind.config = {
       <div id="sidebarNames" class="font-serif text-white text-sm">— & —</div>
     </div>
     <button onclick="logout()" class="mt-3 w-full py-2 text-xs text-white/70 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-colors">
-      🔒 Keluar
+      <span class="icon icon-sm mr-1"><i data-lucide="log-out"></i></span> Keluar
     </button>
   </div>
 </aside>
@@ -132,7 +143,7 @@ tailwind.config = {
 <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
 <!-- Mobile toggle button -->
-<button onclick="toggleSidebar()" class="lg:hidden fixed bottom-5 right-5 z-50 w-13 h-13 bg-rose text-white rounded-full shadow-xl text-xl flex items-center justify-center w-12 h-12">☰</button>
+<button onclick="toggleSidebar()" class="lg:hidden fixed bottom-5 right-5 z-50 bg-rose text-white rounded-full shadow-xl flex items-center justify-center w-12 h-12"><span class="icon icon-md"><i data-lucide="menu"></i></span></button>
 
 <!-- ===== MAIN ===== -->
 <main class="lg:ml-60 min-h-screen flex flex-col">
@@ -145,9 +156,9 @@ tailwind.config = {
         <div id="topbarSub" class="text-xs text-gray-400 mt-0.5">Ringkasan budget pernikahanmu</div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="refreshPage()" title="Refresh" class="p-2 text-gray-400 hover:text-rose hover:bg-rose-pale rounded-lg transition-colors text-sm">🔄</button>
+        <button onclick="refreshPage()" title="Refresh" class="p-2 text-gray-400 hover:text-rose hover:bg-rose-pale rounded-lg transition-colors text-sm"><span class="icon icon-sm"><i data-lucide="refresh-cw"></i></span></button>
         <button id="topbarAction" onclick="topbarActionFn()" class="hidden bg-rose hover:bg-rose-light text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-md">
-          + Tambah
+          <span class="icon icon-sm mr-1"><i data-lucide="plus"></i></span> Tambah
         </button>
       </div>
     </div>
@@ -221,7 +232,7 @@ tailwind.config = {
       <div class="max-w-lg space-y-4">
         <!-- Info pernikahan -->
         <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-6">
-          <h3 class="font-serif text-rose font-semibold text-lg mb-5">⚙️ Pengaturan Pernikahan</h3>
+          <h3 class="font-serif text-rose font-semibold text-lg mb-5"><span class="icon icon-sm mr-1"><i data-lucide="settings-2"></i></span> Pengaturan Pernikahan</h3>
           <div class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nama Calon Suami</label>
@@ -240,11 +251,11 @@ tailwind.config = {
               <input id="cfgAngpao" type="number" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="150000" />
             </div>
           </div>
-          <button onclick="saveConfig()" class="mt-5 w-full bg-rose hover:bg-rose-light text-white font-semibold py-2.5 rounded-xl text-sm transition-all hover:shadow-md">💾 Simpan Pengaturan</button>
+          <button onclick="saveConfig()" class="mt-5 w-full bg-rose hover:bg-rose-light text-white font-semibold py-2.5 rounded-xl text-sm transition-all hover:shadow-md"><span class="icon icon-sm mr-1"><i data-lucide="save"></i></span> Simpan Pengaturan</button>
         </div>
         <!-- Ganti password -->
         <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-6">
-          <h3 class="font-serif text-rose font-semibold text-lg mb-5">🔒 Ganti Password</h3>
+          <h3 class="font-serif text-rose font-semibold text-lg mb-5"><span class="icon icon-sm mr-1"><i data-lucide="lock"></i></span> Ganti Password</h3>
           <div class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Password Baru</label>
@@ -255,13 +266,13 @@ tailwind.config = {
               <input id="cfgPassKonfirm" type="password" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="Ulangi password baru" />
             </div>
           </div>
-          <button onclick="savePassword()" class="mt-5 w-full border-2 border-rose text-rose hover:bg-rose hover:text-white font-semibold py-2.5 rounded-xl text-sm transition-all">🔑 Simpan Password Baru</button>
+          <button onclick="savePassword()" class="mt-5 w-full border-2 border-rose text-rose hover:bg-rose hover:text-white font-semibold py-2.5 rounded-xl text-sm transition-all"><span class="icon icon-sm mr-1"><i data-lucide="key-round"></i></span> Simpan Password Baru</button>
         </div>
         <!-- Logout -->
         <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-6">
-          <h3 class="font-serif text-gray-700 font-semibold text-lg mb-2">🚪 Sesi</h3>
+          <h3 class="font-serif text-gray-700 font-semibold text-lg mb-2"><span class="icon icon-sm mr-1"><i data-lucide="log-out"></i></span> Sesi</h3>
           <p class="text-sm text-gray-400 mb-4">Keluar dari aplikasi. Kamu perlu login lagi untuk mengakses.</p>
-          <button onclick="logout()" class="w-full bg-rose-pale text-rose hover:bg-rose hover:text-white font-semibold py-2.5 rounded-xl text-sm transition-all border border-rose-soft">🔒 Logout</button>
+          <button onclick="logout()" class="w-full bg-rose-pale text-rose hover:bg-rose hover:text-white font-semibold py-2.5 rounded-xl text-sm transition-all border border-rose-soft"><span class="icon icon-sm mr-1"><i data-lucide="log-out"></i></span> Logout</button>
         </div>
       </div>
     </div>
@@ -273,7 +284,7 @@ tailwind.config = {
 <div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalTabungan">
   <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="font-serif text-rose text-xl font-bold">💰 <span id="modalTabunganTitle">Tambah Tabungan</span></h3>
+      <h3 class="font-serif text-rose text-xl font-bold"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="piggy-bank"></i></span> <span id="modalTabunganTitle">Tambah Tabungan</span></h3>
       <button onclick="closeModal('modalTabungan')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="tbRowIndex" />
@@ -309,7 +320,7 @@ tailwind.config = {
     </div>
     <div class="flex gap-2 mt-6">
       <button onclick="closeModal('modalTabungan')" class="flex-1 py-2.5 border border-gray-200 text-gray-500 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">Batal</button>
-      <button onclick="submitTabungan()" class="flex-1 py-2.5 bg-rose text-white rounded-xl text-sm font-semibold hover:bg-rose-light transition hover:shadow-md">💾 Simpan</button>
+      <button onclick="submitTabungan()" class="flex-1 py-2.5 bg-rose text-white rounded-xl text-sm font-semibold hover:bg-rose-light transition hover:shadow-md"><span class="icon icon-sm mr-1"><i data-lucide="save"></i></span> Simpan</button>
     </div>
   </div>
 </div>
@@ -318,7 +329,7 @@ tailwind.config = {
 <div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalKebutuhan">
   <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="font-serif text-rose text-xl font-bold">📋 <span id="modalKebutuhanTitle">Tambah Kebutuhan</span></h3>
+      <h3 class="font-serif text-rose text-xl font-bold"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="list-checks"></i></span> <span id="modalKebutuhanTitle">Tambah Kebutuhan</span></h3>
       <button onclick="closeModal('modalKebutuhan')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="kbRowIndex" />
@@ -370,7 +381,7 @@ tailwind.config = {
 <div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalPengeluaran">
   <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="font-serif text-rose text-xl font-bold">💸 <span id="modalPengeluaranTitle">Catat Pengeluaran</span></h3>
+      <h3 class="font-serif text-rose text-xl font-bold"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="receipt"></i></span> <span id="modalPengeluaranTitle">Catat Pengeluaran</span></h3>
       <button onclick="closeModal('modalPengeluaran')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="peRowIndex" />
@@ -422,7 +433,7 @@ tailwind.config = {
 <div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalVendor">
   <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="font-serif text-rose text-xl font-bold">🤝 <span id="modalVendorTitle">Tambah Vendor</span></h3>
+      <h3 class="font-serif text-rose text-xl font-bold"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="store"></i></span> <span id="modalVendorTitle">Tambah Vendor</span></h3>
       <button onclick="closeModal('modalVendor')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="vnRowIndex" />
@@ -472,7 +483,7 @@ tailwind.config = {
 <div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalTamu">
   <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="font-serif text-rose text-xl font-bold">👥 <span id="modalTamuTitle">Tambah Tamu</span></h3>
+      <h3 class="font-serif text-rose text-xl font-bold"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="users"></i></span> <span id="modalTamuTitle">Tambah Tamu</span></h3>
       <button onclick="closeModal('modalTamu')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="tmRowIndex" />
@@ -514,18 +525,18 @@ tailwind.config = {
 <!-- ===== LOGIN SCREEN ===== -->
 <div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-rose via-marun to-marun-dark z-[999] flex items-center justify-center p-6">
   <div class="bg-white rounded-3xl p-10 w-full max-w-sm shadow-2xl text-center">
-    <div class="text-6xl mb-4">💍</div>
+    <div class="flex justify-center mb-4 text-rose"><span class="icon" style="width:56px;height:56px"><i data-lucide="heart" style="width:56px;height:56px;stroke-width:1.5"></i></span></div>
     <h2 class="font-serif text-rose text-2xl font-bold mb-1">Nikah Budget</h2>
     <p class="text-gray-400 text-sm mb-8">Masukkan password untuk membuka aplikasi</p>
     <div class="relative mb-3">
       <input id="loginPassword" type="password" placeholder="••••••••"
         class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-center text-xl tracking-widest focus:outline-none focus:border-rose transition"
         onkeydown="if(event.key==='Enter') submitLogin()" autofocus />
-      <button onclick="togglePasswordVisibility()" tabindex="-1" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">👁</button>
+      <button onclick="togglePasswordVisibility()" tabindex="-1" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 icon icon-sm"><i data-lucide="eye"></i></button>
     </div>
     <div id="loginError" class="text-rose text-sm font-medium mb-3 min-h-[20px]"></div>
     <button onclick="submitLogin()" class="w-full bg-rose hover:bg-rose-light text-white font-bold py-3.5 rounded-2xl text-base transition-all hover:shadow-lg hover:-translate-y-0.5">
-      🔓 Masuk
+      <span class="icon icon-sm mr-1"><i data-lucide="log-in"></i></span> Masuk
     </button>
   </div>
 </div>
@@ -533,7 +544,7 @@ tailwind.config = {
 <!-- ===== SETUP SCREEN ===== -->
 <div id="setupScreen" class="fixed inset-0 bg-gradient-to-br from-rose via-marun to-marun-dark z-[998] items-center justify-center p-6 hidden">
   <div class="bg-white rounded-3xl p-10 w-full max-w-sm shadow-2xl">
-    <h2 class="font-serif text-rose text-2xl font-bold mb-1">💍 Selamat Datang!</h2>
+    <h2 class="font-serif text-rose text-2xl font-bold mb-1"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="heart"></i></span> Selamat Datang!</h2>
     <p class="text-gray-400 text-sm mb-7 leading-relaxed">Isi data berikut untuk memulai merencanakan pernikahan impianmu.</p>
     <div class="space-y-4 mb-6">
       <div>
@@ -550,7 +561,7 @@ tailwind.config = {
       </div>
     </div>
     <button onclick="finishSetup()" class="w-full bg-rose hover:bg-rose-light text-white font-bold py-3.5 rounded-2xl text-base transition-all hover:shadow-lg">
-      🚀 Mulai Rencanakan
+      <span class="icon icon-sm mr-1"><i data-lucide="rocket"></i></span> Mulai Rencanakan
     </button>
   </div>
 </div>
@@ -601,7 +612,7 @@ function dataCard(content) {
 function searchBar(id, placeholder, oninput) {
   return `
     <div class="relative flex-1 min-w-0">
-      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm">🔍</span>
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"><span class="icon icon-sm"><i data-lucide="search"></i></span>
       <input id="${id}" class="w-full pl-9 pr-4 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose transition bg-white" placeholder="${placeholder}" oninput="${oninput}" />
     </div>`;
 }
@@ -631,13 +642,13 @@ function loadingSpinner() {
 function actionBtns(editFn, deleteFn) {
   return `
     <div class="flex gap-2 justify-end pt-3 border-t border-gray-50 mt-2">
-      <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="${editFn}">✏️ Edit</button>
+      <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition" onclick="${editFn}"><span class="icon icon-sm mr-1"><i data-lucide="pencil"></i></span> Edit</button>
       <button class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="${deleteFn}">🗑 Hapus</button>
     </div>`;
 }
 
 
-function tabel(headers, rows, emptyIcon='📋', emptyMsg='Belum ada data') {
+function tabel(headers, rows, emptyIcon='<span class="icon"><i data-lucide="list-checks"></i></span>', emptyMsg='Belum ada data') {
   if (rows.length === 0) return emptyState(emptyIcon, emptyMsg);
   return `
     <div class="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
@@ -689,12 +700,12 @@ function clearCache(k) { if(k){_cache[k]=null;}else{Object.keys(_cache).forEach(
 
 const PAGE_META = {
   dashboard:   { title: 'Dashboard',       sub: 'Ringkasan budget pernikahanmu',  action: null },
-  tabungan:    { title: '💰 Tabungan',      sub: 'Catatan tabungan pernikahan',    action: () => openModal('modalTabungan') },
-  kebutuhan:   { title: '📋 Kebutuhan',     sub: 'Daftar & prioritas kebutuhan',   action: () => openFormKebutuhan() },
-  pengeluaran: { title: '💸 Pengeluaran',   sub: 'Catatan pengeluaran',            action: () => openModal('modalPengeluaran') },
-  vendor:      { title: '🤝 Vendor',        sub: 'Database vendor & jasa',         action: () => openModal('modalVendor') },
-  tamu:        { title: '👥 Tamu',          sub: 'Daftar tamu undangan',           action: () => openModal('modalTamu') },
-  pengaturan:  { title: '⚙️ Pengaturan',    sub: 'Konfigurasi pernikahan',         action: null },
+  tabungan:    { title: 'Tabungan',      sub: 'Catatan tabungan pernikahan',    action: () => openModal('modalTabungan') },
+  kebutuhan:   { title: 'Kebutuhan',     sub: 'Daftar & prioritas kebutuhan',   action: () => openFormKebutuhan() },
+  pengeluaran: { title: 'Pengeluaran',   sub: 'Catatan pengeluaran',            action: () => openModal('modalPengeluaran') },
+  vendor:      { title: 'Vendor',        sub: 'Database vendor & jasa',         action: () => openModal('modalVendor') },
+  tamu:        { title: 'Tamu',          sub: 'Daftar tamu undangan',           action: () => openModal('modalTamu') },
+  pengaturan:  { title: 'Pengaturan',    sub: 'Konfigurasi pernikahan',         action: null },
 };
 
 // ============================================================
@@ -712,7 +723,7 @@ async function callAPI(action, data = {}) {
 // ============================================================
 window.addEventListener('load', async () => {
   if (GAS_URL === 'GANTI_DENGAN_URL_GAS_KAMU') {
-    alert('⚠️ Isi GAS_URL dulu di file index.html!');
+    alert('Isi GAS_URL dulu di file index.html!');
     return;
   }
   showLoginScreen();
@@ -734,7 +745,7 @@ async function submitLogin() {
   if (!inputPass) { errEl.textContent = 'Password tidak boleh kosong.'; return; }
 
   const btn = document.querySelector('#loginScreen button:last-of-type');
-  btn.textContent = '⏳'; btn.disabled = true;
+  btn.innerHTML = '<span class="icon icon-sm mr-1 animate-spin"><i data-lucide="loader"></i></span> Memeriksa...'; btn.disabled = true;
 
   try {
     await callAPI('initSheets');
@@ -742,11 +753,11 @@ async function submitLogin() {
     appConfig = (cfg && cfg.data) ? cfg.data : {};
   } catch(e) { appConfig = {}; }
 
-  btn.textContent = '🔓 Masuk'; btn.disabled = false;
+  btn.innerHTML = '<span class="icon icon-sm mr-1"><i data-lucide="log-in"></i></span> Masuk'; btn.disabled = false;
 
   const savedPass = appConfig.password || 'nikah123';
   if (inputPass !== savedPass) {
-    errEl.textContent = '❌ Password salah. Coba lagi.';
+    errEl.textContent = 'Password salah. Coba lagi.';
     document.getElementById('loginPassword').value = '';
     document.getElementById('loginPassword').focus();
     const card = document.querySelector('#loginScreen > div');
@@ -832,7 +843,7 @@ function refreshPage() {
   clearCache(currentPage);
   if (currentPage === 'dashboard') clearCache();
   loadPage(currentPage, true);
-  showToast('Data diperbarui 🔄', '');
+  showToast('Data diperbarui <span class="icon icon-sm"><i data-lucide="refresh-cw"></i></span>', '');
 }
 
 function toggleSidebar() {
@@ -857,10 +868,11 @@ async function loadDashboard(force = false) {
   el.innerHTML = loadingSpinner();
   try {
     const res = await callAPI('getDashboard');
-    if (!res || !res.success) { el.innerHTML = emptyState('❌', res?.error||'Gagal memuat'); return; }
+    if (!res || !res.success) { el.innerHTML = emptyState('<span class="icon icon-sm"><i data-lucide="circle-x"></i></span>', res?.error||'Gagal memuat'); return; }
     setCache('dashboard', res.data);
     _renderDashboard(res.data);
-  } catch(e) { el.innerHTML = emptyState('❌', e.message||'Error'); }
+    initIcons();
+  } catch(e) { el.innerHTML = emptyState('<span class="icon icon-sm"><i data-lucide="circle-x"></i></span>', e.message||'Error'); }
 }
 
 function _renderDashboard(d) {
@@ -892,20 +904,20 @@ function _renderDashboard(d) {
 
     <!-- Stats row 1 -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-      ${statCard('💰','Total Tabungan', rupiah(d.totalTabungan), 'stat-green')}
-      ${statCard('💸','Total Pengeluaran', rupiah(d.totalPengeluaran), 'stat-rose')}
-      ${statCard('📋','Estimasi Kebutuhan', rupiah(d.totalEstimasi), 'stat-blue')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="piggy-bank"></i></span>','Total Tabungan', rupiah(d.totalTabungan), 'stat-green')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="receipt"></i></span>','Total Pengeluaran', rupiah(d.totalPengeluaran), 'stat-rose')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="list-checks"></i></span>','Estimasi Kebutuhan', rupiah(d.totalEstimasi), 'stat-blue')}
     </div>
 
     <!-- Stats row 2 -->
     <div class="grid grid-cols-2 gap-3 mb-3">
       <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 stat-green">
-        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">✅ Sisa Dana</div>
+        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider"><span class="icon icon-sm mr-1"><i data-lucide="wallet"></i></span> Sisa Dana</div>
         <div class="font-serif text-xl font-bold mt-1 ${d.sisaDana >= 0 ? 'text-green-600' : 'text-rose'}">${rupiah(d.sisaDana)}</div>
         <div class="text-xs text-gray-300 mt-0.5">Tabungan − Pengeluaran</div>
       </div>
       <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 stat-amber">
-        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">⚠️ Kekurangan</div>
+        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider"><span class="icon icon-sm mr-1"><i data-lucide="triangle-alert"></i></span> Kekurangan</div>
         <div class="font-serif text-xl font-bold mt-1 ${d.kekurangan > 0 ? 'text-amber-600' : 'text-green-600'}">${rupiah(d.kekurangan)}</div>
         <div class="text-xs text-gray-300 mt-0.5">Estimasi − Tabungan</div>
       </div>
@@ -914,7 +926,7 @@ function _renderDashboard(d) {
     <!-- Progress -->
     <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 mb-3">
       <div class="flex justify-between items-center mb-3">
-        <div class="font-semibold text-sm text-gray-700">📈 Progress Kesiapan Dana</div>
+        <div class="font-semibold text-sm text-gray-700"><span class="icon icon-sm mr-1"><i data-lucide="trending-up"></i></span> Progress Kesiapan Dana</div>
         <div class="font-serif font-bold text-rose text-lg">${progressPct}%</div>
       </div>
       <div class="h-2.5 bg-cream-dark rounded-full overflow-hidden">
@@ -928,40 +940,41 @@ function _renderDashboard(d) {
     <!-- Status & Tamu -->
     <div class="grid grid-cols-2 gap-3">
       <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5">
-        <div class="font-semibold text-sm text-gray-700 mb-3">📋 Status Kebutuhan</div>
+        <div class="font-semibold text-sm text-gray-700 mb-3"><span class="icon icon-sm mr-1"><i data-lucide="list-checks"></i></span> Status Kebutuhan</div>
         <div class="space-y-2">
           <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-400">🔴 Belum</span>
+            <span class="text-xs text-gray-400"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="circle-x"></i></span> Belum</span>
             <span class="font-serif font-bold text-rose text-base">${d.statusKebutuhan.belum}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-400">🟡 Proses</span>
+            <span class="text-xs text-gray-400"><span class="icon icon-sm mr-1 text-amber-500"><i data-lucide="clock"></i></span> Proses</span>
             <span class="font-serif font-bold text-amber-500 text-base">${d.statusKebutuhan.proses}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-400">🟢 Lunas</span>
+            <span class="text-xs text-gray-400"><span class="icon icon-sm mr-1 text-green-500"><i data-lucide="circle-check"></i></span> Lunas</span>
             <span class="font-serif font-bold text-green-600 text-base">${d.statusKebutuhan.lunas}</span>
           </div>
         </div>
       </div>
       <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5">
-        <div class="font-semibold text-sm text-gray-700 mb-3">👥 Info Tamu</div>
+        <div class="font-semibold text-sm text-gray-700 mb-3"><span class="icon icon-sm mr-1"><i data-lucide="users"></i></span> Info Tamu</div>
         <div class="space-y-2">
           <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-400">📨 Diundang</span>
+            <span class="text-xs text-gray-400"><span class="icon icon-sm mr-1 text-blue-500"><i data-lucide="mail"></i></span> Diundang</span>
             <span class="font-serif font-bold text-blue-600 text-base">${d.tamu.total}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-400">✅ Hadir</span>
+            <span class="text-xs text-gray-400"><span class="icon icon-sm mr-1 text-green-500"><i data-lucide="user-check"></i></span> Hadir</span>
             <span class="font-serif font-bold text-green-600 text-base">${d.tamu.hadir}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-400">💰 Est. Angpao</span>
+            <span class="text-xs text-gray-400"><span class="icon icon-sm mr-1 text-purple-500"><i data-lucide="coins"></i></span> Est. Angpao</span>
             <span class="font-bold text-purple-600 text-xs">${rupiah(d.tamu.estAngpao)}</span>
           </div>
         </div>
       </div>
     </div>`;
+  initIcons();
 }
 
 // ============================================================
@@ -1001,14 +1014,14 @@ function renderTabungan(query='', sortKey=_tabunganSort.key, asc=_tabunganSort.a
 
   el.innerHTML = `
     <div class="grid grid-cols-3 gap-3 mb-4">
-      ${statCard('💰','Total Terkumpul',rupiah(total),'stat-green')}
-      ${statCard('🔢','Transaksi',_tabunganData.length+'x','stat-blue')}
-      ${statCard('📊','Rata-rata',_tabunganData.length?rupiah(Math.round(total/_tabunganData.length)):'Rp 0','stat-rose')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="piggy-bank"></i></span>','Total Terkumpul',rupiah(total),'stat-green')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="hash"></i></span>','Transaksi',_tabunganData.length+'x','stat-blue')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="bar-chart-2"></i></span>','Rata-rata',_tabunganData.length?rupiah(Math.round(total/_tabunganData.length)):'Rp 0','stat-rose')}
     </div>
     <div class="flex gap-2 mb-3 flex-wrap">
       ${searchBar('searchTabungan','Cari keterangan, pihak...','renderTabungan(this.value.toLowerCase())')}
-      ${sortBtn('📅 Tgl'+si('tanggal'), sortKey==='tanggal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'tanggal',${sortKey==='tanggal'?!asc:false})`)}
-      ${sortBtn('💰 Nominal'+si('nominal'), sortKey==='nominal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'nominal',${sortKey==='nominal'?!asc:false})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="calendar"></i></span>Tgl'+si('tanggal'), sortKey==='tanggal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'tanggal',${sortKey==='tanggal'?!asc:false})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="coins"></i></span>Nominal'+si('nominal'), sortKey==='nominal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'nominal',${sortKey==='nominal'?!asc:false})`)}
     </div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_tabunganData.length} data</div>
     ${tabel(
@@ -1021,12 +1034,13 @@ function renderTabungan(query='', sortKey=_tabunganSort.key, asc=_tabunganSort.a
         td(`<span class="font-semibold text-green-600 whitespace-nowrap">${rupiah(r.nominal)}</span>`,'text-right'),
         td(`<span class="font-semibold text-gray-700 whitespace-nowrap">${rupiah(r.saldo)}</span>`,'text-right'),
         td(`<div class="flex gap-1.5">
-          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditTabungan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
-          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tabungan',${r.rowIndex},loadTabungan)">🗑</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditTabungan(${JSON.stringify(r).replace(/"/g,'&quot;')})"><span class="icon icon-sm"><i data-lucide="pencil"></i></span></button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tabungan',${r.rowIndex},loadTabungan)"><span class="icon icon-sm"><i data-lucide="trash-2"></i></span></button>
         </div>`,'whitespace-nowrap'),
       ].join('')),
-      '💰','Belum ada catatan tabungan'
+      '<span class="icon icon-sm"><i data-lucide="coins"></i></span>','Belum ada catatan tabungan'
     )}`;
+  initIcons();
 }
 
 function openEditTabungan(r) {
@@ -1054,6 +1068,7 @@ async function loadKebutuhan(force=false) {
   _kebutuhanData = res.data||[];
   setCache('kebutuhan',_kebutuhanData);
   renderKebutuhan();
+  initIcons();
 }
 
 function renderKebutuhan(query='', filter=_kebutuhanFilter, sortKey=_kebutuhanSort.key, asc=_kebutuhanSort.asc) {
@@ -1080,14 +1095,14 @@ function renderKebutuhan(query='', filter=_kebutuhanFilter, sortKey=_kebutuhanSo
 
   el.innerHTML = `
     <div class="grid grid-cols-3 gap-3 mb-4">
-      ${statCard('📋','Total Item',_kebutuhanData.length,'stat-blue')}
-      ${statCard('🔴','Item Wajib',_kebutuhanData.filter(r=>r.prioritas==='Wajib').length,'stat-rose')}
-      ${statCard('✅','Sudah Lunas',_kebutuhanData.filter(r=>r.status==='Lunas').length,'stat-green')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="list-checks"></i></span>','Total Item',_kebutuhanData.length,'stat-blue')}
+      ${statCard('<span class="icon icon-md text-rose"><i data-lucide="circle-x"></i></span>','Item Wajib',_kebutuhanData.filter(r=>r.prioritas==='Wajib').length,'stat-rose')}
+      ${statCard('<span class="icon icon-md text-green-500"><i data-lucide="circle-check"></i></span>','Sudah Lunas',_kebutuhanData.filter(r=>r.status==='Lunas').length,'stat-green')}
     </div>
     <div class="flex gap-2 mb-3 flex-wrap">
       ${searchBar('searchKebutuhan','Cari item, kategori...','renderKebutuhan(this.value.toLowerCase(),_kebutuhanFilter)')}
-      ${sortBtn('⚡ Prioritas'+si('prioritas'), sortKey==='prioritas', `renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'prioritas',${sortKey==='prioritas'?!asc:true})`)}
-      ${sortBtn('💰 Biaya'+si('estimasi'), sortKey==='estimasi', `renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'estimasi',${sortKey==='estimasi'?!asc:false})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="zap"></i></span>Prioritas'+si('prioritas'), sortKey==='prioritas', `renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'prioritas',${sortKey==='prioritas'?!asc:true})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="coins"></i></span>Biaya'+si('estimasi'), sortKey==='estimasi', `renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),_kebutuhanFilter,'estimasi',${sortKey==='estimasi'?!asc:false})`)}
     </div>
     <div class="flex gap-2 flex-wrap mb-3">
       ${chips.map(c=>chipFilter(c,filter===c,`renderKebutuhan(document.getElementById('searchKebutuhan').value.toLowerCase(),'${c}')`)).join('')}
@@ -1108,12 +1123,13 @@ function renderKebutuhan(query='', filter=_kebutuhanFilter, sortKey=_kebutuhanSo
             </select>`),
         td(`<span class="text-xs text-gray-400 italic">${r.catatan||'—'}</span>`,'max-w-[140px] truncate'),
         td(`<div class="flex gap-1.5">
-          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
-          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Kebutuhan',${r.rowIndex},loadKebutuhan)">🗑</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditKebutuhan(${JSON.stringify(r).replace(/"/g,'&quot;')})"><span class="icon icon-sm"><i data-lucide="pencil"></i></span></button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Kebutuhan',${r.rowIndex},loadKebutuhan)"><span class="icon icon-sm"><i data-lucide="trash-2"></i></span></button>
         </div>`,'whitespace-nowrap'),
       ].join('')),
-      '📋','Belum ada kebutuhan'
+      '<span class="icon" style="width:3rem;height:3rem"><i data-lucide="list-checks"></i></span>','Belum ada kebutuhan'
     )}`;
+  initIcons();
 }
 
 function openFormKebutuhan() {
@@ -1144,7 +1160,7 @@ async function updateStatusKebutuhan(rowIndex, status, r) {
   const idx=_kebutuhanData.findIndex(d=>d.rowIndex===rowIndex);
   if(idx!==-1){_kebutuhanData[idx].status=status; setCache('kebutuhan',_kebutuhanData);}
   clearCache('dashboard');
-  showToast('Status diperbarui ✅','success');
+  showToast('Status diperbarui', 'success');
 }
 
 // ============================================================
@@ -1160,6 +1176,7 @@ async function loadPengeluaran(force=false) {
   _pengeluaranData=res.data||[];
   setCache('pengeluaran',_pengeluaranData);
   renderPengeluaran();
+  initIcons();
 }
 
 function renderPengeluaran(query='',filter=_pengeluaranFilter,sortKey=_pengeluaranSort.key,asc=_pengeluaranSort.asc) {
@@ -1178,14 +1195,14 @@ function renderPengeluaran(query='',filter=_pengeluaranFilter,sortKey=_pengeluar
 
   el.innerHTML=`
     <div class="grid grid-cols-3 gap-3 mb-4">
-      ${statCard('💸','Total Pengeluaran',rupiah(total),'stat-rose')}
-      ${statCard('🔢','Transaksi',_pengeluaranData.length+'x','stat-blue')}
-      ${statCard('📊','Rata-rata',_pengeluaranData.length?rupiah(Math.round(total/_pengeluaranData.length)):'Rp 0','stat-amber')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="receipt"></i></span>','Total Pengeluaran',rupiah(total),'stat-rose')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="hash"></i></span>','Transaksi',_pengeluaranData.length+'x','stat-blue')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="bar-chart-2"></i></span>','Rata-rata',_pengeluaranData.length?rupiah(Math.round(total/_pengeluaranData.length)):'Rp 0','stat-amber')}
     </div>
     <div class="flex gap-2 mb-3 flex-wrap">
       ${searchBar('searchPengeluaran','Cari item, kategori...','renderPengeluaran(this.value.toLowerCase(),_pengeluaranFilter)')}
-      ${sortBtn('📅 Tgl'+si('tanggal'),sortKey==='tanggal',`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'tanggal',${sortKey==='tanggal'?!asc:false})`)}
-      ${sortBtn('💰'+si('nominal'),sortKey==='nominal',`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'nominal',${sortKey==='nominal'?!asc:false})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="calendar"></i></span>Tgl'+si('tanggal'),sortKey==='tanggal',`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'tanggal',${sortKey==='tanggal'?!asc:false})`)}
+      ${sortBtn('<span class="icon icon-sm"><i data-lucide="coins"></i></span>'+si('nominal'),sortKey==='nominal',`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),_pengeluaranFilter,'nominal',${sortKey==='nominal'?!asc:false})`)}
     </div>
     <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderPengeluaran(document.getElementById('searchPengeluaran').value.toLowerCase(),'${c}')`)).join('')}</div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_pengeluaranData.length} · Ditampilkan: <strong>${rupiah(filtTotal)}</strong></div>
@@ -1199,12 +1216,13 @@ function renderPengeluaran(query='',filter=_pengeluaranFilter,sortKey=_pengeluar
         td(badge(r.dibayar,r.dibayar==='Pihak Pria'?'pria':r.dibayar==='Pihak Wanita'?'wanita':'bersama')),
         td(`<span class="text-xs text-gray-500">${r.metode}</span>`),
         td(`<div class="flex gap-1.5">
-          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditPengeluaran(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
-          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Pengeluaran',${r.rowIndex},loadPengeluaran)">🗑</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditPengeluaran(${JSON.stringify(r).replace(/"/g,'&quot;')})"><span class="icon icon-sm"><i data-lucide="pencil"></i></span></button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Pengeluaran',${r.rowIndex},loadPengeluaran)"><span class="icon icon-sm"><i data-lucide="trash-2"></i></span></button>
         </div>`,'whitespace-nowrap'),
       ].join('')),
-      '💸','Belum ada pengeluaran'
+      '<span class="icon" style="width:3rem;height:3rem"><i data-lucide="receipt"></i></span>','Belum ada pengeluaran'
     )}`;
+  initIcons();
 }
 
 function openEditPengeluaran(r) {
@@ -1233,6 +1251,7 @@ async function loadVendor(force=false) {
   _vendorData=res.data||[];
   setCache('vendor',_vendorData);
   renderVendor();
+  initIcons();
 }
 
 function renderVendor(query='',filter=_vendorFilter,sortKey=_vendorSort.key,asc=_vendorSort.asc) {
@@ -1249,14 +1268,14 @@ function renderVendor(query='',filter=_vendorFilter,sortKey=_vendorSort.key,asc=
 
   el.innerHTML=`
     <div class="grid grid-cols-3 gap-3 mb-4">
-      ${statCard('🤝','Total Vendor',_vendorData.length,'stat-blue')}
-      ${statCard('✅','Deal',_vendorData.filter(r=>r.status==='Deal').length,'stat-green')}
-      ${statCard('🔍','Kandidat',_vendorData.filter(r=>r.status==='Kandidat').length,'stat-amber')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="store"></i></span>','Total Vendor',_vendorData.length,'stat-blue')}
+      ${statCard('<span class="icon icon-md text-green-500"><i data-lucide="circle-check"></i></span>','Deal',_vendorData.filter(r=>r.status==='Deal').length,'stat-green')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="search"></i></span>','Kandidat',_vendorData.filter(r=>r.status==='Kandidat').length,'stat-amber')}
     </div>
     <div class="flex gap-2 mb-3 flex-wrap">
       ${searchBar('searchVendor','Cari nama, kategori...','renderVendor(this.value.toLowerCase(),_vendorFilter)')}
-      ${sortBtn('🔤 Nama'+si('nama'),sortKey==='nama',`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'nama',${sortKey==='nama'?!asc:true})`)}
-      ${sortBtn('💰 Harga'+si('harga'),sortKey==='harga',`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'harga',${sortKey==='harga'?!asc:false})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="a-large-small"></i></span>Nama'+si('nama'),sortKey==='nama',`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'nama',${sortKey==='nama'?!asc:true})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="coins"></i></span>Harga'+si('harga'),sortKey==='harga',`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),_vendorFilter,'harga',${sortKey==='harga'?!asc:false})`)}
     </div>
     <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderVendor(document.getElementById('searchVendor').value.toLowerCase(),'${c}')`)).join('')}</div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_vendorData.length} vendor</div>
@@ -1276,19 +1295,20 @@ function renderVendor(query='',filter=_vendorFilter,sortKey=_vendorSort.key,asc=
         td(`<span class="text-xs text-gray-500">${r.kontak||'—'}</span>`),
         td(`<span class="text-xs text-gray-400 italic">${r.catatan||'—'}</span>`,'max-w-[120px] truncate'),
         td(`<div class="flex gap-1.5">
-          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditVendor(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
-          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Vendor',${r.rowIndex},loadVendor)">🗑</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditVendor(${JSON.stringify(r).replace(/"/g,'&quot;')})"><span class="icon icon-sm"><i data-lucide="pencil"></i></span></button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Vendor',${r.rowIndex},loadVendor)"><span class="icon icon-sm"><i data-lucide="trash-2"></i></span></button>
         </div>`,'whitespace-nowrap'),
       ].join('')),
-      '🤝','Belum ada vendor'
+      '<span class="icon" style="width:3rem;height:3rem"><i data-lucide="store"></i></span>','Belum ada vendor'
     )}`;
+  initIcons();
 }
 
 async function updateVendorStatus(rowIndex,status) {
   await callAPI('updateVendor',{rowIndex,status});
   const idx=_vendorData.findIndex(d=>d.rowIndex===rowIndex);
   if(idx!==-1){_vendorData[idx].status=status; setCache('vendor',_vendorData);}
-  showToast('Status vendor diperbarui ✅','success');
+  showToast('Status vendor diperbarui', 'success');
 }
 
 function openEditVendor(r) {
@@ -1316,6 +1336,7 @@ async function loadTamu(force=false) {
   _tamuData=res.data||[];
   setCache('tamu',_tamuData);
   renderTamu();
+  initIcons();
 }
 
 function renderTamu(query='',filter=_tamuFilter,sortKey=_tamuSort.key,asc=_tamuSort.asc) {
@@ -1336,14 +1357,14 @@ function renderTamu(query='',filter=_tamuFilter,sortKey=_tamuSort.key,asc=_tamuS
 
   el.innerHTML=`
     <div class="grid grid-cols-3 gap-3 mb-4">
-      ${statCard('📨','Diundang',totalOrang+' orang','stat-blue')}
-      ${statCard('✅','Konfirmasi Hadir',hadir+' orang','stat-green')}
-      ${statCard('💰','Est. Angpao',rupiah(estAngpao),'stat-gold')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="mail"></i></span>','Diundang',totalOrang+' orang','stat-blue')}
+      ${statCard('<span class="icon icon-md text-green-500"><i data-lucide="circle-check"></i></span>','Konfirmasi Hadir',hadir+' orang','stat-green')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="piggy-bank"></i></span>','Est. Angpao',rupiah(estAngpao),'stat-gold')}
     </div>
     <div class="flex gap-2 mb-3 flex-wrap">
       ${searchBar('searchTamu','Cari nama, hubungan...','renderTamu(this.value.toLowerCase(),_tamuFilter)')}
-      ${sortBtn('🔤 Nama'+si('nama'),sortKey==='nama',`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'nama',${sortKey==='nama'?!asc:true})`)}
-      ${sortBtn('👥 Jml'+si('jumlah'),sortKey==='jumlah',`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'jumlah',${sortKey==='jumlah'?!asc:false})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="a-large-small"></i></span>Nama'+si('nama'),sortKey==='nama',`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'nama',${sortKey==='nama'?!asc:true})`)}
+      ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="users"></i></span>Jml'+si('jumlah'),sortKey==='jumlah',`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),_tamuFilter,'jumlah',${sortKey==='jumlah'?!asc:false})`)}
     </div>
     <div class="flex gap-2 flex-wrap mb-3">${chips.map(c=>chipFilter(c,filter===c,`renderTamu(document.getElementById('searchTamu').value.toLowerCase(),'${c}')`)).join('')}</div>
     <div class="text-xs text-gray-400 mb-3">${filtered.length} dari ${_tamuData.length} tamu</div>
@@ -1361,12 +1382,13 @@ function renderTamu(query='',filter=_tamuFilter,sortKey=_tamuSort.key,asc=_tamuS
               <option ${r.konfirmasi==='Tidak Hadir'?'selected':''}>Tidak Hadir</option>
             </select>`),
         td(`<div class="flex gap-1.5">
-          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditTamu(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️</button>
-          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tamu',${r.rowIndex},loadTamu)">🗑</button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition" onclick="openEditTamu(${JSON.stringify(r).replace(/"/g,'&quot;')})"><span class="icon icon-sm"><i data-lucide="pencil"></i></span></button>
+          <button class="px-2.5 py-1 text-xs font-semibold text-rose bg-rose-pale hover:bg-rose hover:text-white rounded-lg transition" onclick="deleteItem('Tamu',${r.rowIndex},loadTamu)"><span class="icon icon-sm"><i data-lucide="trash-2"></i></span></button>
         </div>`,'whitespace-nowrap'),
       ].join('')),
-      '👥','Belum ada tamu'
+      '<span class="icon" style="width:3rem;height:3rem"><i data-lucide="users"></i></span>','Belum ada tamu'
     )}`;
+  initIcons();
 }
 
 async function updateKonfirmasiTamu(rowIndex,konfirmasi,r) {
@@ -1375,7 +1397,7 @@ async function updateKonfirmasiTamu(rowIndex,konfirmasi,r) {
   const idx=_tamuData.findIndex(d=>d.rowIndex===rowIndex);
   if(idx!==-1){_tamuData[idx].konfirmasi=konfirmasi; setCache('tamu',_tamuData);}
   clearCache('dashboard');
-  showToast('Konfirmasi diperbarui ✅','success');
+  showToast('Konfirmasi diperbarui', 'success');
 }
 
 function openEditTamu(r) {
@@ -1396,8 +1418,8 @@ async function submitTabungan() {
   const ri=document.getElementById('tbRowIndex').value;
   const data={tanggal:document.getElementById('tbTgl').value,keterangan:document.getElementById('tbKet').value,pihak:document.getElementById('tbPihak').value,nominal:document.getElementById('tbNominal').value,jenis:document.getElementById('tbJenis').value};
   if(!data.tanggal||!data.nominal) return showToast('Tanggal & nominal wajib diisi','error');
-  if(ri){await callAPI('updateTabungan',{rowIndex:parseInt(ri),data});showToast('Tabungan diperbarui ✅','success');}
-  else{await callAPI('addTabungan',{data});showToast('Tabungan ditambahkan 💰','success');}
+  if(ri){await callAPI('updateTabungan',{rowIndex:parseInt(ri),data});showToast('Tabungan diperbarui', 'success');}
+  else{await callAPI('addTabungan',{data});showToast('Tabungan ditambahkan', 'success');}
   clearCache('tabungan'); clearCache('dashboard');
   closeModal('modalTabungan'); loadTabungan(true);
 }
@@ -1406,8 +1428,8 @@ async function submitKebutuhan() {
   const ri=document.getElementById('kbRowIndex').value;
   const data={kategori:document.getElementById('kbKat').value,item:document.getElementById('kbItem').value,prioritas:document.getElementById('kbPrioritas').value,estimasi:document.getElementById('kbEstimasi').value,status:document.getElementById('kbStatus').value,catatan:document.getElementById('kbCatatan').value};
   if(!data.item) return showToast('Nama item wajib diisi','error');
-  if(ri){await callAPI('updateKebutuhan',{rowIndex:parseInt(ri),data});showToast('Kebutuhan diperbarui ✅','success');}
-  else{await callAPI('addKebutuhan',{data});showToast('Kebutuhan ditambahkan 📋','success');}
+  if(ri){await callAPI('updateKebutuhan',{rowIndex:parseInt(ri),data});showToast('Kebutuhan diperbarui', 'success');}
+  else{await callAPI('addKebutuhan',{data});showToast('Kebutuhan ditambahkan', 'success');}
   clearCache('kebutuhan'); clearCache('dashboard');
   closeModal('modalKebutuhan'); loadKebutuhan(true);
 }
@@ -1416,8 +1438,8 @@ async function submitPengeluaran() {
   const ri=document.getElementById('peRowIndex').value;
   const data={tanggal:document.getElementById('peTgl').value,item:document.getElementById('peItem').value,kategori:document.getElementById('peKat').value,nominal:document.getElementById('peNominal').value,dibayar:document.getElementById('peDibayar').value,metode:document.getElementById('peMetode').value};
   if(!data.tanggal||!data.item||!data.nominal) return showToast('Lengkapi data dulu','error');
-  if(ri){await callAPI('updatePengeluaran',{rowIndex:parseInt(ri),data});showToast('Pengeluaran diperbarui ✅','success');}
-  else{await callAPI('addPengeluaran',{data});showToast('Pengeluaran dicatat 💸','success');}
+  if(ri){await callAPI('updatePengeluaran',{rowIndex:parseInt(ri),data});showToast('Pengeluaran diperbarui', 'success');}
+  else{await callAPI('addPengeluaran',{data});showToast('Pengeluaran dicatat', 'success');}
   clearCache('pengeluaran'); clearCache('dashboard');
   closeModal('modalPengeluaran'); loadPengeluaran(true);
 }
@@ -1426,8 +1448,8 @@ async function submitVendor() {
   const ri=document.getElementById('vnRowIndex').value;
   const data={nama:document.getElementById('vnNama').value,kategori:document.getElementById('vnKat').value,harga:document.getElementById('vnHarga').value,status:document.getElementById('vnStatus').value,kontak:document.getElementById('vnKontak').value,catatan:document.getElementById('vnCatatan').value};
   if(!data.nama) return showToast('Nama vendor wajib diisi','error');
-  if(ri){await callAPI('updateVendorRow',{rowIndex:parseInt(ri),data});showToast('Vendor diperbarui ✅','success');}
-  else{await callAPI('addVendor',{data});showToast('Vendor ditambahkan 🤝','success');}
+  if(ri){await callAPI('updateVendorRow',{rowIndex:parseInt(ri),data});showToast('Vendor diperbarui', 'success');}
+  else{await callAPI('addVendor',{data});showToast('Vendor ditambahkan', 'success');}
   clearCache('vendor');
   closeModal('modalVendor'); loadVendor(true);
 }
@@ -1436,8 +1458,8 @@ async function submitTamu() {
   const ri=document.getElementById('tmRowIndex').value;
   const data={nama:document.getElementById('tmNama').value,hubungan:document.getElementById('tmHubungan').value,pihak:document.getElementById('tmPihak').value,jumlah:document.getElementById('tmJumlah').value,konfirmasi:document.getElementById('tmKonfirmasi').value};
   if(!data.nama) return showToast('Nama tamu wajib diisi','error');
-  if(ri){await callAPI('updateTamu',{rowIndex:parseInt(ri),data});showToast('Tamu diperbarui ✅','success');}
-  else{await callAPI('addTamu',{data});showToast('Tamu ditambahkan 👥','success');}
+  if(ri){await callAPI('updateTamu',{rowIndex:parseInt(ri),data});showToast('Tamu diperbarui', 'success');}
+  else{await callAPI('addTamu',{data});showToast('Tamu ditambahkan', 'success');}
   clearCache('tamu'); clearCache('dashboard');
   closeModal('modalTamu'); loadTamu(true);
 }
@@ -1446,7 +1468,7 @@ async function deleteItem(type,rowIndex,reloadFn) {
   if(!confirm('Hapus data ini?')) return;
   await callAPI(`delete${type}`,{rowIndex});
   clearCache(type.toLowerCase()); clearCache('dashboard');
-  showToast('Data dihapus','success');
+  showToast('Data dihapus', 'success');
   reloadFn(true);
 }
 
@@ -1459,7 +1481,7 @@ async function saveConfig() {
   appConfig={...appConfig,...data};
   applyConfig();
   clearCache('dashboard');
-  showToast('Pengaturan disimpan ⚙️','success');
+  showToast('Pengaturan disimpan', 'success');
 }
 
 async function savePassword() {
@@ -1467,13 +1489,13 @@ async function savePassword() {
   const konfirm=document.getElementById('cfgPassKonfirm').value.trim();
   if(!baru) return showToast('Password baru tidak boleh kosong','error');
   if(baru.length<4) return showToast('Password minimal 4 karakter','error');
-  if(baru!==konfirm) return showToast('Konfirmasi password tidak cocok ❌','error');
+  if(baru!==konfirm) return showToast('Konfirmasi password tidak cocok', 'error');
   const data={...appConfig,password:baru};
   await callAPI('saveConfig',{data});
   appConfig=data;
   document.getElementById('cfgPassBaru').value='';
   document.getElementById('cfgPassKonfirm').value='';
-  showToast('Password berhasil diubah 🔑','success');
+  showToast('Password berhasil diubah', 'success');
 }
 
 async function finishSetup() {
@@ -1487,8 +1509,8 @@ async function finishSetup() {
   document.getElementById('setupScreen').style.display='none';
   applyConfig();
   loadPage('dashboard');
-  showToast(`Bismillah 💍 Selamat merencanakan, ${pria} & ${wanita}!`,'success');
-  setTimeout(()=>showToast('⚠️ Segera ganti password default di Pengaturan!',''),'4000');
+  showToast(`Bismillah, selamat merencanakan ${pria} & ${wanita}!`, 'success');
+  setTimeout(()=>showToast('Segera ganti password default di Pengaturan!',''),'4000');
 }
 
 // ============================================================
@@ -1532,7 +1554,7 @@ function showToast(msg, type='') {
   const container=document.getElementById('toastContainer');
   const toast=document.createElement('div');
   const color=type==='success'?'bg-green-600':type==='error'?'bg-rose':'bg-gray-800';
-  const icon=type==='success'?'✅':type==='error'?'❌':'ℹ️';
+  const icon=type==='success'?'<span class="icon icon-sm"><i data-lucide="circle-check"></i></span>':type==='error'?'<span class="icon icon-sm"><i data-lucide="circle-x"></i></span>':'<span class="icon icon-sm"><i data-lucide="info"></i></span>';
   toast.className=`toast pointer-events-auto ${color} text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 max-w-xs`;
   toast.innerHTML=`${icon} ${msg}`;
   container.appendChild(toast);
@@ -1551,6 +1573,17 @@ function today() { return new Date().toISOString().slice(0,10); }
 
 // Initial topbar action hidden
 document.getElementById('topbarAction').classList.add('hidden');
+
+// Init Lucide icons setelah DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+
+// Helper: re-init icons setelah render dinamis
+function initIcons() {
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 </script>
 </body>
 </html>
