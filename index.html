@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wedding Budget Planner v7</title>
+<title>💍 Wedding Budget Planner v6</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -108,7 +108,7 @@ tailwind.config = {
       <span class="nav-icon icon w-6"><i data-lucide="layout-dashboard"></i></span> Dashboard
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('tabungan')">
-      <span class="nav-icon icon w-6"><i data-lucide="wallet"></i></span> Tabungan
+      <span class="nav-icon icon w-6"><i data-lucide="piggy-bank"></i></span> Tabungan
     </div>
     <div class="nav-item flex items-center gap-3 px-5 py-3 cursor-pointer text-white/75 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors" onclick="goTo('kebutuhan')">
       <span class="nav-icon icon w-6"><i data-lucide="list-checks"></i></span> Kebutuhan
@@ -250,6 +250,11 @@ tailwind.config = {
               <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Estimasi Angpao per Tamu (Rp)</label>
               <input id="cfgAngpao" type="number" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="150000" />
             </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Target Total Dana Nikah (Rp)</label>
+              <input id="cfgTarget" type="number" class="w-full px-3.5 py-2.5 border border-cream-dark rounded-xl text-sm focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/10 transition" placeholder="Kosongkan = pakai estimasi kebutuhan" />
+              <p class="text-xs text-gray-300 mt-1">Kosongkan untuk otomatis pakai total estimasi kebutuhan</p>
+            </div>
           </div>
           <button onclick="saveConfig()" class="mt-5 w-full bg-rose hover:bg-rose-light text-white font-semibold py-2.5 rounded-xl text-sm transition-all hover:shadow-md"><span class="icon icon-sm mr-1"><i data-lucide="save"></i></span> Simpan Pengaturan</button>
         </div>
@@ -284,7 +289,7 @@ tailwind.config = {
 <div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none" id="modalTabungan">
   <div class="modal-box bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="font-serif text-rose text-xl font-bold"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="wallet"></i></span> <span id="modalTabunganTitle">Tambah Tabungan</span></h3>
+      <h3 class="font-serif text-rose text-xl font-bold"><span class="icon icon-sm mr-1 text-rose"><i data-lucide="piggy-bank"></i></span> <span id="modalTabunganTitle">Tambah Tabungan</span></h3>
       <button onclick="closeModal('modalTabungan')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-1">×</button>
     </div>
     <input type="hidden" id="tbRowIndex" />
@@ -680,13 +685,14 @@ function applyConfig() {
   const wanita = appConfig.wanita || '—';
   const el = document.getElementById('sidebarNames');
   if (el) el.textContent = `${pria} & ${wanita}`;
-  ['cfgPria','cfgWanita','cfgTanggal','cfgAngpao'].forEach(id => {
+  ['cfgPria','cfgWanita','cfgTanggal','cfgAngpao','cfgTarget'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     if (id === 'cfgPria') el.value = appConfig.pria || '';
     else if (id === 'cfgWanita') el.value = appConfig.wanita || '';
     else if (id === 'cfgTanggal') el.value = appConfig.tanggal || '';
     else if (id === 'cfgAngpao') el.value = appConfig.angpao || 150000;
+    else if (id === 'cfgTarget') el.value = appConfig.target || '';
   });
 }
 
@@ -884,18 +890,57 @@ function _renderDashboard(d) {
     const tgl = new Date(appConfig.tanggal);
     const today = new Date(); today.setHours(0,0,0,0);
     diff = Math.ceil((tgl - today) / 86400000);
-    cdDays = diff > 0 ? diff : (diff === 0 ? '🎉' : Math.abs(diff));
+    cdDays = diff > 0 ? diff : (diff === 0 ? '!' : Math.abs(diff));
     cdLabel = diff > 0 ? 'hari lagi' : diff === 0 ? 'Hari ini!' : 'hari yang lalu';
     cdDate = tgl.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   }
 
+  // ---- Kalkulasi Target Tabungan Per Bulan ----
+  const targetDana = Number(appConfig.target) || d.totalEstimasi || 0;
+  const sisaDana = d.sisaDana || 0;
+  const kekuranganDana = Math.max(0, targetDana - d.totalTabungan);
+
+  let targetBulanan = 0, sisaBulan = 0, onTrack = null, targetMsg = '';
+
+  if (appConfig.tanggal && targetDana > 0) {
+    const tgl = new Date(appConfig.tanggal);
+    const now = new Date();
+    // Hitung sisa bulan (pembulatan ke atas)
+    sisaBulan = Math.max(1, Math.ceil(
+      (tgl.getFullYear() - now.getFullYear()) * 12 +
+      (tgl.getMonth() - now.getMonth()) +
+      (tgl.getDate() > now.getDate() ? 0 : 0)
+    ));
+    targetBulanan = Math.ceil(kekuranganDana / sisaBulan);
+
+    // Hitung rata-rata tabungan aktual per bulan dari data tabungan
+    const rataAktual = d.rataTabunganBulanan || 0;
+    if (rataAktual > 0) {
+      onTrack = rataAktual >= targetBulanan;
+    }
+
+    if (kekuranganDana <= 0) {
+      targetMsg = 'Target tercapai!';
+    } else {
+      targetMsg = `${sisaBulan} bulan lagi`;
+    }
+  } else if (!appConfig.tanggal) {
+    targetMsg = 'Atur tanggal nikah dulu';
+  } else if (targetDana <= 0) {
+    targetMsg = 'Atur target dana di Pengaturan';
+  }
+
   const progressPct = d.progress || 0;
   const progressColor = progressPct >= 100 ? 'bg-green-500' : progressPct >= 75 ? 'bg-emerald-500' : progressPct >= 50 ? 'bg-amber-500' : 'bg-rose';
+  const targetProgressPct = targetDana > 0 ? Math.min(100, Math.round((d.totalTabungan / targetDana) * 100)) : 0;
+  const targetProgressColor = targetProgressPct >= 100 ? 'bg-green-500' : targetProgressPct >= 75 ? 'bg-emerald-500' : targetProgressPct >= 50 ? 'bg-amber-500' : 'bg-rose';
 
   el.innerHTML = `
     <!-- Countdown -->
     <div class="relative bg-gradient-to-br from-rose to-marun rounded-3xl p-7 mb-5 overflow-hidden text-white">
-      <div class="absolute right-4 bottom-0 text-[80px] opacity-10 select-none">💍</div>
+      <div class="absolute right-5 bottom-2 opacity-10 select-none">
+        <span class="icon" style="width:80px;height:80px"><i data-lucide="heart" style="width:80px;height:80px"></i></span>
+      </div>
       <div class="font-serif text-base opacity-80 mb-1">${pria} & ${wanita}</div>
       <div class="font-serif text-6xl font-bold leading-none">${cdDays}</div>
       <div class="text-sm opacity-70 mt-1 uppercase tracking-wider">${cdLabel}</div>
@@ -904,7 +949,7 @@ function _renderDashboard(d) {
 
     <!-- Stats row 1 -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-      ${statCard('<span class="icon icon-md"><i data-lucide="wallet"></i></span>','Total Tabungan', rupiah(d.totalTabungan), 'stat-green')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="piggy-bank"></i></span>','Total Tabungan', rupiah(d.totalTabungan), 'stat-green')}
       ${statCard('<span class="icon icon-md"><i data-lucide="receipt"></i></span>','Total Pengeluaran', rupiah(d.totalPengeluaran), 'stat-rose')}
       ${statCard('<span class="icon icon-md"><i data-lucide="list-checks"></i></span>','Estimasi Kebutuhan', rupiah(d.totalEstimasi), 'stat-blue')}
     </div>
@@ -923,7 +968,53 @@ function _renderDashboard(d) {
       </div>
     </div>
 
-    <!-- Progress -->
+    <!-- TARGET TABUNGAN PER BULAN -->
+    <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 mb-3">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <div class="font-semibold text-sm text-gray-700">
+            <span class="icon icon-sm mr-1"><i data-lucide="calendar-check"></i></span> Target Tabungan per Bulan
+          </div>
+          <div class="text-xs text-gray-400 mt-0.5">${targetMsg}</div>
+        </div>
+        ${onTrack !== null ? `
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${onTrack ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}">
+            <span class="icon icon-sm"><i data-lucide="${onTrack ? 'trending-up' : 'trending-down'}"></i></span>
+            ${onTrack ? 'On track' : 'Perlu ditingkatkan'}
+          </span>` : ''}
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div class="text-center p-3 bg-cream rounded-xl">
+          <div class="text-xs text-gray-400 mb-1">Harus nabung/bulan</div>
+          <div class="font-serif font-bold text-rose text-base">${targetBulanan > 0 ? rupiah(targetBulanan) : '—'}</div>
+        </div>
+        <div class="text-center p-3 bg-cream rounded-xl">
+          <div class="text-xs text-gray-400 mb-1">Sisa kekurangan</div>
+          <div class="font-serif font-bold text-amber-600 text-base">${rupiah(kekuranganDana)}</div>
+        </div>
+        <div class="text-center p-3 bg-cream rounded-xl">
+          <div class="text-xs text-gray-400 mb-1">Sisa waktu</div>
+          <div class="font-serif font-bold text-blue-600 text-base">${sisaBulan > 0 ? sisaBulan + ' bln' : '—'}</div>
+        </div>
+      </div>
+
+      <div class="mb-1">
+        <div class="flex justify-between text-xs text-gray-400 mb-1.5">
+          <span>Progress ke target dana</span>
+          <span class="font-semibold text-gray-600">${targetProgressPct}%</span>
+        </div>
+        <div class="h-2.5 bg-cream-dark rounded-full overflow-hidden">
+          <div class="progress-fill h-full rounded-full ${targetProgressColor}" style="width:${targetProgressPct}%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-300 mt-1">
+          <span>${rupiah(d.totalTabungan)}</span>
+          <span>Target: ${rupiah(targetDana)}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress estimasi kebutuhan -->
     <div class="bg-white rounded-2xl border border-cream-dark shadow-sm p-5 mb-3">
       <div class="flex justify-between items-center mb-3">
         <div class="font-semibold text-sm text-gray-700"><span class="icon icon-sm mr-1"><i data-lucide="trending-up"></i></span> Progress Kesiapan Dana</div>
@@ -977,6 +1068,9 @@ function _renderDashboard(d) {
   initIcons();
 }
 
+  initIcons();
+}
+
 // ============================================================
 // TABUNGAN
 // ============================================================
@@ -1010,14 +1104,49 @@ function renderTabungan(query='', sortKey=_tabunganSort.key, asc=_tabunganSort.a
     if (sortKey==='nominal'){va=Number(va);vb=Number(vb);}
     if (va<vb) return asc?-1:1; if (va>vb) return asc?1:-1; return 0;
   });
+  // Kalkulasi target bulanan
+  const targetDana = Number(appConfig.target) || 0;
+  let targetBulanan = 0, sisaBulan = 0;
+  if (appConfig.tanggal && (targetDana > 0)) {
+    const tgl = new Date(appConfig.tanggal);
+    const now = new Date();
+    sisaBulan = Math.max(1, Math.ceil(
+      (tgl.getFullYear() - now.getFullYear()) * 12 + (tgl.getMonth() - now.getMonth())
+    ));
+    const kekurangan = Math.max(0, targetDana - total);
+    targetBulanan = Math.ceil(kekurangan / sisaBulan);
+  }
+
   const si = k => sortKey===k?(asc?' ↑':' ↓'):'';
 
   el.innerHTML = `
     <div class="grid grid-cols-3 gap-3 mb-4">
-      ${statCard('<span class="icon icon-md"><i data-lucide="wallet"></i></span>','Total Terkumpul',rupiah(total),'stat-green')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="piggy-bank"></i></span>','Total Terkumpul',rupiah(total),'stat-green')}
       ${statCard('<span class="icon icon-md"><i data-lucide="hash"></i></span>','Transaksi',_tabunganData.length+'x','stat-blue')}
       ${statCard('<span class="icon icon-md"><i data-lucide="bar-chart-2"></i></span>','Rata-rata',_tabunganData.length?rupiah(Math.round(total/_tabunganData.length)):'Rp 0','stat-rose')}
     </div>
+
+    ${targetBulanan > 0 ? `
+    <div class="bg-gradient-to-r from-rose/5 to-amber-50 border border-rose/20 rounded-2xl p-4 mb-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-rose/10 rounded-xl flex items-center justify-center flex-shrink-0">
+          <span class="icon icon-md text-rose"><i data-lucide="calendar-check"></i></span>
+        </div>
+        <div>
+          <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Harus nabung per bulan</div>
+          <div class="font-serif font-bold text-rose text-xl">${rupiah(targetBulanan)}</div>
+        </div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-xs text-gray-400">Sisa waktu</div>
+        <div class="font-bold text-gray-600 text-sm">${sisaBulan} bulan</div>
+        <div class="text-xs text-gray-400 mt-0.5">Target: ${rupiah(targetDana)}</div>
+      </div>
+    </div>` : `
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 mb-4 text-xs text-amber-600 flex items-center gap-2">
+      <span class="icon icon-sm"><i data-lucide="info"></i></span>
+      Atur target dana & tanggal nikah di halaman Pengaturan untuk melihat target tabungan per bulan.
+    </div>`}
     <div class="flex gap-2 mb-3 flex-wrap">
       ${searchBar('searchTabungan','Cari keterangan, pihak...','renderTabungan(this.value.toLowerCase())')}
       ${sortBtn('<span class="icon icon-sm mr-1"><i data-lucide="calendar"></i></span>Tgl'+si('tanggal'), sortKey==='tanggal', `renderTabungan(document.getElementById('searchTabungan').value.toLowerCase(),'tanggal',${sortKey==='tanggal'?!asc:false})`)}
@@ -1359,7 +1488,7 @@ function renderTamu(query='',filter=_tamuFilter,sortKey=_tamuSort.key,asc=_tamuS
     <div class="grid grid-cols-3 gap-3 mb-4">
       ${statCard('<span class="icon icon-md"><i data-lucide="mail"></i></span>','Diundang',totalOrang+' orang','stat-blue')}
       ${statCard('<span class="icon icon-md text-green-500"><i data-lucide="circle-check"></i></span>','Konfirmasi Hadir',hadir+' orang','stat-green')}
-      ${statCard('<span class="icon icon-md"><i data-lucide="wallet"></i></span>','Est. Angpao',rupiah(estAngpao),'stat-gold')}
+      ${statCard('<span class="icon icon-md"><i data-lucide="piggy-bank"></i></span>','Est. Angpao',rupiah(estAngpao),'stat-gold')}
     </div>
     <div class="flex gap-2 mb-3 flex-wrap">
       ${searchBar('searchTamu','Cari nama, hubungan...','renderTamu(this.value.toLowerCase(),_tamuFilter)')}
@@ -1476,7 +1605,14 @@ async function deleteItem(type,rowIndex,reloadFn) {
 // CONFIG & SETUP
 // ============================================================
 async function saveConfig() {
-  const data={pria:document.getElementById('cfgPria').value,wanita:document.getElementById('cfgWanita').value,tanggal:document.getElementById('cfgTanggal').value,angpao:document.getElementById('cfgAngpao').value||150000,password:appConfig.password||'nikah123'};
+  const data={
+    pria: document.getElementById('cfgPria').value,
+    wanita: document.getElementById('cfgWanita').value,
+    tanggal: document.getElementById('cfgTanggal').value,
+    angpao: document.getElementById('cfgAngpao').value||150000,
+    target: document.getElementById('cfgTarget').value||'',
+    password: appConfig.password||'nikah123'
+  };
   await callAPI('saveConfig',{data});
   appConfig={...appConfig,...data};
   applyConfig();
